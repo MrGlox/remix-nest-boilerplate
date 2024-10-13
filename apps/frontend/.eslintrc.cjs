@@ -5,13 +5,13 @@ module.exports = {
     "@repo/eslint-config/base.js",
     "@remix-run/eslint-config",
     "@remix-run/eslint-config/node",
-    // 'plugin:tailwindcss/recommended',
+    "plugin:tailwindcss/recommended",
     "plugin:remix-react-routes/recommended",
   ],
   settings: {
-    // tailwindcss: {
-    // 	config: 'tailwind.config.ts',
-    // },
+    tailwindcss: {
+      config: "tailwind.config.ts",
+    },
     "import/resolver": {
       node: {
         extensions: [".js", ".jsx", ".ts", ".tsx"],

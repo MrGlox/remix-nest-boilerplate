@@ -5,6 +5,10 @@ import { installGlobals } from "@remix-run/node";
 
 import { flatRoutes } from "remix-flat-routes";
 import { defineConfig } from "vite";
+import {
+  envOnlyMacros,
+  // denyImports
+} from "vite-env-only";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 const MODE = process.env.NODE_ENV;
@@ -22,6 +26,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    envOnlyMacros(),
     // cjsInterop({
     // 	dependencies: ['remix-utils', 'is-ip', '@markdoc/markdoc'],
     // }),

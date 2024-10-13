@@ -5,7 +5,7 @@
     "**/*.ts",
     "**/*.tsx",
     "../playwright.config.ts",
-    "tailwind.config.cjs"
+    "tailwind.config.ts"
   ],
   "exclude": ["index.d.cts"],
   "compilerOptions": {

@@ -16,23 +16,19 @@ import {
 } from "@remix-run/react";
 
 import { getOptionalUser } from "./server/auth.server";
-import fontStylesheet from "./styles/fonts.css?url";
-import tailwindStylesheetUrl from "./styles/globals.css?url";
+import fontStylesheetUrl from "./styles/fonts.css?url";
+import globalsStylesheetUrl from "./styles/globals.css?url";
 
-export const links: LinksFunction = () => {
-  return [
-    { rel: "stylesheet", href: fontStylesheet },
-    { rel: "stylesheet", href: tailwindStylesheetUrl },
-  ];
-};
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: fontStylesheetUrl },
+  { rel: "stylesheet", href: globalsStylesheetUrl },
+];
 
-export const meta: MetaFunction = () => {
-  return [
-    { charset: "utf-8" },
-    { title: "Remix watch-over Stack" },
-    { viewport: "width=device-width,initial-scale=1" },
-  ];
-};
+export const meta: MetaFunction = () => [
+  { charset: "utf-8" },
+  { title: "Remix watch-over Stack" },
+  { viewport: "width=device-width,initial-scale=1" },
+];
 
 export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   const user = await getOptionalUser({ context });
@@ -66,12 +62,10 @@ declare module "@remix-run/node" {
   }
 }
 
-export function Layout() {
+export default function Root() {
   return (
     <html lang="en" className="h-full">
       <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
       </head>
