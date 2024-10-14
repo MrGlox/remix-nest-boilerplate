@@ -74,10 +74,28 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
 
   .animate-bounce-rotated {
     animation: bounce 1s infinite;
   }
+
+  /* a {
+    @apply hover:underline hover:text-primary transition-colors;
+  }
+
+  a.variant {
+    @apply underline hover:text-primary transition-colors;
+  } */
 }
 
 @keyframes bounce {

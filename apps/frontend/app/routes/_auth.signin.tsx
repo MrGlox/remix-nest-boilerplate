@@ -35,20 +35,20 @@ export default function SigninPage() {
   return (
     <>
       {/* <Head>
-        <title>{t("signup.title")}</title>
+        <title>{t("signin.title")}</title>
         <meta
           head-key="description"
           name="description"
-          content={t("signup.description")}
+          content={t("signin.description")}
         />
       </Head> */}
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:max-w-[350px]">
         <div className="flex flex-col space-y-2 text-center">
           <h1 className="text-2xl font-semibold tracking-tight">
-            {t("signup.title")}
+            {t("signin.title")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {t("signup.description")}
+            {t("signin.description")}
           </p>
         </div>
         <div className={cn("grid gap-6")}>
@@ -129,7 +129,7 @@ export default function SigninPage() {
               </div>
               <Button disabled={false} className="mt-3">
                 {/* {processing ? <Loader /> :  */}
-                {t("signup")}
+                {t("signin")}
               </Button>
             </div>
           </form>
