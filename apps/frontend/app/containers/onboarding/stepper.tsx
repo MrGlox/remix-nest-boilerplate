@@ -1,8 +1,13 @@
 import { ComponentType } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Step, type StepItem, Stepper, useStepper } from "~/components/stepper";
-import { Button } from "~/components/button";
+import {
+  Step,
+  type StepItem,
+  Stepper,
+  useStepper,
+} from "~/components/ui/stepper";
+import { Button } from "~/components/ui/button";
 
 import { FirstStep } from "./steps/first";
 import { SecondStep } from "./steps/second";

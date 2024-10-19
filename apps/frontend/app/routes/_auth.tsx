@@ -1,9 +1,9 @@
+import { Link, Outlet, useLocation } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 
-import { Link, Outlet } from "@remix-run/react";
-
 import { Brand } from "~/assets";
-import { buttonVariants } from "~/components/button";
+import { buttonVariants } from "~/components/ui/button";
+import { LanguageSwitcher } from "~/containers/language-switcher";
 import { cn } from "~/lib/utils";
 
 export const loader = () => {
@@ -12,6 +12,7 @@ export const loader = () => {
 
 export default function AuthLayout() {
   const { t } = useTranslation("auth");
+  const { pathname } = useLocation();
 
   return (
     <>
@@ -26,19 +27,30 @@ export default function AuthLayout() {
       </aside>
       <section className="container relative hidden min-h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
         <div className="flex gap-4 absolute right-4 top-4 md:right-8 md:top-8">
-          <Link to={""} className={cn(buttonVariants({ variant: "ghost" }))}>
-            {t("signup.title")}
-          </Link>
-          <Link to={""} className={cn(buttonVariants({ variant: "ghost" }))}>
-            {t("login.title")}
-          </Link>
+          {pathname === "/signin" && (
+            <Link
+              to="/signup"
+              className={cn(buttonVariants({ variant: "ghost" }))}
+            >
+              {t("signup.title")}
+            </Link>
+          )}
+          {pathname === "/signup" && (
+            <Link
+              to="/signin"
+              className={cn(buttonVariants({ variant: "ghost" }))}
+            >
+              {t("signin.title")}
+            </Link>
+          )}
+          <LanguageSwitcher />
         </div>
         <aside className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
           <div className="absolute inset-0 bg-zinc-900" />
           <nav className="relative z-20">
             <Link to="/" className="flex items-center text-lg font-medium">
               <Brand className="w-10 h-10 min-w-10 mr-2" />
-              WatchOver Comments
+              Boilerplate
             </Link>
           </nav>
           <footer className="relative z-20 mt-auto">

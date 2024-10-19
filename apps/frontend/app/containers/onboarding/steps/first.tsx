@@ -1,10 +1,10 @@
 import { useTranslation } from "react-i18next";
 
-import { useStepper } from "~/components/stepper";
-import { Loader } from "~/components/loader";
+import { useStepper } from "~/components/ui/stepper";
+import { Loader } from "~/components/ui/loader";
 import GoogleIcon from "#resources/assets/logo/google.svg";
 
-import { buttonVariants } from "~/components/button";
+import { buttonVariants } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 
 export function FirstStep({ ...stepProps }) {

@@ -5,7 +5,7 @@ module.exports = {
     "@repo/eslint-config/base.js",
     "@remix-run/eslint-config",
     "@remix-run/eslint-config/node",
-    "plugin:tailwindcss/recommended",
+    // "plugin:tailwindcss/recommended",
     "plugin:remix-react-routes/recommended",
   ],
   settings: {

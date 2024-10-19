@@ -7,7 +7,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "~/components/select";
+} from "~/components/ui/select";
 import { browseByKeyString, cn } from "~/lib/utils";
 
 type Option = {

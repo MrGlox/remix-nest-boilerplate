@@ -1,8 +1,6 @@
-import { type RemixService } from "../../backend";
-
 import {
+  type MetaFunction,
   json,
-  MetaFunction,
   type LinksFunction,
   type LoaderFunctionArgs,
 } from "@remix-run/node";
@@ -18,12 +16,14 @@ import {
 
 import { useTranslation } from "react-i18next";
 import { useChangeLanguage } from "remix-i18next/react";
+import { z } from "zod";
+import { type RemixService } from "../../backend";
 
-import i18next from "~/modules/i18n.server";
+import { customErrorMap } from "~/config/zod";
+import i18next, { i18nCookie } from "~/modules/i18n.server";
+import { getOptionalUser } from "~/server/auth.server";
 import fontStylesheetUrl from "~/styles/fonts.css?url";
 import globalsStylesheetUrl from "~/styles/globals.css?url";
-
-import { getOptionalUser } from "~/server/auth.server";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: fontStylesheetUrl },
@@ -48,9 +48,10 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   const locale = await i18next.getLocale(request);
   const user = await getOptionalUser({ context });
 
-  return json({
-    locale,
-    user,
+  return json({ locale, user } as const, {
+    headers: {
+      "set-cookie": await i18nCookie.serialize(locale),
+    },
   });
 };
 
@@ -89,9 +90,10 @@ export default function Root() {
   // language, this locale will change and i18next will load the correct
   // translation files
   useChangeLanguage(locale);
+  z.setErrorMap(customErrorMap);
 
   return (
-    <html lang={locale} dir={i18n.dir()} className="h-full">
+    <html lang={i18n.language} dir={i18n.dir()} className="h-full">
       <head>
         <Meta />
         <Links />

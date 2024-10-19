@@ -1,7 +1,7 @@
 {
-  "website": "WatchOver Comments",
+  "website": "Boilerplate",
   "title": "Homepage | {{ website }}",
-  "description": "WatchOver Comments is a simple and easy to use comment system for your Youtube channel.",
+  "description": "Boilerplate is a simple and easy to use comment system for your Youtube channel.",
   "navigate": "Navigate",
   "login": "Log in",
   "logout": "Logout",

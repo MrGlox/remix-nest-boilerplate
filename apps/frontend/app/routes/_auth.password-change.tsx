@@ -1,27 +1,25 @@
-import { useTranslation } from "react-i18next";
-import { useForm } from "react-hook-form";
 import { Link } from "@remix-run/react";
+import { useTranslation } from "react-i18next";
 // import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
-import { Label } from "~/components/label";
-import { Button, buttonVariants } from "~/components/button";
-// import { Loader } from "~/components/loader";
-
-import { Input } from "~/containers/fields/input";
-
 import { Google } from "~/assets/logos";
+import { Badge } from "~/components/ui/badge";
+import { Button, buttonVariants } from "~/components/ui/button";
+import { Label } from "~/components/ui/label";
+// import { Loader } from "~/components/ui/loader";
+
+import { Field } from "~/containers/forms";
 import { cn } from "~/lib/utils";
-// import { Alert, AlertDescription } from "~/components/alert";
-import { Badge } from "~/components/badge";
+// import { Alert, AlertDescription } from "~/components/ui/alert";
 
 export default function SignupPage() {
   const { t } = useTranslation("auth");
 
-  const { register } = useForm({
-    email: "",
-    password: "",
-    remember: false,
-  });
+  // const { register } = useForm({
+  //   email: "",
+  //   password: "",
+  //   remember: false,
+  // });
 
   function handleSubmit(ev: FormEvent) {}
 

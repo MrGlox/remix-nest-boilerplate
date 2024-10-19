@@ -1,18 +1,17 @@
 import { useTranslation } from "react-i18next";
-import { useForm } from "react-hook-form";
 import { Link } from "@remix-run/react";
 // import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
-import { Label } from "~/components/label";
-import { Button, buttonVariants } from "~/components/button";
-// import { Loader } from "~/components/loader";
+import { Label } from "~/components/ui/label";
+import { Button, buttonVariants } from "~/components/ui/button";
+// import { Loader } from "~/components/ui/loader";
 
-import { Input } from "~/containers/fields/input";
+import { Field } from "~/containers/forms";
 
 import { Google } from "~/assets/logos";
 import { cn } from "~/lib/utils";
-// import { Alert, AlertDescription } from "~/components/alert";
-import { Badge } from "~/components/badge";
+// import { Alert, AlertDescription } from "~/components/ui/alert";
+import { Badge } from "~/components/ui/badge";
 
 export default function SignupPage() {
   const { t } = useTranslation("auth");
