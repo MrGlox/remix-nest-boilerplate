@@ -12,7 +12,7 @@ import {
   createReadableStreamFromReadable,
 } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
-import { type i18n as i18next, createInstance } from "i18next";
+import { createInstance, type i18n as i18next } from "i18next";
 import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import { I18nextProvider, initReactI18next } from "react-i18next";
@@ -68,6 +68,7 @@ async function handleBotRequest(
 ) {
   return new Promise((resolve, reject) => {
     let shellRendered = false;
+
     const { pipe, abort } = renderToPipeableStream(
       <I18nextProvider i18n={i18next}>
         <RemixServer
@@ -98,6 +99,7 @@ async function handleBotRequest(
         },
         onError(error: unknown) {
           responseStatusCode = 500;
+
           // Log streaming rendering errors from inside the shell.  Don't log
           // errors encountered during initial shell rendering since they'll
           // reject and get logged in handleDocumentRequest.
