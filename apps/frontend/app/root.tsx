@@ -17,6 +17,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useChangeLanguage } from "remix-i18next/react";
 import { z } from "zod";
+
 import { type RemixService } from "../../backend";
 
 import { customErrorMap } from "~/config/zod";
@@ -57,10 +58,12 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
 
 export const useOptionalUser = () => {
   const data = useRouteLoaderData<typeof loader>("root");
+
   if (!data) {
     return null;
     // throw new Error('Root Loader did not return anything')
   }
+
   return data.user;
 };
 
