@@ -1,8 +1,7 @@
 import {
-  type MetaFunction,
-  json,
   type LinksFunction,
   type LoaderFunctionArgs,
+  json,
 } from "@remix-run/node";
 import {
   Links,
@@ -31,12 +30,6 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: globalsStylesheetUrl },
 ];
 
-export const meta: MetaFunction = () => [
-  { charset: "utf-8" },
-  { title: "Remix watch-over Stack" },
-  { viewport: "width=device-width,initial-scale=1" },
-];
-
 export const handle = {
   // In the handle export, we can add a i18n key with namespaces our route
   // will need to load. This key can be a single string or an array of strings.
@@ -46,15 +39,27 @@ export const handle = {
 };
 
 export const loader = async ({ request, context }: LoaderFunctionArgs) => {
+  const t = await i18next.getFixedT(request, "common");
   const locale = await i18next.getLocale(request);
   const user = await getOptionalUser({ context });
 
-  return json({ locale, user } as const, {
-    headers: {
-      "set-cookie": await i18nCookie.serialize(locale),
+  return json(
+    {
+      locale,
+      user,
+      // Translated meta tags
+      title: t("title"),
+      description: t("description"),
+    } as const,
+    {
+      headers: {
+        "set-cookie": await i18nCookie.serialize(locale),
+      },
     },
-  });
+  );
 };
+
+export { meta } from "~/config/meta";
 
 export const useOptionalUser = () => {
   const data = useRouteLoaderData<typeof loader>("root");
@@ -98,6 +103,8 @@ export default function Root() {
   return (
     <html lang={i18n.language} dir={i18n.dir()} className="h-full">
       <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
       </head>

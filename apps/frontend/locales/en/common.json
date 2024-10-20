@@ -1,7 +1,7 @@
 {
   "website": "Boilerplate",
   "title": "Homepage | {{ website }}",
-  "description": "Boilerplate is a simple and easy to use comment system for your Youtube channel.",
+  "description": "This boilerplate is a modern web application template that provides a foundation for building full-stack applications using NestJS and Remix.",
   "navigate": "Navigate",
   "login": "Log in",
   "logout": "Logout",

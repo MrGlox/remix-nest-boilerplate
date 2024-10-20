@@ -1,22 +1,6 @@
-import { json, LoaderFunctionArgs, type MetaFunction } from "@remix-run/node";
 import { useTranslation } from "react-i18next";
 
-// import i18next from "~/modules/i18n.server";
-
 export const handle = { i18n: "auth" };
-
-// export const loader = async ({ request }: LoaderFunctionArgs) => {
-//   const t = await i18next.getFixedT(request, "common");
-
-//   return json({
-//     title: t("title", { website: process.env.APP_NAME }),
-//     description: t("description"),
-//   });
-// };
-
-// export const meta: MetaFunction<typeof loader> = ({
-//   data: { title, description },
-// }) => [{ title }, { name: "description", content: description }];
 
 export default function Index() {
   const { t } = useTranslation();

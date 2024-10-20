@@ -14,68 +14,256 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String
+  id String @id @default(cuid())
+
+  email           String  @unique
+  pseudo          String  @unique
+  password        String
+  preferredLocale String  @default("en")
+  active          Boolean @default(false)
+
+  stripeCustomerId String? @unique
+  rememberMeToken  String?
+  isEmailVerified  Boolean @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  sessions     Session[]
-  offers       Offer[]
-  transactions Transaction[]
-  Message      Message[]
+  sessions Session[]
+
+  profile Profile?
+
+  teams UsersOnTeams[]
+
+  tokens      Token[]
+  Team        Team[]
+  Comment     Comment[]
+  CommentLike CommentLike[]
+  Order       Order[]
 }
 
 model Session {
-  id           String  @id @default(cuid())
-  userId       String
-  user         User    @relation(fields: [userId], references: [id])
+  id String @id @default(cuid())
+
   ipAddress    String?
   userAgent    String?
   sessionToken String  @unique
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Profile {
+  id String @id @default(cuid())
+
+  pseudo    String
+  firstName String
+  lastName  String
+
+  avatar   String?
+  bio      String?
+  location String?
+  website  String?
+
+  userId String @unique // relation scalar field (used in the `@relation` attribute above)
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+enum Role {
+  USER
+  CREW
+  AUTOR
+  EDITOR
+  OWNER
+  ADMIN
+}
+
+model Team {
+  id String @id @default(cuid())
+
+  name        String
+  description String?
+  avatar      String?
+  channelId   String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users UsersOnTeams[]
+
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [id])
+}
+
+model UsersOnTeams {
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id])
+
+  role Role
+
+  assignedAt DateTime @default(now())
+  assignedBy String
+
+  @@id([userId, teamId])
+}
+
+enum TokenType {
+  ACCESS
+  REFRESH
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+model Token {
+  id String @id @default(cuid())
+
+  type  TokenType
+  token String    @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  expiresAt DateTime
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Video {
+  id String @id @default(cuid())
+
+  title String
+  url   String @unique
+
+  comments Comment[] // Relation with the Comment model
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Member {
+  id String @id @default(cuid())
+
+  email        String
+  pseudo       String
+  isSubscribed Boolean @default(false)
+
+  comments Comment[] // Relation with the Comment model
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Comment {
+  id String @id @default(cuid())
+
+  content String
+
+  authorId String
+  author   Member @relation(fields: [authorId], references: [id])
+
+  videoId String
+  video   Video  @relation(fields: [videoId], references: [id])
+
+  parentId String?
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id]) // For replies
+  replies  Comment[] @relation("CommentReplies")
+
+  likes    Int @default(0)
+  dislikes Int @default(0)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  lastEditionAt DateTime
+
+  CommentLike CommentLike[]
+
+  userId String?
+  User   User?   @relation(fields: [userId], references: [id])
+}
+
+model CommentLike {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  commentId String
+  comment   Comment @relation(fields: [commentId], references: [id])
+
+  value     LikeValue
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([userId, commentId]) // User can only like/dislike a comment once
+}
+
+enum LikeValue {
+  LIKE
+  DISLIKE
 }
 
 model Offer {
-  id          String   @id @default(cuid())
+  id String @id @default(cuid())
+
   title       String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
   description String
-  price       Float
-  active      Boolean  @default(false) // Est-ce que l'offre est visible sur le site ?
-  recurring   Boolean  @default(false) // Exemple : Si l'utilisateur vend un objet,
-  //  il ne peut vendre cet objet qu'une seule fois.
-  // Par conre, s'il rend un service, il peut le rendre plusieurs fois. Dans ce cas, l'application ne va pas supprimer l'offre après la première vente.
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  price       Float // Offer price
 
-  transactions Transaction[]
-}
-
-model Transaction {
-  id        String   @id @default(cuid())
+  orders    Order[] // Orders that include this offer
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  offerId   String
-  offer     Offer    @relation(fields: [offerId], references: [id])
-
-  userId   String
-  user     User      @relation(fields: [userId], references: [id])
-  messages Message[]
-
-  @@unique([offerId, userId])
 }
 
-model Message {
-  id            String      @id @default(cuid())
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  content       String
-  userId        String
-  user          User        @relation(fields: [userId], references: [id])
-  transactionId String
-  transaction   Transaction @relation(fields: [transactionId], references: [id])
-  price        Float?
-  status Int?  @default(0) // 0 = message, 10 = offre en attente, 20 = offre acceptée, 90 = offre refusée
+model Order {
+  id String @id @default(cuid())
+
+  buyerId String
+  buyer   User   @relation(fields: [buyerId], references: [id])
+
+  offerId     String
+  offer       Offer  @relation(fields: [offerId], references: [id])
+  recurrences Int
+
+  payment   Payment? // Relation to payment
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
+
+model Payment {
+  id String @id @default(cuid())
+
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  stripePaymentId String // Stripe payment intent or charge ID
+  amount          Float // Payment amount
+  currency        String // Payment currency (e.g., USD, EUR)
+
+  status PaymentStatus // Payment status (Pending, Completed, Failed)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+// model Transaction {
+//   id        String   @id @default(cuid())
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+//   offerId   String
+//   offer     Offer    @relation(fields: [offerId], references: [id])
+
+//   userId   String
+//   user     User      @relation(fields: [userId], references: [id])
+//   messages Message[]
+
+//   @@unique([offerId, userId])
+// }

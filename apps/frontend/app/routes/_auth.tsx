@@ -25,7 +25,7 @@ export default function AuthLayout() {
           className="block"
         /> */}
       </aside>
-      <section className="container relative hidden min-h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
+      <section className="container relative min-h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
         <div className="flex gap-4 absolute right-4 top-4 md:right-8 md:top-8">
           {pathname === "/signin" && (
             <Link
@@ -35,7 +35,7 @@ export default function AuthLayout() {
               {t("signup.title")}
             </Link>
           )}
-          {pathname === "/signup" && (
+          {(pathname === "/signup" || pathname === "/forgot-password") && (
             <Link
               to="/signin"
               className={cn(buttonVariants({ variant: "ghost" }))}

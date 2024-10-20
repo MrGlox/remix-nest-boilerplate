@@ -1,144 +1,219 @@
-import { Link } from "@remix-run/react";
+import { getFormProps, useForm } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+
+import {
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+  type MetaFunction,
+  json,
+  redirect,
+} from "@remix-run/node";
+import { Form, Link, useActionData } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
-// import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { z } from "zod";
 
 import { Google } from "~/assets/logos";
 import { Badge } from "~/components/ui/badge";
 import { Button, buttonVariants } from "~/components/ui/button";
-import { Label } from "~/components/ui/label";
-// import { Loader } from "~/components/ui/loader";
-
 import { Field } from "~/containers/forms";
 import { cn } from "~/lib/utils";
-// import { Alert, AlertDescription } from "~/components/ui/alert";
+import { getOptionalUser } from "~/server/auth.server";
 
-export default function SignupPage() {
+export const handle = { i18n: "auth" };
+
+export const loader = async ({ context }: LoaderFunctionArgs) => {
+  const user = await getOptionalUser({ context });
+
+  if (user) {
+    return redirect("/");
+  }
+
+  return null;
+};
+
+export const meta: MetaFunction = () => {
+  return [{ title: `` }, { name: "description", content: "Welcome to Remix!" }];
+};
+
+const signiSchema = z.object({
+  email: z.string().email(),
+  password: z.string(),
+});
+
+function PasswordChangePage() {
   const { t } = useTranslation("auth");
 
-  // const { register } = useForm({
-  //   email: "",
-  //   password: "",
-  //   remember: false,
-  // });
+  const actionData = useActionData<typeof action>();
 
-  function handleSubmit(ev: FormEvent) {}
+  const [form, fields] = useForm({
+    constraint: getZodConstraint(signiSchema),
+    onValidate({ formData }) {
+      return parseWithZod(formData, {
+        schema: signiSchema,
+      });
+    },
+    lastResult: actionData?.result,
+  });
 
   return (
-    <>
-      {/* <Head>
-        <title>{t("signup.title")}</title>
-        <meta
-          head-key="description"
-          name="description"
-          content={t("signup.description")}
-        />
-      </Head> */}
-      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:max-w-[350px]">
-        <div className="flex flex-col space-y-2 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {t("signup.title")}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {t("signup.description")}
-          </p>
-        </div>
-        <div className={cn("grid gap-6")}>
-          <a
-            href="/google/redirect"
-            className={cn(
-              "group relative inline-flex ",
-              buttonVariants({ variant: "outline" }),
-            )}
+    <div className="mx-auto flex w-full flex-col justify-center space-y-6 max-w-[350px]">
+      <header className="flex flex-col space-y-2 text-center">
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {t("signin.title")}
+        </h1>
+        <p className="text-muted-foreground text-sm">
+          {t("signin.description")}
+        </p>
+      </header>
+      <main className={cn("grid gap-6")}>
+        <Link
+          to="/google/redirect"
+          className={cn(
+            "group relative inline-flex ",
+            buttonVariants({ variant: "outline" }),
+          )}
+        >
+          <span className="inline-flex items-center">
+            <Google className="mr-2 size-4" />
+            Google
+          </span>
+          <Badge
+            variant="info"
+            className="group-hover:animate-bounce-rotated absolute -right-[12px] -top-[6px] rotate-12"
           >
-            {/* {processing ? (
-              <Loader className="mr-2 h-4 w-4" />
-            ) : ( */}
-            <>
-              <span className="inline-flex items-center">
-                <Google className="mr-2 h-4 w-4" />
-                Google
-              </span>
-              <Badge
-                variant="info"
-                className="absolute -top-[6px] -right-[12px] rotate-12 group-hover:animate-bounce-rotated"
-              >
-                {t("common.recommended")}
-              </Badge>
-            </>
-            {/* )} */}
-          </a>
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
-              </span>
-            </div>
+            {t("recommended", { ns: "common" })}
+          </Badge>
+        </Link>
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
           </div>
-          <form method="POST" onSubmit={handleSubmit}>
-            <div className="grid gap-2">
-              <div className="grid gap-1">
-                {/* {!!alert && (
-                  <Alert variant="destructive" className="mb-4">
-                    <ExclamationTriangleIcon className="h-4 w-4" />
-                    <AlertDescription>
-                      {t(
-                        `alerts.${
-                          (alert as { code: string | undefined })?.code
-                        }`,
-                        {
-                          defaultValue: (alert as { message: string })?.message,
-                        }
-                      )}
-                    </AlertDescription>
-                  </Alert>
-                )} */}
-                <Label htmlFor="email">{t("fields.email")}</Label>
-                <Input
-                  name="email"
-                  placeholder="name@example.com"
-                  type="email"
-                  autoCapitalize="none"
-                  autoComplete="email"
-                  autoCorrect="off"
-                  // disabled={processing}
-                />
-              </div>
-              <div className="grid gap-1">
-                <Label htmlFor="password">{t("fields.password")}</Label>
-                <Input
-                  name="password"
-                  placeholder="********"
-                  type="password"
-                  autoCapitalize="none"
-                  autoComplete="password"
-                  autoCorrect="off"
-                  // disabled={processing}
-                />
-              </div>
-              <Button disabled={false} className="mt-3">
-                {/* {processing ? <Loader /> :  */}
-                {t("signup")}
-              </Button>
-            </div>
-          </form>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background text-muted-foreground px-2">
+              {t("or_continue")}
+            </span>
+          </div>
         </div>
-        <div>
-          <p className="mt-10 -mb-10 px-8 text-center text-sm text-muted-foreground">
-            {t("agree")}{" "}
+        <Form
+          {...getFormProps(form)}
+          method="post"
+          // action='/auth/login'
+          reloadDocument
+          className="flex flex-col"
+        >
+          <div className="grid gap-2">
+            <div className="grid gap-1">
+              {/* <Alert>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                Doloribus facere molestiae optio porro ipsum asperiores, alias
+                dolorum eveniet perferendis sunt officiis veritatis magni
+                consectetur sit? Fugit magni ea mollitia nulla?
+              </Alert> */}
+              <Field
+                name="email"
+                placeholder={t("fields.email_placeholder", "name@example.com")}
+                type="email"
+                label={t("fields.email")}
+                autoCapitalize="none"
+                autoComplete="email"
+                autoCorrect="off"
+                {...{ ...actionData, fields }}
+              />
+            </div>
+            <div className="grid gap-1">
+              <Field
+                name="password"
+                placeholder="********"
+                type="password"
+                label={t("fields.password")}
+                autoCapitalize="none"
+                autoComplete="password"
+                autoCorrect="off"
+                {...{ ...actionData, fields }}
+              />
+            </div>
+            <Button disabled={false} className="mt-3">
+              {t("signin.action")}
+            </Button>
+          </div>
+          <Link
+            to="/forgot-password"
+            className="w-full text-right text-sm mt-2"
+          >
+            {t("forgot.title")}
+          </Link>
+        </Form>
+      </main>
+      <footer>
+        <p className="text-muted-foreground -mb-10 mt-10 px-8 text-center text-sm">
+          {t("agree")}{" "}
+          <Button asChild variant="link">
             <Link to="/terms" className="variant underline-offset-4">
               {t("terms")}
-            </Link>{" "}
-            {t("and")}{" "}
+            </Link>
+          </Button>{" "}
+          {t("and")}{" "}
+          <Button asChild variant="link">
             <Link to="/privacy" className="variant underline-offset-4">
               {t("privacy")}
             </Link>
-            .
-          </p>
-        </div>
-      </div>
-    </>
+          </Button>
+          .
+        </p>
+      </footer>
+    </div>
   );
 }
+
+export const action = async ({ request, context }: ActionFunctionArgs) => {
+  const formData = await request.formData();
+
+  const submission = await parseWithZod(formData, {
+    async: true,
+    schema: signiSchema.superRefine(async (data, ctx) => {
+      const { email, password } = data;
+
+      const existingUser = await context.remixService.auth.checkIfUserExists({
+        email,
+        withPassword: true,
+        password,
+      });
+
+      if (existingUser.error) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["email"],
+          message: existingUser.message,
+        });
+      }
+    }),
+  });
+
+  if (submission.status !== "success") {
+    console.log("submission", submission);
+
+    return json(
+      { result: submission.reply() },
+      {
+        status: 400,
+      },
+    );
+  }
+
+  // l'email et le mot de passe sont valides, et un compte utilisateur existe.
+  // connecter l'utilisateur.
+  const { email } = submission.value;
+  const { sessionToken } = await context.remixService.auth.authenticateUser({
+    email,
+  });
+
+  const urlParams = new URL(request.url).searchParams;
+  const redirectTo = urlParams.get("redirectTo") || "/";
+
+  // Connecter l'utilisateur associé à l'email
+  return redirect(
+    `/authenticate?token=${sessionToken}&redirectTo=${redirectTo}`,
+  );
+};
+
+export default PasswordChangePage;

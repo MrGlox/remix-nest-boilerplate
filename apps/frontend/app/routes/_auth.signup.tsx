@@ -3,45 +3,48 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 
 import {
   type ActionFunctionArgs,
-  type MetaFunction,
-  json,
   type LoaderFunctionArgs,
+  json,
   redirect,
 } from "@remix-run/node";
-import { Form, Link, useActionData } from "@remix-run/react";
+import { Form, useActionData } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
 import { Google } from "~/assets/logos";
-import { Alert } from "~/components/molecules";
+import { Link } from "~/components/atoms/link";
 import { Badge } from "~/components/ui/badge";
 import { Button, buttonVariants } from "~/components/ui/button";
 import { Field } from "~/containers/forms";
 import { cn } from "~/lib/utils";
+import i18next from "~/modules/i18n.server";
 import { getOptionalUser } from "~/server/auth.server";
 
 export const handle = { i18n: "auth" };
 
-export const loader = async ({ context }: LoaderFunctionArgs) => {
+export const loader = async ({ request, context }: LoaderFunctionArgs) => {
+  const t = await i18next.getFixedT(request, "auth");
   const user = await getOptionalUser({ context });
 
   if (user) {
     return redirect("/");
   }
 
-  return null;
+  return json({
+    // Translated meta tags
+    title: t("signup.title"),
+    description: t("signup.description"),
+  } as const);
 };
 
-export const meta: MetaFunction = () => {
-  return [{ title: `` }, { name: "description", content: "Welcome to Remix!" }];
-};
+export { meta } from "~/config/meta";
 
 const signupSchema = z.object({
   email: z.string().email(),
   password: z.string(),
 });
 
-function SigninPage() {
+function SignupPage() {
   const { t } = useTranslation("auth");
 
   const actionData = useActionData<typeof action>();
@@ -56,10 +59,8 @@ function SigninPage() {
     lastResult: actionData?.result,
   });
 
-  console.log("actionData", actionData);
-
   return (
-    <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:max-w-[350px]">
+    <div className="mx-auto flex w-full flex-col justify-center space-y-6 max-w-[350px]">
       <header className="flex flex-col space-y-2 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">
           {t("signup.title")}
@@ -105,12 +106,12 @@ function SigninPage() {
         >
           <div className="grid gap-2">
             <div className="grid gap-1">
-              <Alert>
+              {/* <Alert>
                 Lorem ipsum dolor sit amet consectetur adipisicing elit.
                 Doloribus facere molestiae optio porro ipsum asperiores, alias
                 dolorum eveniet perferendis sunt officiis veritatis magni
                 consectetur sit? Fugit magni ea mollitia nulla?
-              </Alert>
+              </Alert> */}
               <Field
                 name="email"
                 placeholder={t("fields.email_placeholder", "name@example.com")}
@@ -212,4 +213,4 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
   );
 };
 
-export default SigninPage;
+export default SignupPage;

@@ -1,6 +1,6 @@
-import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
+import { type VariantProps, cva } from "class-variance-authority";
+import * as React from "react";
 
 import { cn } from "~/lib/utils";
 
@@ -9,19 +9,22 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default:
+          "bg-primary text-primary-foreground hover:bg-primary/90 hover:no-underline",
         outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-muted text-secondary-foreground hover:bg-muted/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline !p-0 !h-auto",
+          "border border-input bg-background hover:bg-accent hover:text-accent-foreground hover:no-underline",
+        secondary:
+          "bg-muted text-secondary-foreground hover:bg-muted/80 hover:no-underline",
+        ghost:
+          "hover:bg-accent hover:text-accent-foreground hover:no-underline",
+        link: "text-primary underline-offset-4 hover:underline !p-0 !h-auto hover:no-underline",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90 border border-destructive-foreground/10",
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90 border border-destructive-foreground/10 hover:underline",
         success:
-          "bg-success text-success-foreground hover:bg-success/90 border border-success-foreground/10",
+          "bg-success text-success-foreground hover:bg-success/90 border border-success-foreground/10 hover:no-underline",
         warning:
-          "bg-warning text-warning-foreground hover:bg-warning/90 border border-warning-foreground/10",
-        info: "bg-info text-info-foreground hover:bg-info/90 border border-info-foreground/10",
+          "bg-warning text-warning-foreground hover:bg-warning/90 border border-warning-foreground/10 hover:no-underline",
+        info: "bg-info text-info-foreground hover:bg-info/90 border border-info-foreground/10 hover:no-underline",
       },
       size: {
         default: "h-10 px-4 py-2",

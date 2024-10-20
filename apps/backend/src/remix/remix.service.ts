@@ -7,7 +7,7 @@ export class RemixService {
   constructor(
     public readonly prisma: PrismaService,
     public readonly auth: AuthService,
-  ) { }
+  ) {}
   public readonly getUser = async ({ userId }: { userId: string }) => {
     return await this.prisma.user.findUnique({
       where: {
