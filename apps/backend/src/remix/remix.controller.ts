@@ -6,7 +6,7 @@ import { RemixService } from './remix.service';
 
 @Controller()
 export class RemixController {
-  constructor(private remixService: RemixService) { }
+  constructor(private remixService: RemixService) {}
 
   @All('*')
   async handler(
@@ -14,7 +14,6 @@ export class RemixController {
     @Res() response: Response,
     @Next() next: NextFunction,
   ) {
-    //
     return createRequestHandler({
       build: await getServerBuild(),
       getLoadContext: () => ({

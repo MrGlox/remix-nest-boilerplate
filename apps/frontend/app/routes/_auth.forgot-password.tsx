@@ -22,7 +22,7 @@ export const loader = async ({ context }: LoaderFunctionArgs) => {
   const user = await getOptionalUser({ context });
 
   if (user) {
-    return redirect("/");
+    return redirect("/dashboard");
   }
 
   return null;

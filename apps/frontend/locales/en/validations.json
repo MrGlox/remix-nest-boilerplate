@@ -1,6 +1,6 @@
 {
   "errors": {
-    "required": "Required",
+    "required": "Required field",
     "invalid_type": "Expected {{expected}}, received {{received}}",
     "invalid_type_received_undefined": "Required ok",
     "invalid_type_received_null": "Required test",

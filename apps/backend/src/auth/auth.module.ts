@@ -1,21 +1,25 @@
 import { Module } from '@nestjs/common';
-import { PassportModule } from '@nestjs/passport';
-import { PrismaService } from '../prisma/prisma.service';
+import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { CookieSerializer } from './cookie-serializer';
-import { LocalAuthGuard } from './local-auth.guard';
-import { LocalStrategy } from './local.strategy';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { AnonymousStrategy } from './strategies/anonymous.strategy';
+import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
+import { MailModule } from '../mail/mail.module';
+import { SessionModule } from '../session/session.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-    imports: [
-        PassportModule.register({
-            defaultStrategy: 'local',
-            property: 'user',
-            session: true
-        })
-    ],
-    controllers: [],
-    providers: [LocalStrategy, LocalAuthGuard, CookieSerializer, PrismaService, AuthService],
-    exports: [AuthService]
+  imports: [
+    UsersModule,
+    SessionModule,
+    PassportModule,
+    MailModule,
+    JwtModule.register({}),
+  ],
+  controllers: [AuthController],
+  providers: [AuthService, JwtStrategy, JwtRefreshStrategy, AnonymousStrategy],
+  exports: [AuthService],
 })
-export class AuthModule { }
+export class AuthModule {}

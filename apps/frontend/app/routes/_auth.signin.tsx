@@ -27,7 +27,7 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   const user = await getOptionalUser({ context });
 
   if (user) {
-    return redirect("/");
+    return redirect("/dashboard");
   }
 
   return json({

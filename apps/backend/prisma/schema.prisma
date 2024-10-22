@@ -13,21 +13,38 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum AuthProvidersEnum {
+  LOCAL
+  GOOGLE
+  FACEBOOK
+}
+
 model User {
   id String @id @default(cuid())
 
   email           String  @unique
-  pseudo          String  @unique
+  name          String?  @unique
   password        String
   preferredLocale String  @default("en")
   active          Boolean @default(false)
+
+  statusId     Int
+  status       Status       @relation(fields: [statusId], references: [id])
+
+  avatarId     String?
+  avatar       File?        @relation(fields: [avatarId], references: [id])
+
+  @@index([statusId])
+  @@index([avatarId])
 
   stripeCustomerId String? @unique
   rememberMeToken  String?
   isEmailVerified  Boolean @default(false)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  authProvider AuthProvidersEnum
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  deletedAt    DateTime?
 
   sessions Session[]
 
@@ -42,15 +59,40 @@ model User {
   Order       Order[]
 }
 
+model File {
+  id   String @id @default(uuid())
+  path String
+
+  User User[]
+}
+
+// model Session {
+//   id String @id @default(cuid())
+
+//   ipAddress    String?
+//   userAgent    String?
+//   sessionToken String  @unique
+
+//   userId String
+//   user   User   @relation(fields: [userId], references: [id])
+// }
+
 model Session {
   id String @id @default(cuid())
 
+  hash      String
   ipAddress    String?
   userAgent    String?
   sessionToken String  @unique
 
-  userId String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  userId    String
   user   User   @relation(fields: [userId], references: [id])
+
+  @@index([userId])
 }
 
 model Profile {
@@ -252,6 +294,13 @@ enum PaymentStatus {
   PENDING
   COMPLETED
   FAILED
+}
+
+model Status {
+  id   Int    @id @default(autoincrement())
+  name String?
+
+  User User[]
 }
 
 // model Transaction {

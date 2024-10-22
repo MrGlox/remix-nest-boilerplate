@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AuthService } from '../auth/auth.service';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class RemixService {
@@ -15,7 +15,7 @@ export class RemixService {
       },
       select: {
         id: true,
-        name: true,
+        pseudo: true,
         email: true,
       },
     });
