@@ -16,46 +16,92 @@ import { Link } from "~/components/atoms/link";
 import { Badge } from "~/components/ui/badge";
 import { Button, buttonVariants } from "~/components/ui/button";
 import { Field } from "~/containers/forms";
-import { cn } from "~/lib/utils";
+import { cn, generateAlert } from "~/lib/utils";
 import i18next from "~/modules/i18n.server";
 import { getOptionalUser } from "~/server/auth.server";
-
-export const handle = { i18n: "auth" };
 
 export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   const t = await i18next.getFixedT(request, "auth");
   const user = await getOptionalUser({ context });
 
   if (user) {
-    return redirect("/");
+    return redirect("/dashboard");
   }
 
   return json({
     // Translated meta tags
-    title: t("signup.title"),
-    description: t("signup.description"),
+    title: t("signin.title"),
+    description: t("signin.description"),
   } as const);
 };
 
 export { meta } from "~/config/meta";
 
-const signupSchema = z.object({
+export const action = async ({ request, context }: ActionFunctionArgs) => {
+  const formData = await request.formData();
+
+  const submission = await parseWithZod(formData, {
+    async: true,
+    schema: signinSchema.superRefine(async (data, ctx) => {
+      const { email, password } = data;
+
+      const existingUser = await context.remixService.auth.checkIfUserExists({
+        email,
+        withPassword: true,
+        password,
+      });
+
+      if (existingUser.error) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["alert", "destructive"],
+          message: existingUser.message,
+        });
+      }
+    }),
+  });
+
+  if (submission.status !== "success") {
+    return json(
+      { result: submission.reply() },
+      {
+        status: 400,
+      },
+    );
+  }
+
+  // l'email et le mot de passe sont valides, et un compte utilisateur existe.
+  // connecter l'utilisateur.
+  const { email } = submission.value;
+  const { sessionToken } = await context.remixService.auth.authenticateUser({
+    email,
+  });
+
+  const urlParams = new URL(request.url).searchParams;
+  const redirectTo = urlParams.get("redirectTo") || "/dashboard";
+
+  // Connecter l'utilisateur associé à l'email
+  return redirect(
+    `/authenticate?token=${sessionToken}&redirectTo=${redirectTo}`,
+  );
+};
+
+const signinSchema = z.object({
   email: z.string().email(),
   password: z.string(),
 });
 
-function SignupPage() {
+function SigninPage() {
   const { t } = useTranslation("auth");
 
   const actionData = useActionData<typeof action>();
 
   const [form, fields] = useForm({
-    constraint: getZodConstraint(signupSchema),
-    onValidate({ formData }) {
-      return parseWithZod(formData, {
-        schema: signupSchema,
-      });
-    },
+    constraint: getZodConstraint(signinSchema),
+    onValidate: ({ formData }) =>
+      parseWithZod(formData, {
+        schema: signinSchema,
+      }),
     lastResult: actionData?.result,
   });
 
@@ -63,17 +109,17 @@ function SignupPage() {
     <div className="mx-auto flex w-full flex-col justify-center space-y-6 max-w-[350px]">
       <header className="flex flex-col space-y-2 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">
-          {t("signup.title")}
+          {t("signin.title")}
         </h1>
         <p className="text-muted-foreground text-sm">
-          {t("signup.description")}
+          {t("signin.description")}
         </p>
       </header>
       <main className={cn("grid gap-6")}>
         <Link
           to="/google/redirect"
           className={cn(
-            "group relative inline-flex ",
+            "group relative inline-flex",
             buttonVariants({ variant: "outline" }),
           )}
         >
@@ -103,15 +149,11 @@ function SignupPage() {
           method="post"
           // action='/auth/login'
           reloadDocument
+          className="flex flex-col"
         >
           <div className="grid gap-2">
             <div className="grid gap-1">
-              {/* <Alert>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Doloribus facere molestiae optio porro ipsum asperiores, alias
-                dolorum eveniet perferendis sunt officiis veritatis magni
-                consectetur sit? Fugit magni ea mollitia nulla?
-              </Alert> */}
+              {generateAlert(actionData)}
               <Field
                 name="email"
                 placeholder={t("fields.email_placeholder", "name@example.com")}
@@ -136,22 +178,34 @@ function SignupPage() {
               />
             </div>
             <Button disabled={false} className="mt-3">
-              {t("signup.action")}
+              {t("signin.action")}
             </Button>
           </div>
+          <Link
+            to="/forgot-password"
+            className="w-full text-right text-sm mt-2"
+          >
+            {t("forgot.title")}
+          </Link>
         </Form>
       </main>
       <footer>
         <p className="text-muted-foreground -mb-10 mt-10 px-8 text-center text-sm">
           {t("agree")}{" "}
           <Button asChild variant="link">
-            <Link to="/terms" className="variant underline-offset-4">
+            <Link
+              to="/terms"
+              className="variant underline-offset-4 hover:underline"
+            >
               {t("terms")}
             </Link>
           </Button>{" "}
           {t("and")}{" "}
           <Button asChild variant="link">
-            <Link to="/privacy" className="variant underline-offset-4">
+            <Link
+              to="/privacy"
+              className="variant underline-offset-4 hover:underline"
+            >
               {t("privacy")}
             </Link>
           </Button>
@@ -162,55 +216,4 @@ function SignupPage() {
   );
 }
 
-export const action = async ({ request, context }: ActionFunctionArgs) => {
-  const formData = await request.formData();
-
-  const submission = await parseWithZod(formData, {
-    async: true,
-    schema: signupSchema.superRefine(async (data, ctx) => {
-      const { email, password } = data;
-
-      const existingUser = await context.remixService.auth.checkIfUserExists({
-        email,
-        withPassword: true,
-        password,
-      });
-
-      if (existingUser.error) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["email"],
-          message: existingUser.message,
-        });
-      }
-    }),
-  });
-
-  if (submission.status !== "success") {
-    console.log("submission", submission);
-
-    return json(
-      { result: submission.reply() },
-      {
-        status: 400,
-      },
-    );
-  }
-
-  // l'email et le mot de passe sont valides, et un compte utilisateur existe.
-  // connecter l'utilisateur.
-  const { email } = submission.value;
-  const { sessionToken } = await context.remixService.auth.authenticateUser({
-    email,
-  });
-
-  const urlParams = new URL(request.url).searchParams;
-  const redirectTo = urlParams.get("redirectTo") || "/";
-
-  // Connecter l'utilisateur associé à l'email
-  return redirect(
-    `/authenticate?token=${sessionToken}&redirectTo=${redirectTo}`,
-  );
-};
-
-export default SignupPage;
+export default SigninPage;

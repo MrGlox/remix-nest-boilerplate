@@ -42,5 +42,11 @@
   "back": "Retour",
   "skip": "Passer",
   "finish": "Terminer",
-  "close": "Fermer"
+  "close": "Fermer",
+  "error": "Erreur",
+  "default": "Défaut",
+  "destructive": "Erreur",
+  "info": "Information",
+  "success": "Succès",
+  "warning": "Avertissement"
 }

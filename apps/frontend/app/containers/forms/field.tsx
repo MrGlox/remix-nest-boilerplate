@@ -25,6 +25,7 @@ type TForm = any;
 const Field = React.forwardRef<HTMLInputElement, InputProps<TForm>>(
   ({ fields, className, name, type = "text", label, ...props }, ref) => {
     const { t } = useTranslation("validations");
+    const hasError = !!fields[name]?.errors;
 
     return (
       <fieldset className={cn("", className)}>
@@ -36,7 +37,7 @@ const Field = React.forwardRef<HTMLInputElement, InputProps<TForm>>(
             type,
           })}
         />
-        {fields[name]?.errors && (
+        {hasError && (
           <p className="text-red-700 text-sm">{t(fields[name].errors[0])}</p>
         )}
       </fieldset>

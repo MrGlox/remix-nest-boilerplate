@@ -42,5 +42,11 @@
   "back": "Back",
   "skip": "Skip",
   "finish": "Finish",
-  "close": "Close"
+  "close": "Close",
+  "error": "Error",
+  "default": "Default",
+  "destructive": "Error",
+  "info": "Information",
+  "success": "Success",
+  "warning": "Warning"
 }

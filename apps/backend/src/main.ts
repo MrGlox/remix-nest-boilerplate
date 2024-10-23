@@ -1,14 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { getPublicDir, startDevServer } from '@repo/frontend';
-import { AppModule } from './app.module';
-
 import { urlencoded } from 'body-parser';
 import RedisStore from 'connect-redis';
 import session from 'express-session';
 import Redis from 'ioredis';
 import passport from 'passport';
-import { HttpExceptionFilter } from './auth/exception.filter';
+
+import { HttpExceptionFilter } from './core/exception.filter';
+
+import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -18,20 +20,30 @@ async function bootstrap() {
   await startDevServer(app);
 
   // Initialize client
-  const redisUrl = process.env.REDIS_URL || "redis://localhost:6379"
-  const redisClient = new Redis(redisUrl, {
-
-  }).on('error', console.error).on('connect', () => {
-    console.log('Connected to Redis');
-  });
+  const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+  const redisClient = new Redis(redisUrl, {})
+    .on('error', console.error)
+    .on('connect', () => {
+      console.log('Connected to Redis');
+    });
 
   // Initialize store
   const redisStore = new RedisStore({
     client: redisClient,
-    ttl: 86400 * 30
-  })
+    ttl: 86400 * 30,
+  });
 
-  app.set('trust proxy', 1)
+  const config = new DocumentBuilder()
+    .setTitle('Cats example')
+    .setDescription('The cats API description')
+    .setVersion('1.0')
+    .addTag('cats')
+    .build();
+
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, documentFactory);
+
+  app.set('trust proxy', 1);
 
   app.use(
     session({
@@ -41,11 +53,11 @@ async function bootstrap() {
       secret: process.env.SESSION_SECRET || '123',
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
-        sameSite: "lax",
+        sameSite: 'lax',
         secure: process.env.NODE_ENV === 'production',
-      }
+      },
     }),
-  )
+  );
 
   app.useStaticAssets(getPublicDir(), {
     immutable: true,
@@ -55,14 +67,16 @@ async function bootstrap() {
 
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  app.use(passport.initialize())
-  app.use(passport.session())
-  app.use("/authenticate", urlencoded({ extended: true })) // Add this line
-  app.use("/auth/logout", urlencoded({ extended: true })) // Add this line
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  app.use('/authenticate', urlencoded({ extended: true }));
+  app.use('/auth/logout', urlencoded({ extended: true }));
 
   const selectedPort = process.env.PORT ?? 3000;
 
   console.log(`Running on port http://localhost:${selectedPort}`);
+
   await app.listen(selectedPort);
 }
 bootstrap();

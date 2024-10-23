@@ -16,13 +16,11 @@ import { Button } from "~/components/ui/button";
 import { Field } from "~/containers/forms";
 import { getOptionalUser } from "~/server/auth.server";
 
-export const handle = { i18n: "auth" };
-
 export const loader = async ({ context }: LoaderFunctionArgs) => {
   const user = await getOptionalUser({ context });
 
   if (user) {
-    return redirect("/");
+    return redirect("/dashboard");
   }
 
   return null;

@@ -39,7 +39,7 @@ export function LanguageSwitcher() {
         navigate(`${pathname}?lng=${value}`);
       }}
     >
-      <SelectTrigger className="w-[180px]">
+      <SelectTrigger className="w-[140px]">
         <SelectValue
           key={resolvedLanguage}
           placeholder={currentLanguage.text}
@@ -47,7 +47,11 @@ export function LanguageSwitcher() {
       </SelectTrigger>
       <SelectContent>
         {langs.map(({ text, value }) => (
-          <SelectItem key={value} {...{ value }}>
+          <SelectItem
+            key={value}
+            {...{ value }}
+            className={currentLanguage.value === value ? "hidden" : ""}
+          >
             {text}
           </SelectItem>
         ))}

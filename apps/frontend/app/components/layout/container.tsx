@@ -5,7 +5,14 @@ import { cn } from "~/lib/utils";
 interface ContainerProps {
   children: ReactNode;
   className?: string;
+  size?: "default" | "large";
 }
+
+export const SizeVariants = {
+  small: "md:max-w-[1080px]",
+  default: "md:max-w-[1340px]",
+  large: "md:max-w-[1480px]",
+};
 
 /**
  * A container component to center content with max width od 960px and auto margin.
@@ -17,11 +24,16 @@ interface ContainerProps {
  *
  * @returns {JSX.Element}
  */
-export function Container({ children, className, ...rest }: ContainerProps) {
+export function Container({
+  children,
+  className,
+  size = "default",
+  ...rest
+}: ContainerProps) {
   return (
     <div
       {...rest}
-      className={cn("w-full max-w-[1340px] px-4 md:mx-auto", className)}
+      className={cn("container w-full px-4", SizeVariants[size], className)}
     >
       {children}
     </div>

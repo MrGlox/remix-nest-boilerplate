@@ -1,14 +1,24 @@
-import { Link, Outlet, useLocation } from "@remix-run/react";
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { Link, Outlet, redirect, useLocation } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 
 import { Brand } from "~/assets";
 import { buttonVariants } from "~/components/ui/button";
 import { LanguageSwitcher } from "~/containers/language-switcher";
 import { cn } from "~/lib/utils";
+import { getOptionalUser } from "~/server/auth.server";
 
-export const loader = () => {
-  return { date: new Date() };
+export const loader = async ({ context }: LoaderFunctionArgs) => {
+  const user = await getOptionalUser({ context });
+
+  if (user) {
+    return redirect("/dashboard");
+  }
+
+  return null;
 };
+
+export const handle = { i18n: ["common", "auth"] };
 
 export default function AuthLayout() {
   const { t } = useTranslation("auth");

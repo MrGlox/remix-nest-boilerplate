@@ -1,6 +1,7 @@
 {
   "errors": {
-    "required": "Requis",
+    "required": "Champs requis",
+    "bad_format": "Mauvais format",
     "invalid_type": "Le type « {{expected}} » est attendu mais « {{received}} » a été reçu",
     "invalid_type_received_undefined": "Obligatoire",
     "invalid_type_received_null": "Obligatoire",

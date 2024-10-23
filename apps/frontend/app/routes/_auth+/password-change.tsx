@@ -4,56 +4,50 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
+  type MetaFunction,
   json,
   redirect,
 } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import { Form, Link, useActionData } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
 import { Google } from "~/assets/logos";
-import { Link } from "~/components/atoms/link";
 import { Badge } from "~/components/ui/badge";
 import { Button, buttonVariants } from "~/components/ui/button";
 import { Field } from "~/containers/forms";
 import { cn } from "~/lib/utils";
-import i18next from "~/modules/i18n.server";
 import { getOptionalUser } from "~/server/auth.server";
 
-export const handle = { i18n: "auth" };
-
-export const loader = async ({ request, context }: LoaderFunctionArgs) => {
-  const t = await i18next.getFixedT(request, "auth");
+export const loader = async ({ context }: LoaderFunctionArgs) => {
   const user = await getOptionalUser({ context });
 
   if (user) {
-    return redirect("/");
+    return redirect("/dashboard");
   }
 
-  return json({
-    // Translated meta tags
-    title: t("signin.title"),
-    description: t("signin.description"),
-  } as const);
+  return null;
 };
 
-export { meta } from "~/config/meta";
+export const meta: MetaFunction = () => {
+  return [{ title: `` }, { name: "description", content: "Welcome to Remix!" }];
+};
 
-const signinSchema = z.object({
+const signiSchema = z.object({
   email: z.string().email(),
   password: z.string(),
 });
 
-function SigninPage() {
+function PasswordChangePage() {
   const { t } = useTranslation("auth");
 
   const actionData = useActionData<typeof action>();
 
   const [form, fields] = useForm({
-    constraint: getZodConstraint(signinSchema),
+    constraint: getZodConstraint(signiSchema),
     onValidate({ formData }) {
       return parseWithZod(formData, {
-        schema: signinSchema,
+        schema: signiSchema,
       });
     },
     lastResult: actionData?.result,
@@ -73,7 +67,7 @@ function SigninPage() {
         <Link
           to="/google/redirect"
           className={cn(
-            "group relative inline-flex",
+            "group relative inline-flex ",
             buttonVariants({ variant: "outline" }),
           )}
         >
@@ -152,19 +146,13 @@ function SigninPage() {
         <p className="text-muted-foreground -mb-10 mt-10 px-8 text-center text-sm">
           {t("agree")}{" "}
           <Button asChild variant="link">
-            <Link
-              to="/terms"
-              className="variant underline-offset-4 hover:underline"
-            >
+            <Link to="/terms" className="variant underline-offset-4">
               {t("terms")}
             </Link>
           </Button>{" "}
           {t("and")}{" "}
           <Button asChild variant="link">
-            <Link
-              to="/privacy"
-              className="variant underline-offset-4 hover:underline"
-            >
+            <Link to="/privacy" className="variant underline-offset-4">
               {t("privacy")}
             </Link>
           </Button>
@@ -180,7 +168,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 
   const submission = await parseWithZod(formData, {
     async: true,
-    schema: signinSchema.superRefine(async (data, ctx) => {
+    schema: signiSchema.superRefine(async (data, ctx) => {
       const { email, password } = data;
 
       const existingUser = await context.remixService.auth.checkIfUserExists({
@@ -226,4 +214,4 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
   );
 };
 
-export default SigninPage;
+export default PasswordChangePage;
