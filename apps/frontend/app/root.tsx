@@ -38,13 +38,17 @@ export const handle = {
   i18n: "common",
 };
 
+export { meta } from "~/config/meta";
+
 export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   const t = await i18next.getFixedT(request, "common");
+
   const locale = await i18next.getLocale(request);
   const user = await getOptionalUser({ context });
 
   return json(
     {
+      // Global
       locale,
       user,
       // Translated meta tags
@@ -53,13 +57,11 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
     } as const,
     {
       headers: {
-        "set-cookie": await i18nCookie.serialize(locale),
+        "Set-Cookie": await i18nCookie.serialize(locale),
       },
     },
   );
 };
-
-export { meta } from "~/config/meta";
 
 export const useOptionalUser = () => {
   const data = useRouteLoaderData<typeof loader>("root");

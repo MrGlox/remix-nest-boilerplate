@@ -35,6 +35,10 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   } as const);
 };
 
+export const handle = {
+  i18n: ["common", "auth"],
+};
+
 export { meta } from "~/config/meta";
 
 export const action = async ({ request, context }: ActionFunctionArgs) => {
@@ -97,6 +101,7 @@ function SigninPage() {
   const actionData = useActionData<typeof action>();
 
   const [form, fields] = useForm({
+    id: "signin-form",
     constraint: getZodConstraint(signinSchema),
     onValidate: ({ formData }) =>
       parseWithZod(formData, {
@@ -151,39 +156,35 @@ function SigninPage() {
           reloadDocument
           className="flex flex-col"
         >
+          {generateAlert(actionData)}
           <div className="grid gap-2">
-            <div className="grid gap-1">
-              {generateAlert(actionData)}
-              <Field
-                {...{ ...actionData, fields }}
-                name="email"
-                placeholder={t("fields.email_placeholder", "name@example.com")}
-                type="email"
-                label={t("fields.email")}
-                autoCapitalize="none"
-                autoComplete="email"
-                autoCorrect="off"
-              />
-            </div>
-            <div className="grid gap-1">
-              <Field
-                {...{ ...actionData, fields }}
-                name="password"
-                placeholder="********"
-                type="password"
-                label={t("fields.password")}
-                autoCapitalize="none"
-                autoComplete="password"
-                autoCorrect="off"
-              />
-            </div>
+            <Field
+              name="email"
+              placeholder={t("fields.email_placeholder", "name@example.com")}
+              type="email"
+              label={t("fields.email")}
+              autoCapitalize="none"
+              autoComplete="email"
+              autoCorrect="off"
+              {...{ fields }}
+            />
+            <Field
+              name="password"
+              placeholder="********"
+              type="password"
+              label={t("fields.password")}
+              autoCapitalize="none"
+              autoComplete="password"
+              autoCorrect="off"
+              {...{ fields }}
+            />
             <Button disabled={false} className="mt-3">
               {t("signin.action")}
             </Button>
           </div>
           <Link
             to="/forgot-password"
-            className="w-full text-right text-sm mt-2"
+            className="self-end text-right text-sm mt-2"
           >
             {t("forgot.title")}
           </Link>

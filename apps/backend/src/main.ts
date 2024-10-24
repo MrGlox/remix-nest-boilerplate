@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { getPublicDir, startDevServer } from '@repo/frontend';
+
 import { urlencoded } from 'body-parser';
 import RedisStore from 'connect-redis';
 import session from 'express-session';
@@ -9,7 +10,6 @@ import Redis from 'ioredis';
 import passport from 'passport';
 
 import { HttpExceptionFilter } from './core/exception.filter';
-
 import { AppModule } from './app.module';
 
 async function bootstrap() {

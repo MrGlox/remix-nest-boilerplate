@@ -6,7 +6,6 @@ import commonEN from "~/locales/en/common.json";
 import dashboardEN from "~/locales/en/dashboard.json";
 import errorsEN from "~/locales/en/errors.json";
 import messagesEN from "~/locales/en/messages.json";
-import validationsEN from "~/locales/en/validations.json";
 
 import alertsFR from "~/locales/fr/alerts.json";
 import authFR from "~/locales/fr/auth.json";
@@ -14,7 +13,6 @@ import commonFR from "~/locales/fr/common.json";
 import dashboardFR from "~/locales/fr/dashboard.json";
 import errorsFR from "~/locales/fr/errors.json";
 import messagesFR from "~/locales/fr/messages.json";
-import validationsFR from "~/locales/fr/validations.json";
 
 // This is the list of languages your application supports, the last one is your
 // fallback language
@@ -35,7 +33,6 @@ export const resources = serverOnly$({
     dashboard: dashboardEN,
     errors: errorsEN,
     messages: messagesEN,
-    validations: validationsEN,
   },
   fr: {
     alerts: alertsFR,
@@ -44,6 +41,5 @@ export const resources = serverOnly$({
     dashboard: dashboardFR,
     errors: errorsFR,
     messages: messagesFR,
-    validations: validationsFR,
   },
 });

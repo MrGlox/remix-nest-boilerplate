@@ -39,7 +39,7 @@ const generateImageWithBlurhash = async (
 interface UnpicImageProps extends HTMLAttributes<HTMLImageElement> {
   width?: number;
   height: number;
-  // src: string;
+  src: string;
   layout: "fullWidth" | "fixed";
   blurhash: string;
   alt: string;
@@ -51,6 +51,7 @@ const LazyImage = ({
   width,
   height,
   src,
+  reducedImage,
   blurhash,
   className,
   containerClassName,

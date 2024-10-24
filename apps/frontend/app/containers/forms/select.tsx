@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, Ref } from "react";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { browseByKeyString, cn } from "~/lib/utils";
+import { cn } from "~/lib/utils";
 
 type Option = {
   label: string | ReactNode;
@@ -26,8 +26,7 @@ export interface SelectProps<TForm>
   errors: TForm;
   hideSelected?: boolean;
   noCheck?: boolean;
-  data: TForm;
-  setData: SetDataByKeyValuePair<TForm>;
+  fields: Record<string, any>;
   ref?: React.RefObject<HTMLSelectElement>;
 }
 
@@ -44,8 +43,6 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps<TForm>>(
       className,
       fields,
       value,
-      data,
-      setData,
       errors,
       placeholder,
       hideSelected = false,
@@ -55,18 +52,16 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps<TForm>>(
     },
     ref,
   ) => {
-    const { t } = useTranslation("validations");
-    const hasError = !!fields[name]?.errors;
-    const currentValue = `${browseByKeyString(data, props?.name) || ""}`;
+    const { t } = useTranslation();
+    const { name } = props;
 
     return (
       <fieldset className={cn("", className)}>
         <SelectComponent
-          ref={ref}
+          ref={ref as Ref<HTMLSelectElement>}
           id={props.name}
           value={value ? `${value}` : currentValue || ""}
-          onValueChange={(value) => setData(props?.name, value)}
-          className={hasError ? "border-red-700 border-2" : ""}
+          className={!fields[name]?.valid ? "border-red-700 border-2" : ""}
           {...props}
         >
           <SelectTrigger className="w-full">
@@ -94,7 +89,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps<TForm>>(
             </SelectGroup>
           </SelectContent>
         </SelectComponent>
-        {hasError && (
+        {!fields[name]?.valid && (
           <p className="relative -z-10 text-red-700 text-sm bg-destructive/50 pt-3 -mt-2 px-2 pb-2 rounded-b">
             {t(fields[name].errors[0])}
           </p>
