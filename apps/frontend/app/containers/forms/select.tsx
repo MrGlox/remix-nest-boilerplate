@@ -1,4 +1,6 @@
 import React, { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
+
 import {
   Select as SelectComponent,
   SelectContent,
@@ -40,6 +42,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps<TForm>>(
   (
     {
       className,
+      fields,
       value,
       data,
       setData,
@@ -52,16 +55,18 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps<TForm>>(
     },
     ref,
   ) => {
-    const error = `${browseByKeyString(errors, props?.name) || ""}`;
+    const { t } = useTranslation("validations");
+    const hasError = !!fields[name]?.errors;
     const currentValue = `${browseByKeyString(data, props?.name) || ""}`;
 
     return (
-      <div className={className}>
+      <fieldset className={cn("", className)}>
         <SelectComponent
           ref={ref}
           id={props.name}
           value={value ? `${value}` : currentValue || ""}
           onValueChange={(value) => setData(props?.name, value)}
+          className={hasError ? "border-red-700 border-2" : ""}
           {...props}
         >
           <SelectTrigger className="w-full">
@@ -89,8 +94,12 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps<TForm>>(
             </SelectGroup>
           </SelectContent>
         </SelectComponent>
-        {error && <p className="text-red-700 text-sm">{error}</p>}
-      </div>
+        {hasError && (
+          <p className="relative -z-10 text-red-700 text-sm bg-destructive/50 pt-3 -mt-2 px-2 pb-2 rounded-b">
+            {t(fields[name].errors[0])}
+          </p>
+        )}
+      </fieldset>
     );
   },
 );
