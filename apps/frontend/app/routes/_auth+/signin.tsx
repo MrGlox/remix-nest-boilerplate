@@ -106,7 +106,7 @@ function SigninPage() {
   });
 
   return (
-    <div className="mx-auto flex w-full flex-col justify-center space-y-6 max-w-[350px]">
+    <div className="mx-auto flex w-full flex-col justify-center space-y-6 max-w-[420px]">
       <header className="flex flex-col space-y-2 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">
           {t("signin.title")}
@@ -155,6 +155,7 @@ function SigninPage() {
             <div className="grid gap-1">
               {generateAlert(actionData)}
               <Field
+                {...{ ...actionData, fields }}
                 name="email"
                 placeholder={t("fields.email_placeholder", "name@example.com")}
                 type="email"
@@ -162,11 +163,11 @@ function SigninPage() {
                 autoCapitalize="none"
                 autoComplete="email"
                 autoCorrect="off"
-                {...{ ...actionData, fields }}
               />
             </div>
             <div className="grid gap-1">
               <Field
+                {...{ ...actionData, fields }}
                 name="password"
                 placeholder="********"
                 type="password"
@@ -174,7 +175,6 @@ function SigninPage() {
                 autoCapitalize="none"
                 autoComplete="password"
                 autoCorrect="off"
-                {...{ ...actionData, fields }}
               />
             </div>
             <Button disabled={false} className="mt-3">

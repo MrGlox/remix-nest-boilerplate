@@ -17,7 +17,7 @@ export function FirstStep({ ...stepProps }) {
       key={id}
       className="flex items-center justify-center my-2 border bg-muted rounded-md p-4 min-h-[75vh]"
     >
-      <div className="mx-auto flex w-full flex-col justify-center space-y-6 max-w-[350px]">
+      <div className="mx-auto flex w-full flex-col justify-center space-y-6 max-w-[420px]">
         <div className="flex flex-col">
           <header className="flex flex-col mb-10">
             <h1 className="text-2xl font-semibold tracking-tight text-center mb-2">

@@ -1,21 +1,39 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
-import { Link, Outlet, redirect, useLocation } from "@remix-run/react";
+import { LoaderFunctionArgs, json } from "@remix-run/node";
+import {
+  Link,
+  Outlet,
+  redirect,
+  useLoaderData,
+  useLocation,
+} from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 
 import { Brand } from "~/assets";
 import { buttonVariants } from "~/components/ui/button";
+import { Footer } from "~/containers/footer";
 import { LanguageSwitcher } from "~/containers/language-switcher";
+import { LazyImage, generateImageWithBlurhash } from "~/containers/lazy-image";
 import { cn } from "~/lib/utils";
 import { getOptionalUser } from "~/server/auth.server";
 
 export const loader = async ({ context }: LoaderFunctionArgs) => {
   const user = await getOptionalUser({ context });
 
+  const background = await generateImageWithBlurhash(
+    "https://images.pexels.com/photos/2486168/pexels-photo-2486168.jpeg",
+    {
+      height: 1600,
+      width: 800,
+    },
+  );
+
   if (user) {
     return redirect("/dashboard");
   }
 
-  return null;
+  return json({
+    background,
+  });
 };
 
 export const handle = { i18n: ["common", "auth"] };
@@ -23,18 +41,10 @@ export const handle = { i18n: ["common", "auth"] };
 export default function AuthLayout() {
   const { t } = useTranslation("auth");
   const { pathname } = useLocation();
+  const { background } = useLoaderData<typeof loader>();
 
   return (
     <>
-      <aside className="md:hidden">
-        {/* <img
-          src="https://images.pexels.com/photos/2486168/pexels-photo-2486168.jpeg"
-          width={1280}
-          height={843}
-          alt="Authentication"
-          className="block"
-        /> */}
-      </aside>
       <section className="container relative min-h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
         <div className="flex gap-4 absolute right-4 top-4 md:right-8 md:top-8">
           {pathname === "/signin" && (
@@ -56,7 +66,14 @@ export default function AuthLayout() {
           <LanguageSwitcher />
         </div>
         <aside className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
-          <div className="absolute inset-0 bg-zinc-900" />
+          <div className="absolute flex items-center inset-0 bg-zinc-900 overflow-hidden">
+            <LazyImage
+              layout="fullWidth"
+              alt="Palm tree"
+              containerClassName="after:absolute after:inset-0 after:bg-gradient-to-b after:from-transparent after:to-zinc-900 after:opacity-75"
+              {...background}
+            />
+          </div>
           <nav className="relative z-20">
             <Link to="/" className="flex items-center text-lg font-medium">
               <Brand className="w-10 h-10 min-w-10 mr-2" />
@@ -78,6 +95,7 @@ export default function AuthLayout() {
           <Outlet />
         </article>
       </section>
+      <Footer />
     </>
   );
 }
