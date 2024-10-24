@@ -12,6 +12,8 @@ import { ShowcaseHeader } from "~/containers/showcase/header";
 import { getOptionalUser } from "~/server/auth.server";
 import { userPrefs } from "~/server/cookies.server";
 
+export const handle = { i18n: ["auth", "common", "dashboard"] };
+
 export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   const user = await getOptionalUser({ context });
 
