@@ -24,6 +24,7 @@ import i18next, { i18nCookie } from "~/modules/i18n.server";
 import { getOptionalUser } from "~/server/auth.server";
 import fontStylesheetUrl from "~/styles/fonts.css?url";
 import globalsStylesheetUrl from "~/styles/globals.css?url";
+import { resourcesList } from "./config/i18n";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: fontStylesheetUrl },
@@ -33,9 +34,7 @@ export const links: LinksFunction = () => [
 export const handle = {
   // In the handle export, we can add a i18n key with namespaces our route
   // will need to load. This key can be a single string or an array of strings.
-  // TIP: In most cases, you should set this to your defaultNS from your i18n config
-  // or if you did not set one, set it to the i18next default namespace "translation"
-  i18n: "common",
+  i18n: resourcesList,
 };
 
 export { meta } from "~/config/meta";

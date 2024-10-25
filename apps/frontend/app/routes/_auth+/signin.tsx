@@ -35,10 +35,6 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   } as const);
 };
 
-export const handle = {
-  i18n: ["common", "auth"],
-};
-
 export { meta } from "~/config/meta";
 
 export const action = async ({ request, context }: ActionFunctionArgs) => {
@@ -152,7 +148,6 @@ function SigninPage() {
         <Form
           {...getFormProps(form)}
           method="post"
-          // action='/auth/login'
           reloadDocument
           className="flex flex-col"
         >

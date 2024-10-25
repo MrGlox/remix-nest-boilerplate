@@ -25,7 +25,7 @@ const Field = forwardRef<HTMLInputElement, InputProps>(
     }: InputProps,
     ref,
   ) => {
-    const { t } = useTranslation();
+    const { t } = useTranslation("validations");
 
     return (
       <fieldset className={cn("", className)}>

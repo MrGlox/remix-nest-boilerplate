@@ -12,8 +12,6 @@ export const extractErrors = (actionData): ErrorsData => {
 };
 
 export const generateAlert = (actionData) => {
-  if (!actionData) return null;
-
   const { t } = useTranslation("errors");
 
   const hasError = actionData?.result.error;
@@ -34,7 +32,7 @@ export const generateAlert = (actionData) => {
             | "info"
         }
       >
-        {t(alert.message as string, alert.message as string)}
+        {t(alert.message as string, { ns: "errors" })}
       </Alert>
     );
 

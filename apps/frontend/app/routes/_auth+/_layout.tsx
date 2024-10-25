@@ -36,8 +36,6 @@ export const loader = async ({ context }: LoaderFunctionArgs) => {
   });
 };
 
-export const handle = { i18n: ["common", "auth"] };
-
 export default function AuthLayout() {
   const { t } = useTranslation("auth");
   const { pathname } = useLocation();
