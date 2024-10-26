@@ -3,12 +3,16 @@ import { createId } from '@paralleldrive/cuid2';
 import { compare, hash } from 'bcryptjs';
 
 import { PrismaService } from '../core/database/prisma.service';
+import { MailService } from '../mail/mail.service';
 
 const PASSWORD_SALT = 10;
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private mailService: MailService,
+  ) {}
 
   public readonly checkIfUserExists = async ({
     email,
@@ -68,6 +72,15 @@ export class AuthService {
     password: string;
   }) => {
     const hashedPassword = await hash(password, PASSWORD_SALT);
+
+    console.log('createUser', email);
+
+    await this.mailService.userSignUp({
+      to: 'test@test.fr',
+      data: {
+        hash: 'test',
+      },
+    });
 
     return await this.prisma.user.create({
       data: {

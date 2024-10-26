@@ -3,6 +3,8 @@ import { PassportModule } from '@nestjs/passport';
 
 import { CookieSerializer } from '../core/cookie-serializer';
 import { PrismaService } from '../core/database/prisma.service';
+import { MailService } from '../mail/mail.service';
+import { MailerService } from '../mailer/mailer.service';
 
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local/local.guard';
@@ -23,6 +25,8 @@ import { LocalStrategy } from './local/local.strategy';
     CookieSerializer,
     PrismaService,
     AuthService,
+    MailService,
+    MailerService,
   ],
   exports: [AuthService],
 })

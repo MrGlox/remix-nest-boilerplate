@@ -18,6 +18,14 @@ services:
       timeout: 5s
       retries: 5
 
+  maildev:
+    build:
+      context: .
+      dockerfile: maildev.Dockerfile
+    ports:
+      - ${MAIL_CLIENT_PORT}:1080
+      - ${MAIL_PORT}:1025
+
   # app:
   #   environment:
   #     - REDIS_URL=redis://redis_dev:6379

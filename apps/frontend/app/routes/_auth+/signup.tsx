@@ -44,23 +44,22 @@ const signupSchema = z.object({
 
 export const action = async ({ request, context }: ActionFunctionArgs) => {
   const formData = await request.formData();
-
   const submission = await parseWithZod(formData, {
     async: true,
     schema: signupSchema.superRefine(async (data, ctx) => {
-      const { email, password } = data;
+      const { email } = data;
 
       const existingUser = await context.remixService.auth.checkIfUserExists({
         email,
-        withPassword: true,
-        password,
+        withPassword: false,
+        password: "",
       });
 
-      if (existingUser.error) {
+      if (existingUser.error === false) {
         ctx.addIssue({
           code: "custom",
-          path: ["alert", "destructive"],
-          message: existingUser.message,
+          path: ["email"],
+          message: "Cet utilisateur existe déjà.",
         });
       }
     }),
@@ -75,20 +74,20 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
     );
   }
 
-  // l'email et le mot de passe sont valides, et un compte utilisateur existe.
-  // connecter l'utilisateur.
-  const { email } = submission.value;
+  const { email, password } = submission.value;
+
+  const { email: createdUserEmail } =
+    await context.remixService.auth.createUser({
+      email,
+      password,
+    });
+
   const { sessionToken } = await context.remixService.auth.authenticateUser({
-    email,
+    email: createdUserEmail,
   });
 
-  const urlParams = new URL(request.url).searchParams;
-  const redirectTo = urlParams.get("redirectTo") || "/";
-
   // Connecter l'utilisateur associé à l'email
-  return redirect(
-    `/authenticate?token=${sessionToken}&redirectTo=${redirectTo}`,
-  );
+  return redirect(`/authenticate?token=${sessionToken}`);
 };
 
 function SignupPage() {
