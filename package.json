@@ -4,7 +4,7 @@
   "description": "A monorepo with a NestJS backend and a Remix frontend",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "NODE_ENV=development turbo dev",
+    "dev": "turbo dev",
     "lint": "turbo lint",
     "build": "turbo build",
     "typecheck": "turbo typecheck",

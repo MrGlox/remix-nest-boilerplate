@@ -48,5 +48,13 @@
   "destructive": "Erreur",
   "info": "Information",
   "success": "Succès",
-  "warning": "Avertissement"
+  "warning": "Avertissement",
+  "cookie": {
+    "title": "Nous accordons de l'importance à votre vie privée",
+    "description": "Nous utilisons des cookies pour améliorer votre expérience de navigation, diffuser des publicités ou du contenu personnalisé et analyser notre trafic. En cliquant sur \"Tout accepter\", vous consentez à l'utilisation de nos cookies.",
+    "link": "Politique de cookies",
+    "customize": "Personnaliser",
+    "reject": "Tout refuser",
+    "accept": "Tout accepter"
+  }
 }

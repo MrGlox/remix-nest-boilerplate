@@ -8,7 +8,7 @@ const ShowcaseHeader = ({ isAuth }) => {
   const { t } = useTranslation();
 
   return (
-    <header className="border-b sticky top-0 w-full">
+    <header className="border-b sticky z-50 top-0 w-full">
       <Container
         size="large"
         className="flex h-16 items-center px-4 justify-between"

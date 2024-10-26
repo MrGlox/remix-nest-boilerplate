@@ -188,8 +188,6 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
   });
 
   if (submission.status !== "success") {
-    console.log("submission", submission);
-
     return json(
       { result: submission.reply() },
       {

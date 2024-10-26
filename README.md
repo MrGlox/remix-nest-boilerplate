@@ -45,3 +45,8 @@ Voici les avantages :
 C'est un gain de temps énorme.
 
 Et dans cette formation, je te montre comment j'ai configuré cette stack pour que tu puisses l'utiliser dans tes projets.
+
+
+
+
+https://ui.jln.dev/feedback-colors-generator-for-shadcn-ui

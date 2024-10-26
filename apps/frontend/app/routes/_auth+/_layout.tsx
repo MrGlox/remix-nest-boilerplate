@@ -11,7 +11,6 @@ import { useTranslation } from "react-i18next";
 import { Brand } from "~/assets";
 import { buttonVariants } from "~/components/ui/button";
 import { Footer } from "~/containers/footer";
-import { LanguageSwitcher } from "~/containers/language-switcher";
 import { LazyImage, generateImageWithBlurhash } from "~/containers/lazy-image";
 import { cn } from "~/lib/utils";
 import { getOptionalUser } from "~/server/auth.server";
@@ -61,7 +60,7 @@ export default function AuthLayout() {
               {t("signin.title")}
             </Link>
           )}
-          <LanguageSwitcher />
+          {/* <LanguageSwitcher /> */}
         </div>
         <aside className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
           <div className="absolute flex items-center inset-0 bg-zinc-900 overflow-hidden">

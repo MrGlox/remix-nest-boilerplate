@@ -1,6 +1,6 @@
 {
   "website": "Boilerplate",
-  "title": "Homepage | {{ website }}",
+  "title": "Homepage | {{website}}",
   "description": "This boilerplate is a modern web application template that provides a foundation for building full-stack applications using NestJS and Remix.",
   "navigate": "Navigate",
   "login": "Log in",
@@ -48,5 +48,13 @@
   "destructive": "Error",
   "info": "Information",
   "success": "Success",
-  "warning": "Warning"
+  "warning": "Warning",
+  "cookie": {
+    "title": "We value your privacy",
+    "description": " We use cookies to enhance your browsing experience, serve personalized ads or content, and analyze our traffic. By clicking \"Accept All\", you consent to our use of cookies.",
+    "link": "Cookie policy",
+    "customize": "Customize",
+    "reject": "Reject all",
+    "accept": "Accept all"
+  }
 }

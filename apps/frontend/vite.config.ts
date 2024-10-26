@@ -5,13 +5,11 @@ import { installGlobals } from "@remix-run/node";
 
 import { flatRoutes } from "remix-flat-routes";
 import { defineConfig } from "vite";
-import {
-  envOnlyMacros,
-  // denyImports
-} from "vite-env-only";
+import { envOnlyMacros } from "vite-env-only";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 const MODE = process.env.NODE_ENV;
+
 installGlobals();
 
 export default defineConfig({
@@ -27,9 +25,6 @@ export default defineConfig({
   },
   plugins: [
     envOnlyMacros(),
-    // cjsInterop({
-    // 	dependencies: ['remix-utils', 'is-ip', '@markdoc/markdoc'],
-    // }),
     tsconfigPaths({}),
     remix({
       ignoredRouteFiles: ["**/*"],
@@ -50,6 +45,7 @@ export default defineConfig({
             "**/*.css",
             "**/*.test.{js,jsx,ts,tsx}",
             "**/__*.*",
+
             // This is for server-side utilities you want to colocate next to
             // your routes without making an additional directory.
             // If you need a route that includes "server" or "client" in the
@@ -57,6 +53,7 @@ export default defineConfig({
             // 	'**/*.server.*',
             // 	'**/*.client.*',
           ],
+
           // Since process.cwd() is the server directory, we need to resolve the path to remix project
           appDir: resolve(__dirname, "app"),
         });

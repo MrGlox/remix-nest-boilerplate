@@ -5,13 +5,19 @@ import {
 
 import { cn } from "~/lib/utils";
 
-interface LinkProps extends RouterLinkProps {}
+interface LinkProps extends RouterLinkProps {
+  reversed?: boolean;
+}
 
-const Link = ({ className, ...props }: LinkProps) => {
+const Link = ({ className, reversed = false, ...props }: LinkProps) => {
   return (
     <RouterLink
       {...props}
-      className={cn("hover:underline cursor-pointer", className)}
+      className={cn(
+        "hover:underline cursor-pointer underline-offset-1",
+        reversed ? "underline hover:no-underline" : "",
+        className,
+      )}
     />
   );
 };

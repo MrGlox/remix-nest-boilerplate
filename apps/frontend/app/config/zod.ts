@@ -12,7 +12,5 @@ export const customErrorMap: z.ZodErrorMap = (issue) => {
     return { message: `errors.bad_format` };
   }
 
-  console.log("issue", issue);
-
   return { message: `errors.${issue.code}` };
 };

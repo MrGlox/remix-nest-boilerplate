@@ -17,7 +17,7 @@ const buttonVariants = cva(
           "bg-muted text-secondary-foreground hover:bg-muted/80 hover:no-underline",
         ghost:
           "hover:bg-accent hover:text-accent-foreground hover:no-underline",
-        link: "text-primary underline-offset-4 hover:underline !p-0 !h-auto hover:no-underline",
+        link: "text-primary underline-offset-4 hover:underline !p-0 !h-auto",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 border border-destructive-foreground/10 hover:underline",
         success:
