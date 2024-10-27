@@ -2,27 +2,29 @@ import { Injectable } from '@nestjs/common';
 import { createId } from '@paralleldrive/cuid2';
 import { compare, hash } from 'bcryptjs';
 
+import { I18nService } from 'nestjs-i18n';
 import { PrismaService } from '../core/database/prisma.service';
 import { MailerService } from '../mailer/mailer.service';
 import { EmailConfirmation } from './interfaces/email-confirmation';
 
 const PASSWORD_SALT = 10;
 
+const translationKeys = ['title', 'description', 'cta'];
+
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly i18n: I18nService,
     private readonly prisma: PrismaService,
     private mailerService: MailerService,
   ) {}
 
-  public async sendEmailConfirmation(
-    firstname: string,
-    lastname: string,
-    email: string,
-  ) {
-    const emailTemplate = new EmailConfirmation({ firstname, lastname });
+  public async sendEmailConfirmation(email: string) {
+    const emailTemplate = new EmailConfirmation(null);
 
-    console.log('emailTemplate', emailTemplate);
+    // const translations = translationKeys.map((key) =>
+    //   this.i18n.t('test.HELLO', { lang }),
+    // );
 
     return await this.mailerService.sendMailFromTemplate(emailTemplate, {
       to: email,
@@ -88,27 +90,12 @@ export class AuthService {
   }) => {
     const hashedPassword = await hash(password, PASSWORD_SALT);
 
-    // const url = new URL(
-    //   this.configService.getOrThrow('app.frontendDomain', {
-    //     infer: true,
-    //   }) + '/confirm-new-email',
-    // );
+    // const languageCookie = this.i18n.();
+    const translations = this.i18n.getTranslations();
+    // console.log('languageCookie', languageCookie);
+    console.log('translations', translations);
 
-    // url.searchParams.set('hash', mailData.data.hash);
-
-    // await this.mailerService.sendMailFromTemplate('email-confirmation', {
-    //   to: [{ email: 'test' }],
-    //   subject: 'test',
-    //   text: `${url.toString()} test`,
-    //   context: {
-    //     title: 'test',
-    //     url: url.toString(),
-    //     actionTitle: 'test',
-    //     app_name: this.configService.get('app.name', { infer: true }),
-    //   },
-    // });
-
-    await this.sendEmailConfirmation('test', 'test', email);
+    await this.sendEmailConfirmation(email);
 
     return await this.prisma.user.create({
       data: {

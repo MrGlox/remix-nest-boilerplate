@@ -5,12 +5,13 @@ import { Injectable } from '@nestjs/common';
 
 import * as Handlebars from 'handlebars';
 import mjml from 'mjml';
+import { I18nService } from 'nestjs-i18n';
 
 export enum TemplateTypeEnum {
+  activation = 'activation',
   emailConfirmation = 'email-confirmation',
+  resetPassword = 'reset-password',
 }
-
-// export type TemplateType = 'email-confirmation' | 'forgot-password' | 'welcome';
 
 export type EmailMetadata = {
   subject: string;
@@ -36,6 +37,8 @@ export interface BuiltTemplate {
 // service code
 @Injectable()
 export class TemplateService {
+  constructor(private readonly i18n: I18nService) {}
+
   async getTemplate<T>({
     name,
     data,
@@ -51,9 +54,9 @@ export class TemplateService {
       const html = template(data);
 
       // extract extra info (eg. subject) from the template
-      const metadata = await this.getEmailData(name);
+      // const metadata = await this.getEmailData(name);
 
-      return { html, metadata };
+      return { html, metadata: { subject: 'subject' } };
     } catch (error) {
       console.error(`Error reading email template: ${error}`);
 

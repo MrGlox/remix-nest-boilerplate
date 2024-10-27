@@ -1,6 +1,7 @@
 {
   "website": "Boilerplate",
   "title": "Homepage | {{website}}",
+  "home": "Build your next project with this boilerplate",
   "description": "This boilerplate is a modern web application template that provides a foundation for building full-stack applications using NestJS and Remix.",
   "navigate": "Navigate",
   "login": "Log in",

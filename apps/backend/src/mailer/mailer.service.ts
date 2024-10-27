@@ -40,11 +40,9 @@ export class MailerService {
 
     const { html, metadata } = await this.templateService.getTemplate(template);
 
-    console.log('metadata', metadata);
-    console.log('html', html);
-
     return this.transporter.sendMail({
       ...emailInfo,
+      ...metadata,
       from: emailInfo.from
         ? emailInfo.from
         : `"${this.configService.get('mailer.defaultName', {

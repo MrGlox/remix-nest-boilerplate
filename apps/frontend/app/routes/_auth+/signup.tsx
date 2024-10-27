@@ -17,7 +17,7 @@ import { Badge } from "~/components/ui/badge";
 import { Button, buttonVariants } from "~/components/ui/button";
 import { Field } from "~/containers/forms";
 import { cn } from "~/lib/utils";
-import i18next from "~/modules/i18n.server";
+import i18next, { i18nCookie } from "~/modules/i18n.server";
 import { getOptionalUser } from "~/server/auth.server";
 
 export const loader = async ({ request, context }: LoaderFunctionArgs) => {
@@ -44,6 +44,17 @@ const signupSchema = z.object({
 
 export const action = async ({ request, context }: ActionFunctionArgs) => {
   const formData = await request.formData();
+
+  const oldCookie = request.headers.get("Cookie");
+  const value = await i18nCookie.parse(oldCookie);
+
+  console.log("value", value);
+
+  // console.log("context", context);
+  // console.log("request", request);
+
+  // console.log("i18n nest", context.remixService.auth.i18n);
+
   const submission = await parseWithZod(formData, {
     async: true,
     schema: signupSchema.superRefine(async (data, ctx) => {

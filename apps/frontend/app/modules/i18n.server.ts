@@ -11,7 +11,7 @@ export const i18nCookie = createCookie("_i18n", {
   path: "/",
   sameSite: "lax",
   httpOnly: true,
-  maxAge: 60, // 1 minute - We do not require a long session for i18n.
+  maxAge: 604_800,
   secrets: [process.env.SESSION_SECRET || "SESSION_SECRET"],
   secure: process.env.NODE_ENV === "production",
 });

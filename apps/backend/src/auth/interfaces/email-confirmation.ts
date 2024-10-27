@@ -3,9 +3,6 @@ import {
   TemplateTypeEnum,
 } from '../../mailer/core/template.service';
 
-export class EmailConfirmation extends EmailTemplate<{
-  firstname: string;
-  lastname: string;
-}> {
+export class EmailConfirmation extends EmailTemplate<any> {
   name = TemplateTypeEnum.emailConfirmation;
 }
