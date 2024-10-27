@@ -10,8 +10,8 @@ import { useTranslation } from "react-i18next";
 
 import { Brand } from "~/assets";
 import { buttonVariants } from "~/components/ui/button";
-import { Footer } from "~/containers/footer";
 import { LazyImage, generateImageWithBlurhash } from "~/containers/lazy-image";
+import { Footer } from "~/containers/showcase/footer";
 import { cn } from "~/lib/utils";
 import { getOptionalUser } from "~/server/auth.server";
 

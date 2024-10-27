@@ -11,7 +11,8 @@ import {
 } from 'class-validator';
 
 import validateConfig from '../../core/utils/validate-config';
-import { MailConfig } from './mail-config.type';
+
+import { MailerConfig } from './mailer-config.type';
 
 class EnvironmentVariablesValidator {
   @IsInt()
@@ -47,7 +48,7 @@ class EnvironmentVariablesValidator {
   MAIL_REQUIRE_TLS!: boolean;
 }
 
-export default registerAs<MailConfig>('mail', () => {
+export default registerAs<MailerConfig>('mailer', () => {
   validateConfig(process.env, EnvironmentVariablesValidator);
 
   return {

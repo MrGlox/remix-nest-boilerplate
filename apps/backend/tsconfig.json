@@ -10,5 +10,5 @@
     "lib": ["DOM", "ES2023"],
     "baseUrl": "."
   },
-  "include": ["src/**/*.ts", "src/core/i18n/**/*.json", "src/exports.js"]
+  "include": ["src/**/*.ts", "src/exports.js"]
 }

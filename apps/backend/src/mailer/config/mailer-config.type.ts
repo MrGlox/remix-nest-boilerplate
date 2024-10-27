@@ -1,4 +1,4 @@
-export type MailConfig = {
+export type MailerConfig = {
   port: number;
   host?: string;
   user?: string;

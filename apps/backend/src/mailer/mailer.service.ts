@@ -1,57 +1,58 @@
-import fs from 'node:fs/promises';
-
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import Handlebars from 'handlebars';
+
 import nodemailer from 'nodemailer';
 
 import { AllConfigType } from '../core/config/config.type';
 
+import { EmailTemplate, TemplateService } from './core/template.service';
+import { Email } from './mailer.interface';
+
 @Injectable()
 export class MailerService {
   private readonly transporter: nodemailer.Transporter;
-  constructor(private readonly configService: ConfigService<AllConfigType>) {
+
+  constructor(
+    private readonly configService: ConfigService<AllConfigType>,
+    private readonly templateService: TemplateService,
+  ) {
     this.transporter = nodemailer.createTransport({
-      host: configService.get('mail.host', { infer: true }),
-      port: configService.get('mail.port', { infer: true }),
-      ignoreTLS: configService.get('mail.ignoreTLS', { infer: true }),
-      secure: configService.get('mail.secure', { infer: true }),
-      requireTLS: configService.get('mail.requireTLS', { infer: true }),
+      host: configService.get('mailer.host', { infer: true }),
+      port: configService.get('mailer.port', { infer: true }),
+      ignoreTLS: configService.get('mailer.ignoreTLS', { infer: true }),
+      secure: configService.get('mailer.secure', { infer: true }),
+      requireTLS: configService.get('mailer.requireTLS', { infer: true }),
       auth: {
-        user: configService.get('mail.user', { infer: true }),
-        pass: configService.get('mail.password', { infer: true }),
+        user: configService.get('mailer.user', { infer: true }),
+        pass: configService.get('mailer.password', { infer: true }),
       },
     });
-
-    console.log('this.transporter', this.transporter);
   }
 
-  async sendMail({
-    templatePath,
-    context,
-    ...mailOptions
-  }: nodemailer.SendMailOptions & {
-    templatePath: string;
-    context: Record<string, unknown>;
-  }): Promise<void> {
-    let html: string | undefined;
-    if (templatePath) {
-      const template = await fs.readFile(templatePath, 'utf-8');
-      html = Handlebars.compile(template, {
-        strict: true,
-      })(context);
+  async sendMailFromTemplate<T>(
+    template: EmailTemplate<T>,
+    emailInfo: Partial<Email> & { to: string },
+    // settings: sg.MailDataRequired['mailSettings'] = {},
+  ) {
+    if (!emailInfo.to.length) {
+      throw new Error('No recipient found');
     }
 
-    await this.transporter.sendMail({
-      ...mailOptions,
-      from: mailOptions.from
-        ? mailOptions.from
-        : `"${this.configService.get('mail.defaultName', {
+    const { html, metadata } = await this.templateService.getTemplate(template);
+
+    console.log('metadata', metadata);
+    console.log('html', html);
+
+    return this.transporter.sendMail({
+      ...emailInfo,
+      from: emailInfo.from
+        ? emailInfo.from
+        : `"${this.configService.get('mailer.defaultName', {
             infer: true,
-          })}" <${this.configService.get('mail.defaultEmail', {
+          })}" <${this.configService.get('mailer.defaultEmail', {
             infer: true,
           })}>`,
-      html: mailOptions.html ? mailOptions.html : html,
+      html: emailInfo.html ? emailInfo.html : html,
     });
   }
 }

@@ -8,9 +8,7 @@
   "main": "./dist/remix/remix.service.js",
   "types": "./dist/remix/remix.service.d.ts",
   "scripts": {
-    "dev": "run-p dev:compile dev:watch",
-    "dev:compile": "tsc --build --watch",
-    "dev:watch": "nodemon node dist/main.js",
+    "dev": "nest start --watch --tsc",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "prebuild": "rimraf dist tsconfig.tsbuildinfo",
     "build": "tsc --build",

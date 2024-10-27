@@ -1,29 +1,27 @@
+import path from 'node:path';
+
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 
 import appConfig from './core/config/app.config';
-import mailConfig from './mail/config/mail.config';
+import mailerConfig from './mailer/config/mailer.config';
 
-import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
 import { PrismaService } from './core/database/prisma.service';
-import { RemixController } from './core/remix/remix.controller';
-import { RemixService } from './core/remix/remix.service';
-import { MailModule } from './mail/mail.module';
+import { RemixModule } from './core/remix/remix.module';
 import { MailerModule } from './mailer/mailer.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, mailConfig],
-      envFilePath: ['.env'],
+      load: [appConfig, mailerConfig],
+      envFilePath: path.resolve(__dirname, '../../../.env'),
     }),
     AuthModule,
-    MailModule,
+    RemixModule,
     MailerModule,
   ],
-  controllers: [AuthController, RemixController],
-  providers: [ConfigService, PrismaService, RemixService],
+  providers: [PrismaService],
 })
 export class AppModule {}

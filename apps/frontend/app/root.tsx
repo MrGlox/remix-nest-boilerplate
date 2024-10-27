@@ -74,7 +74,6 @@ export async function action({ request }: ActionFunctionArgs) {
   const cookie = (await cookieConsent.parse(cookieHeader)) || {};
 
   const bodyParams = await request.formData();
-  console.log("cookieHeader", locale);
 
   if (bodyParams.get("cookieConsent") === "rejected") {
     cookie.cookieConsent = false;

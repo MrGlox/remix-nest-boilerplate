@@ -3,7 +3,8 @@ import { createId } from '@paralleldrive/cuid2';
 import { compare, hash } from 'bcryptjs';
 
 import { PrismaService } from '../core/database/prisma.service';
-import { MailService } from '../mail/mail.service';
+import { MailerService } from '../mailer/mailer.service';
+import { EmailConfirmation } from './interfaces/email-confirmation';
 
 const PASSWORD_SALT = 10;
 
@@ -11,8 +12,22 @@ const PASSWORD_SALT = 10;
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
-    private mailService: MailService,
+    private mailerService: MailerService,
   ) {}
+
+  public async sendEmailConfirmation(
+    firstname: string,
+    lastname: string,
+    email: string,
+  ) {
+    const emailTemplate = new EmailConfirmation({ firstname, lastname });
+
+    console.log('emailTemplate', emailTemplate);
+
+    return await this.mailerService.sendMailFromTemplate(emailTemplate, {
+      to: email,
+    });
+  }
 
   public readonly checkIfUserExists = async ({
     email,
@@ -73,14 +88,27 @@ export class AuthService {
   }) => {
     const hashedPassword = await hash(password, PASSWORD_SALT);
 
-    console.log('createUser', email);
+    // const url = new URL(
+    //   this.configService.getOrThrow('app.frontendDomain', {
+    //     infer: true,
+    //   }) + '/confirm-new-email',
+    // );
 
-    await this.mailService.userSignUp({
-      to: 'test@test.fr',
-      data: {
-        hash: 'test',
-      },
-    });
+    // url.searchParams.set('hash', mailData.data.hash);
+
+    // await this.mailerService.sendMailFromTemplate('email-confirmation', {
+    //   to: [{ email: 'test' }],
+    //   subject: 'test',
+    //   text: `${url.toString()} test`,
+    //   context: {
+    //     title: 'test',
+    //     url: url.toString(),
+    //     actionTitle: 'test',
+    //     app_name: this.configService.get('app.name', { infer: true }),
+    //   },
+    // });
+
+    await this.sendEmailConfirmation('test', 'test', email);
 
     return await this.prisma.user.create({
       data: {

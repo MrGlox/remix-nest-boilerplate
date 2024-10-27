@@ -9,8 +9,8 @@ import session from 'express-session';
 import Redis from 'ioredis';
 import passport from 'passport';
 
-import { HttpExceptionFilter } from './core/exception.filter';
 import { AppModule } from './app.module';
+import { HttpExceptionFilter } from './core/exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
