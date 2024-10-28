@@ -1,3 +1,7 @@
 {
-  "subject": "Confirmation"
+  "subject": "Confirm your email address",
+  "title": "Confirm your email address",
+  "description": "To confirm your email address, click the button below.",
+  "cta": "Confirm mail address",
+  "footer": "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 }

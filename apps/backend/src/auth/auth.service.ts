@@ -1,35 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { createId } from '@paralleldrive/cuid2';
-import { compare, hash } from 'bcryptjs';
 
-import { I18nService } from 'nestjs-i18n';
 import { PrismaService } from '../core/database/prisma.service';
+import { TokenService } from '../core/token/token.service';
+import { hashWithSalt, verifyPassword } from '../core/utils/crypt';
 import { MailerService } from '../mailer/mailer.service';
-import { EmailConfirmation } from './interfaces/email-confirmation';
 
-const PASSWORD_SALT = 10;
-
-const translationKeys = ['title', 'description', 'cta'];
+// const translationKeys = ['title', 'description', 'cta'];
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly i18n: I18nService,
     private readonly prisma: PrismaService,
     private mailerService: MailerService,
+    private tokenService: TokenService,
   ) {}
-
-  public async sendEmailConfirmation(email: string) {
-    const emailTemplate = new EmailConfirmation(null);
-
-    // const translations = translationKeys.map((key) =>
-    //   this.i18n.t('test.HELLO', { lang }),
-    // );
-
-    return await this.mailerService.sendMailFromTemplate(emailTemplate, {
-      to: email,
-    });
-  }
 
   public readonly checkIfUserExists = async ({
     email,
@@ -40,11 +25,6 @@ export class AuthService {
     withPassword: boolean;
     password: string;
   }) => {
-    // Renvoie true si l'utilisateur n'existe pas
-    // Renvoie false si l'utilisateur existe
-
-    // 1. Vérifier que l'utilisateur existe sur l'email
-    // 2. Si withPassword est activé, on vérifie que son mot de passe est bien défini.
     const existingUser = await this.prisma.user.findUnique({
       where: {
         email,
@@ -64,8 +44,12 @@ export class AuthService {
     }
 
     if (withPassword) {
+      const [salt, hash] = existingUser.password
+        .replace('user_', '')
+        .split('.');
+
       // Rajouter une logique de validation par mot de passez
-      const isPasswordValid = await compare(password, existingUser.password);
+      const isPasswordValid = await verifyPassword(hash, salt, password);
 
       if (!isPasswordValid) {
         return {
@@ -84,29 +68,44 @@ export class AuthService {
   public readonly createUser = async ({
     email,
     password,
+    lang,
   }: {
     email: string;
     password: string;
+    lang: string;
   }) => {
-    const hashedPassword = await hash(password, PASSWORD_SALT);
+    const { hash, salt } = await hashWithSalt(password);
 
-    // const languageCookie = this.i18n.();
-    const translations = this.i18n.getTranslations();
-    // console.log('languageCookie', languageCookie);
-    console.log('translations', translations);
-
-    await this.sendEmailConfirmation(email);
-
-    return await this.prisma.user.create({
+    const user = await this.prisma.user.create({
       data: {
         email: email.toLowerCase(),
-        password: hashedPassword,
+        password: `user_${salt}.${hash}`,
       },
       select: {
         id: true,
         email: true,
       },
     });
+
+    const { token, ...rest } = await this.tokenService.generateVerifyEmailToken(
+      {
+        userId: user.id,
+      },
+    );
+
+    console.log('token', token, rest);
+
+    const url = `${process.env.APP_DOMAIN}/auth/confirm-email?token=${token}`;
+
+    await this.mailerService.sendMailFromTemplate('email-confirmation', {
+      to: email,
+      data: {
+        url,
+      },
+      lang,
+    });
+
+    return user;
   };
 
   public readonly authenticateUser = async ({ email }: { email: string }) => {

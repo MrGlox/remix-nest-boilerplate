@@ -35,7 +35,7 @@ export const requireUser = async ({
   const user = await getOptionalUser({ context });
 
   if (!user) {
-    throw redirect(`/login?redirectTo=${redirectTo}`);
+    throw redirect(`/signin?redirectTo=${redirectTo}`);
   }
 
   return user;

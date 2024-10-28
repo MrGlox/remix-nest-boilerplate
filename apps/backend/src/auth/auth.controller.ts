@@ -24,6 +24,15 @@ export class AuthController {
     };
   }
 
+  @UseGuards(LocalAuthGuard)
+  @Get('/auth/confirm-email')
+  @Redirect('/signin')
+  confirmEmail(@Query('redirectTo') redirectTo: string) {
+    return {
+      url: redirectTo,
+    };
+  }
+
   @Post('auth/logout')
   async logout(
     @Req() request: Request,

@@ -5,13 +5,11 @@ import { Injectable } from '@nestjs/common';
 
 import * as Handlebars from 'handlebars';
 import mjml from 'mjml';
-import { I18nService } from 'nestjs-i18n';
 
-export enum TemplateTypeEnum {
-  activation = 'activation',
-  emailConfirmation = 'email-confirmation',
-  resetPassword = 'reset-password',
-}
+export type TemplateType =
+  | 'activation'
+  | 'email-confirmation'
+  | 'reset-password';
 
 export type EmailMetadata = {
   subject: string;
@@ -20,7 +18,7 @@ export type EmailMetadata = {
 export abstract class EmailTemplate<T> {
   constructor(public context: T) {}
 
-  public name!: TemplateTypeEnum;
+  public name!: TemplateType;
 
   get data(): T | unknown {
     return this.context;
@@ -34,38 +32,32 @@ export interface BuiltTemplate {
   };
 }
 
-// service code
 @Injectable()
 export class TemplateService {
-  constructor(private readonly i18n: I18nService) {}
-
   async getTemplate<T>({
     name,
-    data,
+    data = {},
   }: EmailTemplate<T>): Promise<BuiltTemplate> {
     try {
-      // pass the template name to produce html template
       const result = await this.getEmailTemplate(name);
-
-      // compile handlebars template
       const template = Handlebars.compile<typeof data>(result.html);
 
-      // build final output with data passed i.e eg : firstname, lastname, etc
-      const html = template(data);
+      const metadata = await this.getEmailData(
+        name,
+        (data as { lang: string }).lang || 'en',
+      );
 
-      // extract extra info (eg. subject) from the template
-      // const metadata = await this.getEmailData(name);
+      const html = template({ ...metadata, ...(data || {}) });
 
-      return { html, metadata: { subject: 'subject' } };
+      return { html, metadata };
     } catch (error) {
       console.error(`Error reading email template: ${error}`);
-
       throw new Error(String(error));
     }
   }
 
   async getEmailTemplate(
-    templateName: TemplateTypeEnum,
+    templateName: TemplateType,
   ): Promise<ReturnType<typeof mjml>> {
     try {
       const file = await readFile(
@@ -83,20 +75,23 @@ export class TemplateService {
       return mjml(file);
     } catch (error) {
       console.error(`Error reading email template: ${error}`);
-
       throw new Error(String(error));
     }
   }
 
-  async getEmailData(templateName: string): Promise<EmailMetadata> {
+  async getEmailData(
+    templateName: TemplateType,
+    lang: string,
+  ): Promise<EmailMetadata> {
     try {
       const contents = await readFile(
         path.resolve(
           __dirname,
           '..',
           '..',
-          'mailer',
-          'templates',
+          'core',
+          'locales',
+          lang,
           `${templateName}.json`,
         ),
         'utf8',
@@ -105,7 +100,6 @@ export class TemplateService {
       return JSON.parse(contents);
     } catch (error) {
       console.error(`Error reading email template: ${error}`);
-
       throw new Error(String(error));
     }
   }

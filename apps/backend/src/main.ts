@@ -1,3 +1,5 @@
+import * as path from 'node:path';
+
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -5,6 +7,7 @@ import { getPublicDir, startDevServer } from '@repo/frontend';
 
 import { urlencoded } from 'body-parser';
 import RedisStore from 'connect-redis';
+import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import Redis from 'ioredis';
 import passport from 'passport';
@@ -59,6 +62,7 @@ async function bootstrap() {
     }),
   );
 
+  app.useStaticAssets(path.join(__dirname, '..', 'public'));
   app.useStaticAssets(getPublicDir(), {
     immutable: true,
     maxAge: '1y',
@@ -70,8 +74,11 @@ async function bootstrap() {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  app.use(cookieParser());
+
   app.use('/authenticate', urlencoded({ extended: true }));
   app.use('/auth/logout', urlencoded({ extended: true }));
+  app.use('/auth/confirm-email', urlencoded({ extended: true }));
 
   const selectedPort = process.env.PORT ?? 3000;
 

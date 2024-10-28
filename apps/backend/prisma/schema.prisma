@@ -17,7 +17,7 @@ model User {
   id String @id @default(cuid())
 
   email           String  @unique
-  pseudo          String  @unique
+  pseudo          String?  @unique
   password        String
   preferredLocale String  @default("en")
   active          Boolean @default(false)
@@ -33,13 +33,7 @@ model User {
 
   profile Profile?
 
-  teams UsersOnTeams[]
-
   tokens      Token[]
-  Team        Team[]
-  Comment     Comment[]
-  CommentLike CommentLike[]
-  Order       Order[]
 }
 
 model Session {
@@ -71,49 +65,13 @@ model Profile {
 
 enum Role {
   USER
-  CREW
-  AUTOR
-  EDITOR
-  OWNER
   ADMIN
-}
-
-model Team {
-  id String @id @default(cuid())
-
-  name        String
-  description String?
-  avatar      String?
-  channelId   String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  users UsersOnTeams[]
-
-  ownerId String
-  owner   User   @relation(fields: [ownerId], references: [id])
-}
-
-model UsersOnTeams {
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  teamId String
-  team   Team   @relation(fields: [teamId], references: [id])
-
-  role Role
-
-  assignedAt DateTime @default(now())
-  assignedBy String
-
-  @@id([userId, teamId])
 }
 
 enum TokenType {
   ACCESS
   REFRESH
-  EMAIL_VERIFICATION
+  VERIFY_EMAIL
   PASSWORD_RESET
 }
 
@@ -131,112 +89,11 @@ model Token {
   user   User   @relation(fields: [userId], references: [id])
 }
 
-model Video {
-  id String @id @default(cuid())
-
-  title String
-  url   String @unique
-
-  comments Comment[] // Relation with the Comment model
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Member {
-  id String @id @default(cuid())
-
-  email        String
-  pseudo       String
-  isSubscribed Boolean @default(false)
-
-  comments Comment[] // Relation with the Comment model
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Comment {
-  id String @id @default(cuid())
-
-  content String
-
-  authorId String
-  author   Member @relation(fields: [authorId], references: [id])
-
-  videoId String
-  video   Video  @relation(fields: [videoId], references: [id])
-
-  parentId String?
-  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id]) // For replies
-  replies  Comment[] @relation("CommentReplies")
-
-  likes    Int @default(0)
-  dislikes Int @default(0)
-
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  lastEditionAt DateTime
-
-  CommentLike CommentLike[]
-
-  userId String?
-  User   User?   @relation(fields: [userId], references: [id])
-}
-
-model CommentLike {
-  id String @id @default(cuid())
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  commentId String
-  comment   Comment @relation(fields: [commentId], references: [id])
-
-  value     LikeValue
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  @@unique([userId, commentId]) // User can only like/dislike a comment once
-}
-
-enum LikeValue {
-  LIKE
-  DISLIKE
-}
-
-model Offer {
-  id String @id @default(cuid())
-
-  title       String
-  description String
-  price       Float // Offer price
-
-  orders    Order[] // Orders that include this offer
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Order {
-  id String @id @default(cuid())
-
-  buyerId String
-  buyer   User   @relation(fields: [buyerId], references: [id])
-
-  offerId     String
-  offer       Offer  @relation(fields: [offerId], references: [id])
-  recurrences Int
-
-  payment   Payment? // Relation to payment
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
 model Payment {
   id String @id @default(cuid())
 
-  orderId String @unique
-  order   Order  @relation(fields: [orderId], references: [id])
+  // orderId String @unique
+  // order   Order  @relation(fields: [orderId], references: [id])
 
   stripePaymentId String // Stripe payment intent or charge ID
   amount          Float // Payment amount

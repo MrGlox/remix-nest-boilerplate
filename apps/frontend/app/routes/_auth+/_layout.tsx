@@ -18,6 +18,10 @@ import { getOptionalUser } from "~/server/auth.server";
 export const loader = async ({ context }: LoaderFunctionArgs) => {
   const user = await getOptionalUser({ context });
 
+  if (user) {
+    return redirect("/dashboard");
+  }
+
   const background = await generateImageWithBlurhash(
     "https://images.pexels.com/photos/2486168/pexels-photo-2486168.jpeg",
     {
@@ -25,10 +29,6 @@ export const loader = async ({ context }: LoaderFunctionArgs) => {
       width: 800,
     },
   );
-
-  if (user) {
-    return redirect("/dashboard");
-  }
 
   return json({
     background,
@@ -43,7 +43,7 @@ export default function AuthLayout() {
   return (
     <>
       <section className="container relative min-h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-        <div className="flex gap-4 absolute right-4 top-4 md:right-8 md:top-8">
+        <div className="flex justify-end gap-4 absolute right-1/2 lg:right-1/4 translate-x-1/2 top-4 md:top-8 max-w-[484px] w-[calc(50%+64px)]">
           {pathname === "/signin" && (
             <Link
               to="/signup"

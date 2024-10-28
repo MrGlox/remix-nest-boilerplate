@@ -5,7 +5,11 @@ import nodemailer from 'nodemailer';
 
 import { AllConfigType } from '../core/config/config.type';
 
-import { EmailTemplate, TemplateService } from './core/template.service';
+import {
+  EmailTemplate,
+  TemplateService,
+  TemplateType,
+} from './core/template.service';
 import { Email } from './mailer.interface';
 
 @Injectable()
@@ -29,20 +33,24 @@ export class MailerService {
     });
   }
 
-  async sendMailFromTemplate<T>(
-    template: EmailTemplate<T>,
-    emailInfo: Partial<Email> & { to: string },
+  async sendMailFromTemplate(
+    template: TemplateType,
+    emailInfo: Partial<Email> & { to: string; lang?: string },
     // settings: sg.MailDataRequired['mailSettings'] = {},
   ) {
     if (!emailInfo.to.length) {
       throw new Error('No recipient found');
     }
 
-    const { html, metadata } = await this.templateService.getTemplate(template);
+    const { data, ...rest } = emailInfo;
+    const { html, metadata } = await this.templateService.getTemplate({
+      name: template,
+      data: { ...data, ...rest },
+    } as EmailTemplate<any>);
 
     return this.transporter.sendMail({
-      ...emailInfo,
       ...metadata,
+      to: emailInfo.to,
       from: emailInfo.from
         ? emailInfo.from
         : `"${this.configService.get('mailer.defaultName', {
@@ -50,7 +58,7 @@ export class MailerService {
           })}" <${this.configService.get('mailer.defaultEmail', {
             infer: true,
           })}>`,
-      html: emailInfo.html ? emailInfo.html : html,
+      html,
     });
   }
 }

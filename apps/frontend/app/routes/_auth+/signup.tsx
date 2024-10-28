@@ -44,16 +44,7 @@ const signupSchema = z.object({
 
 export const action = async ({ request, context }: ActionFunctionArgs) => {
   const formData = await request.formData();
-
-  const oldCookie = request.headers.get("Cookie");
-  const value = await i18nCookie.parse(oldCookie);
-
-  console.log("value", value);
-
-  // console.log("context", context);
-  // console.log("request", request);
-
-  // console.log("i18n nest", context.remixService.auth.i18n);
+  const lang = await i18nCookie.parse(request.headers.get("Cookie"));
 
   const submission = await parseWithZod(formData, {
     async: true,
@@ -91,6 +82,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
     await context.remixService.auth.createUser({
       email,
       password,
+      lang,
     });
 
   const { sessionToken } = await context.remixService.auth.authenticateUser({

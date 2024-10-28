@@ -9,14 +9,11 @@
   <mj-body background-color="#F6F6F6">
     <mj-section padding="32px">
       <mj-column padding="0">
-        <mj-image padding="0px" src="/logo.png" width="134px"></mj-image>
+        <mj-image padding="0px" src="http://localhost:3000/images/brand.png" width="134px"></mj-image>
       </mj-column>
     </mj-section>
-    <mj-section background-color="#fff" border-radius="24px 24px 0px 0px" padding-bottom="24px" padding-left="48px" padding-right="48px" padding-top="48px" padding="48px">
+    <mj-section background-color="#fff" border-radius="24px" padding-bottom="24px" padding-left="48px" padding-right="48px" padding-top="48px" padding="48px">
       <mj-column padding="0">
-        <mj-spacer height="24px"></mj-spacer>
-        <mj-image padding="0px" src="https://cdn.getvero.com/dd-editor/templates/activation/hero.png" width="360px"></mj-image>
-        <mj-spacer height="40px"></mj-spacer>
         <mj-text color="#000000" font-size="32px" line-height="1.25" padding="0px">
           <strong>{{title}}</strong>
         </mj-text>
@@ -24,14 +21,10 @@
         <mj-text font-size="20px" line-height="1.6" padding="0px">
           {{description}}
         </mj-text>
-        <mj-button background-color="#000" align="center" color="#ffffff" font-size="17px" font-weight="bold" href="{{link}}" width="180px">
+        <mj-spacer height="32px"></mj-spacer>
+        <mj-button background-color="#000" align="center" color="#ffffff" font-size="17px" font-weight="bold" href="{{url}}" width="240px">
           {{cta}}
         </mj-button>
-      </mj-column>
-    </mj-section>
-    <mj-section padding="0px">
-      <mj-column padding="0">
-        <mj-spacer height="48px"></mj-spacer>
       </mj-column>
     </mj-section>
     <mj-section border-bottom="1px solid #e0e0e0" border-left="none" border-right="none" border-top="none" padding-bottom="32px" padding-left="48px" padding-right="48px" padding-top="32px" padding="12px">
@@ -45,11 +38,11 @@
     </mj-section>
     <mj-section padding="48px">
       <mj-column padding="0">
-        <mj-image align="left" padding="0px" src="https://cdn.getvero.com/dd-editor/templates/activation/logo.png" width="134px"></mj-image>
+        <mj-image align="left" padding="0px" src="http://localhost:3000/images/brand.png" width="40px"></mj-image>
       </mj-column>
       <mj-column padding="0">
         <mj-text align="right" font-size="14px" line-height="1.5" padding="0px">
-          Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+          {{footer}}
         </mj-text>
       </mj-column>
     </mj-section>

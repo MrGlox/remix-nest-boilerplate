@@ -5,6 +5,7 @@ import { CookieSerializer } from '../core/cookie-serializer';
 import { PrismaService } from '../core/database/prisma.service';
 import { MailerService } from '../mailer/mailer.service';
 
+import { TokenService } from 'src/core/token/token.service';
 import { TemplateService } from '../mailer/core/template.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -28,6 +29,7 @@ import { LocalStrategy } from './local/local.strategy';
     AuthService,
     MailerService,
     TemplateService,
+    TokenService,
   ],
   exports: [AuthService],
 })

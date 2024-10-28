@@ -16,7 +16,6 @@ import {
 } from "@remix-run/react";
 
 import { useTranslation } from "react-i18next";
-import { useChangeLanguage } from "remix-i18next/react";
 import { z } from "zod";
 
 import { type RemixService } from "../../backend";
@@ -74,7 +73,6 @@ export async function action({ request }: ActionFunctionArgs) {
   const cookie = (await cookieConsent.parse(cookieHeader)) || {};
 
   const bodyParams = await request.formData();
-  console.log("bodyParams", bodyParams.get("cookieConsent"));
 
   if (bodyParams.get("cookieConsent") === "rejected") {
     cookie.cookieConsent = false;
@@ -127,18 +125,13 @@ declare module "@remix-run/node" {
 
 export default function Root() {
   // Get the locale from the loader
-  const { locale, showBanner } = useLoaderData<typeof loader>();
+  const { showBanner } = useLoaderData<typeof loader>();
   const { i18n } = useTranslation();
 
-  // This hook will change the i18n instance language to the current locale
-  // detected by the loader, this way, when we do something to change the
-  // language, this locale will change and i18next will load the correct
-  // translation files
-  useChangeLanguage(locale);
   z.setErrorMap(customErrorMap);
 
   return (
-    <html lang={i18n.language} dir={i18n.dir()} className="h-full">
+    <html lang={i18n.language} dir={i18n.dir()} className="min-h-screen">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
