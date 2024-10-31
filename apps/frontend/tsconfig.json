@@ -5,6 +5,7 @@
     "**/*.ts",
     "**/*.tsx",
     "../playwright.config.ts",
+    "../../backend/core/remix/remix.service.ts",
     "tailwind.config.ts"
   ],
   "exclude": ["index.d.cts"],

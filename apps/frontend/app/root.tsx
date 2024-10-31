@@ -18,7 +18,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
-import { type RemixService } from "../../backend";
+import { type RemixService } from "../../backend/src/core/remix.service";
 
 import { resourcesList } from "~/config/i18n";
 import { customErrorMap } from "~/config/zod";

@@ -29,19 +29,19 @@
     },
     "too_small": {
       "array": {
-        "exact": "La liste doit contenir exactement {{minimum}} élément(s)",
-        "inclusive": "La liste doit contenir au moins {{minimum}} élément(s)",
-        "not_inclusive": "La liste doit contenir plus de {{minimum}} élément(s)"
+        "exact": "La liste doit contenir exactement {{value}} élément(s)",
+        "inclusive": "La liste doit contenir au moins {{value}} élément(s)",
+        "not_inclusive": "La liste doit contenir plus de {{value}} élément(s)"
       },
       "string": {
-        "exact": "La chaîne doit contenir exactement {{minimum}} caractère(s)",
-        "inclusive": "La chaîne doit contenir au moins {{minimum}} caractère(s)",
-        "not_inclusive": "La chaîne doit contenir plus de {{minimum}} caractère(s)"
+        "exact": "La chaîne doit contenir exactement {{value}} caractère(s)",
+        "inclusive": "La chaîne doit contenir au moins {{value}} caractère(s)",
+        "not_inclusive": "La chaîne doit contenir plus de {{value}} caractère(s)"
       },
       "number": {
-        "exact": "Le nombre doit être égal à {{minimum}}",
-        "inclusive": "Le nombre doit être supérieur ou égal à {{minimum}}",
-        "not_inclusive": "Le nombre doit être supérieur à {{minimum}}"
+        "exact": "Le nombre doit être égal à {{value}}",
+        "inclusive": "Le nombre doit être supérieur ou égal à {{value}}",
+        "not_inclusive": "Le nombre doit être supérieur à {{value}}"
       },
       "set": {
         "exact": "Champ non valide",
@@ -49,26 +49,26 @@
         "not_inclusive": "Champ non valide"
       },
       "date": {
-        "exact": "La date doit être égale au {{- minimum, datetime}}",
-        "inclusive": "La date doit être ultérieure ou égale au {{- minimum, datetime}}",
-        "not_inclusive": "La date doit être ultérieure au {{- minimum, datetime}}"
+        "exact": "La date doit être égale au {{- value, datetime}}",
+        "inclusive": "La date doit être ultérieure ou égale au {{- value, datetime}}",
+        "not_inclusive": "La date doit être ultérieure au {{- value, datetime}}"
       }
     },
     "too_big": {
       "array": {
-        "exact": "La liste doit contenir exactement {{maximum}} élément(s)",
-        "inclusive": "La liste doit contenir au plus {{maximum}} élément(s)",
-        "not_inclusive": "La liste doit contenir moins de {{maximum}} élément(s)"
+        "exact": "La liste doit contenir exactement {{value}} élément(s)",
+        "inclusive": "La liste doit contenir au plus {{value}} élément(s)",
+        "not_inclusive": "La liste doit contenir moins de {{value}} élément(s)"
       },
       "string": {
-        "exact": "La chaîne doit contenir exactement {{maximum}} caractère(s)",
-        "inclusive": "La chaîne doit contenir au plus {{maximum}} caractère(s)",
-        "not_inclusive": "La chaîne doit contenir moins de {{maximum}} caractère(s)"
+        "exact": "La chaîne doit contenir exactement {{value}} caractère(s)",
+        "inclusive": "La chaîne doit contenir au plus {{value}} caractère(s)",
+        "not_inclusive": "La chaîne doit contenir moins de {{value}} caractère(s)"
       },
       "number": {
-        "exact": "Le nombre doit être égal à {{maximum}}",
-        "inclusive": "Le nombre doit être inférieur ou égal à {{maximum}}",
-        "not_inclusive": "Le nombre doit être inférieur à {{maximum}}"
+        "exact": "Le nombre doit être égal à {{value}}",
+        "inclusive": "Le nombre doit être inférieur ou égal à {{value}}",
+        "not_inclusive": "Le nombre doit être inférieur à {{value}}"
       },
       "set": {
         "exact": "Champ non valide",
@@ -76,9 +76,9 @@
         "not_inclusive": "Champ non valide"
       },
       "date": {
-        "exact": "La date doit être égale au {{- maximum, datetime}}",
-        "inclusive": "La date doit être antérieure ou égale au {{- maximum, datetime}}",
-        "not_inclusive": "La date doit être antérieure au {{- maximum, datetime}}"
+        "exact": "La date doit être égale au {{- value, datetime}}",
+        "inclusive": "La date doit être antérieure ou égale au {{- value, datetime}}",
+        "not_inclusive": "La date doit être antérieure au {{- value, datetime}}"
       }
     }
   },

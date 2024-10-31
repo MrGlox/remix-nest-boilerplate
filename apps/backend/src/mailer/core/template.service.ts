@@ -9,7 +9,8 @@ import mjml from 'mjml';
 export type TemplateType =
   | 'activation'
   | 'email-confirmation'
-  | 'reset-password';
+  | 'forgot-password'
+  | 'change-password';
 
 export type EmailMetadata = {
   subject: string;
@@ -34,10 +35,10 @@ export interface BuiltTemplate {
 
 @Injectable()
 export class TemplateService {
-  async getTemplate<T>({
+  public readonly getTemplate = async <T>({
     name,
     data = {},
-  }: EmailTemplate<T>): Promise<BuiltTemplate> {
+  }: EmailTemplate<T>): Promise<BuiltTemplate> => {
     try {
       const result = await this.getEmailTemplate(name);
       const template = Handlebars.compile<typeof data>(result.html);
@@ -54,11 +55,11 @@ export class TemplateService {
       console.error(`Error reading email template: ${error}`);
       throw new Error(String(error));
     }
-  }
+  };
 
-  async getEmailTemplate(
+  public readonly getEmailTemplate = async (
     templateName: TemplateType,
-  ): Promise<ReturnType<typeof mjml>> {
+  ): Promise<ReturnType<typeof mjml>> => {
     try {
       const file = await readFile(
         path.resolve(
@@ -77,12 +78,12 @@ export class TemplateService {
       console.error(`Error reading email template: ${error}`);
       throw new Error(String(error));
     }
-  }
+  };
 
-  async getEmailData(
+  public readonly getEmailData = async (
     templateName: TemplateType,
     lang: string,
-  ): Promise<EmailMetadata> {
+  ): Promise<EmailMetadata> => {
     try {
       const contents = await readFile(
         path.resolve(
@@ -102,5 +103,5 @@ export class TemplateService {
       console.error(`Error reading email template: ${error}`);
       throw new Error(String(error));
     }
-  }
+  };
 }

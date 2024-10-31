@@ -27,20 +27,26 @@ const Field = forwardRef<HTMLInputElement, InputProps>(
   ) => {
     const { t } = useTranslation("validations");
 
+    const fieldProps = getInputProps(fields[name], {
+      type,
+    });
+
+    const { minLength, maxLength } = fieldProps;
+
     return (
-      <fieldset className={cn("", className)}>
+      <fieldset className={cn("mb-2", className)}>
         <Label htmlFor={name}>{t(`fields.${name}`, label)}</Label>
         <InputComponent
           className={!fields[name]?.valid ? "border-red-700 border-2" : ""}
           ref={ref as Ref<HTMLInputElement>}
           {...{ ...props, name }}
-          {...getInputProps(fields[name], {
-            type,
-          })}
+          {...fieldProps}
         />
         {!fields[name]?.valid && (
           <p className="relative -z-10 text-red-700 text-sm bg-destructive/50 pt-3 -mt-2 px-2 pb-2 rounded-b">
-            {t(fields[name].errors[0])}
+            {t(fields[name].errors[0], {
+              value: minLength || maxLength || null,
+            })}
           </p>
         )}
       </fieldset>

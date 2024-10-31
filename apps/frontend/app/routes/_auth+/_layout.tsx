@@ -14,9 +14,12 @@ import { LazyImage, generateImageWithBlurhash } from "~/containers/lazy-image";
 import { Footer } from "~/containers/showcase/footer";
 import { cn } from "~/lib/utils";
 import { getOptionalUser } from "~/server/auth.server";
+import { alertMessage } from "~/server/cookies.server";
 
-export const loader = async ({ context }: LoaderFunctionArgs) => {
+export const loader = async ({ context, request }: LoaderFunctionArgs) => {
   const user = await getOptionalUser({ context });
+  const cookieHeader = request.headers.get("Cookie");
+  const message = await alertMessage.parse(cookieHeader);
 
   if (user) {
     return redirect("/dashboard");
@@ -30,15 +33,25 @@ export const loader = async ({ context }: LoaderFunctionArgs) => {
     },
   );
 
-  return json({
-    background,
-  });
+  return json(
+    {
+      background,
+      message,
+    },
+    {
+      headers: {
+        // Effacer le message après l'avoir lu
+        "Set-Cookie": await alertMessage.serialize("", { maxAge: 0 }),
+      },
+    },
+  );
 };
 
 export default function AuthLayout() {
   const { t } = useTranslation("auth");
   const { pathname } = useLocation();
-  const { background } = useLoaderData<typeof loader>();
+
+  const { background, message } = useLoaderData<typeof loader>();
 
   return (
     <>
@@ -52,7 +65,9 @@ export default function AuthLayout() {
               {t("signup.title")}
             </Link>
           )}
-          {(pathname === "/signup" || pathname === "/forgot-password") && (
+          {(pathname === "/signup" ||
+            pathname === "/change-password" ||
+            pathname === "/forgot-password") && (
             <Link
               to="/signin"
               className={cn(buttonVariants({ variant: "ghost" }))}
@@ -89,7 +104,7 @@ export default function AuthLayout() {
           </footer>
         </aside>
         <article className="lg:p-8">
-          <Outlet />
+          <Outlet context={{ ...message }} />
         </article>
       </section>
       <Footer />

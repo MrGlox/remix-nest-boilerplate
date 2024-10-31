@@ -7,7 +7,7 @@ import {
   json,
   redirect,
 } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import { Form, useActionData, useOutletContext } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
@@ -16,17 +16,13 @@ import { Link } from "~/components/atoms/link";
 import { Badge } from "~/components/ui/badge";
 import { Button, buttonVariants } from "~/components/ui/button";
 import { Field } from "~/containers/forms";
-import { cn, generateAlert } from "~/lib/utils";
+import { cn, generateAlert, generateFlash } from "~/lib/utils";
 import i18next from "~/modules/i18n.server";
-import { getOptionalUser } from "~/server/auth.server";
 
-export const loader = async ({ request, context }: LoaderFunctionArgs) => {
+export { meta } from "~/config/meta";
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const t = await i18next.getFixedT(request, "auth");
-  const user = await getOptionalUser({ context });
-
-  if (user) {
-    return redirect("/dashboard");
-  }
 
   return json({
     // Translated meta tags
@@ -34,8 +30,6 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
     description: t("signin.description"),
   } as const);
 };
-
-export { meta } from "~/config/meta";
 
 export const action = async ({ request, context }: ActionFunctionArgs) => {
   const formData = await request.formData();
@@ -93,6 +87,7 @@ const signinSchema = z.object({
 
 function SigninPage() {
   const { t } = useTranslation("auth");
+  const context = useOutletContext();
 
   const actionData = useActionData<typeof action>();
 
@@ -151,37 +146,33 @@ function SigninPage() {
           reloadDocument
           className="flex flex-col"
         >
-          {generateAlert(actionData)}
-          <div className="grid gap-2">
-            <Field
-              name="email"
-              placeholder={t("fields.email_placeholder", "name@example.com")}
-              type="email"
-              label={t("fields.email")}
-              autoCapitalize="none"
-              autoComplete="email"
-              autoCorrect="off"
-              {...{ fields }}
-            />
-            <Field
-              name="password"
-              placeholder="********"
-              type="password"
-              label={t("fields.password")}
-              autoCapitalize="none"
-              autoComplete="password"
-              autoCorrect="off"
-              {...{ fields }}
-            />
-            <Button disabled={false} className="mt-3">
-              {t("signin.action")}
-            </Button>
-          </div>
+          {generateAlert(actionData) || generateFlash(context)}
+          <Field
+            name="email"
+            placeholder={t("fields.email_placeholder", "name@example.com")}
+            type="email"
+            label={t("fields.email")}
+            autoCapitalize="none"
+            autoComplete="email"
+            autoCorrect="off"
+            {...{ fields }}
+          />
+          <Field
+            name="password"
+            placeholder="********"
+            type="password"
+            label={t("fields.password")}
+            autoCapitalize="none"
+            autoComplete="password"
+            autoCorrect="off"
+            {...{ fields }}
+          />
+          <Button className="mt-3">{t("signin.action")}</Button>
           <Link
             to="/forgot-password"
             className="self-end text-right text-sm mt-2"
           >
-            {t("forgot.title")}
+            {t("forgot.link")}
           </Link>
         </Form>
       </main>

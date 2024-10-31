@@ -33,11 +33,11 @@ export class MailerService {
     });
   }
 
-  async sendMailFromTemplate(
+  public readonly sendMailFromTemplate = async (
     template: TemplateType,
     emailInfo: Partial<Email> & { to: string; lang?: string },
     // settings: sg.MailDataRequired['mailSettings'] = {},
-  ) {
+  ) => {
     if (!emailInfo.to.length) {
       throw new Error('No recipient found');
     }
@@ -60,5 +60,5 @@ export class MailerService {
           })}>`,
       html,
     });
-  }
+  };
 }

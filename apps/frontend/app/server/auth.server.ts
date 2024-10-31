@@ -1,4 +1,5 @@
 import { type AppLoadContext, redirect } from "@remix-run/node";
+
 import { z } from "zod";
 
 const authenticatedUserSchema = z.object({

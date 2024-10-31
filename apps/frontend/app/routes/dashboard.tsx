@@ -2,6 +2,7 @@ import { Link, Outlet } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 
 import { Brand } from "~/assets";
+import { Container } from "~/components/layout/container";
 import { Button } from "~/components/ui/button";
 
 const DashboardLayout = () => {
@@ -9,9 +10,8 @@ const DashboardLayout = () => {
 
   return (
     <>
-      <div className="md:hidden"></div>
-      <div className="hidden flex-col md:flex">
-        <div className="border-b">
+      <header className="hidden flex-col md:flex border-b">
+        <Container size="large">
           <div className="flex h-16 items-center px-4 justify-between">
             <nav>
               <Link
@@ -28,9 +28,9 @@ const DashboardLayout = () => {
               </Button>
             </form>
           </div>
-        </div>
-        <Outlet />
-      </div>
+        </Container>
+      </header>
+      <Outlet />
     </>
   );
 };

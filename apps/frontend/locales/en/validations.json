@@ -29,19 +29,19 @@
     },
     "too_small": {
       "array": {
-        "exact": "Array must contain exactly {{minimum}} element(s)",
-        "inclusive": "Array must contain at least {{minimum}} element(s)",
-        "not_inclusive": "Array must contain more than {{minimum}} element(s)"
+        "exact": "Array must contain exactly {{value}} element(s)",
+        "inclusive": "Array must contain at least {{value}} element(s)",
+        "not_inclusive": "Array must contain more than {{value}} element(s)"
       },
       "string": {
-        "exact": "String must contain exactly {{minimum}} character(s)",
-        "inclusive": "String must contain at least {{minimum}} character(s)",
-        "not_inclusive": "String must contain over {{minimum}} character(s)"
+        "exact": "String must contain exactly {{value}} character(s)",
+        "inclusive": "String must contain at least {{value}} character(s)",
+        "not_inclusive": "String must contain over {{value}} character(s)"
       },
       "number": {
-        "exact": "Number must be exactly {{minimum}}",
-        "inclusive": "Number must be greater than or equal to {{minimum}}",
-        "not_inclusive": "Number must be greater than {{minimum}}"
+        "exact": "Number must be exactly {{value}}",
+        "inclusive": "Number must be greater than or equal to {{value}}",
+        "not_inclusive": "Number must be greater than {{value}}"
       },
       "set": {
         "exact": "Invalid input",
@@ -49,26 +49,26 @@
         "not_inclusive": "Invalid input"
       },
       "date": {
-        "exact": "Date must be exactly {{- minimum, datetime}}",
-        "inclusive": "Date must be greater than or equal to {{- minimum, datetime}}",
-        "not_inclusive": "Date must be greater than {{- minimum, datetime}}"
+        "exact": "Date must be exactly {{- value, datetime}}",
+        "inclusive": "Date must be greater than or equal to {{- value, datetime}}",
+        "not_inclusive": "Date must be greater than {{- value, datetime}}"
       }
     },
     "too_big": {
       "array": {
-        "exact": "Array must contain exactly {{maximum}} element(s)",
-        "inclusive": "Array must contain at most {{maximum}} element(s)",
-        "not_inclusive": "Array must contain less than {{maximum}} element(s)"
+        "exact": "Array must contain exactly {{value}} element(s)",
+        "inclusive": "Array must contain at most {{value}} element(s)",
+        "not_inclusive": "Array must contain less than {{value}} element(s)"
       },
       "string": {
-        "exact": "String must contain exactly {{maximum}} character(s)",
-        "inclusive": "String must contain at most {{maximum}} character(s)",
-        "not_inclusive": "String must contain under {{maximum}} character(s)"
+        "exact": "String must contain exactly {{value}} character(s)",
+        "inclusive": "String must contain at most {{value}} character(s)",
+        "not_inclusive": "String must contain under {{value}} character(s)"
       },
       "number": {
-        "exact": "Number must be exactly {{maximum}}",
-        "inclusive": "Number must be less than or equal to {{maximum}}",
-        "not_inclusive": "Number must be less than {{maximum}}"
+        "exact": "Number must be exactly {{value}}",
+        "inclusive": "Number must be less than or equal to {{value}}",
+        "not_inclusive": "Number must be less than {{value}}"
       },
       "set": {
         "exact": "Invalid input",
@@ -76,9 +76,9 @@
         "not_inclusive": "Invalid input"
       },
       "date": {
-        "exact": "Date must be exactly {{- maximum, datetime}}",
-        "inclusive": "Date must be smaller than or equal to {{- maximum, datetime}}",
-        "not_inclusive": "Date must be smaller than {{- maximum, datetime}}"
+        "exact": "Date must be exactly {{- value, datetime}}",
+        "inclusive": "Date must be smaller than or equal to {{- value, datetime}}",
+        "not_inclusive": "Date must be smaller than {{- value, datetime}}"
       }
     }
   },

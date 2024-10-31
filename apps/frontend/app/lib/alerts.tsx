@@ -11,8 +11,8 @@ export const extractErrors = (actionData): ErrorsData => {
   return { errors: !!hasError && actionData?.result.error };
 };
 
-export const generateAlert = (actionData) => {
-  const { t } = useTranslation("errors");
+export const generateAlert = (actionData, namespace = "alerts") => {
+  const { t } = useTranslation(namespace);
 
   const hasError = actionData?.result.error;
   const alert = {
@@ -32,7 +32,36 @@ export const generateAlert = (actionData) => {
             | "info"
         }
       >
-        {t(alert.message as string, { ns: "errors" })}
+        {t(alert.message as string, {
+          defaultValue: alert.message,
+        })}
+      </Alert>
+    );
+
+  return null;
+};
+
+export const generateFlash = (
+  actionData: { message?: string; type?: string },
+  namespace = "alerts",
+) => {
+  const { t } = useTranslation(namespace);
+
+  if (actionData?.message)
+    return (
+      <Alert
+        variant={
+          (actionData?.type || "info") as
+            | "default"
+            | "destructive"
+            | "success"
+            | "warning"
+            | "info"
+        }
+      >
+        {t(actionData?.message as string, {
+          defaultValue: actionData?.message,
+        })}
       </Alert>
     );
 

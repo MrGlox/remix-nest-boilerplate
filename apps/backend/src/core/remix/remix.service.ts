@@ -2,15 +2,18 @@ import { Injectable } from '@nestjs/common';
 
 import { AuthService } from '../../auth/auth.service';
 import { PrismaService } from '../database/prisma.service';
+import { TokenService } from '../token/token.service';
 
 @Injectable()
 export class RemixService {
   constructor(
     public readonly prisma: PrismaService,
     public readonly auth: AuthService,
+    public readonly token: TokenService,
   ) {}
-  public readonly getUser = async ({ userId }: { userId: string }) => {
-    return await this.prisma.user.findUnique({
+
+  public readonly getUser = async ({ userId }: { userId: string }) =>
+    await this.prisma.user.findUnique({
       where: {
         id: userId,
       },
@@ -20,5 +23,4 @@ export class RemixService {
         email: true,
       },
     });
-  };
 }

@@ -2,7 +2,6 @@
   "editor.defaultFormatter": "biomejs.biome",
   "editor.codeActionsOnSave": {
     "source.organizeImports.biome": "always",
-    // "source.removeUnused.ts": "explicit",
     "source.removeUnusedImports": "explicit"
   },
   "i18n-ally.localesPaths": [
@@ -10,5 +9,6 @@
     "apps/backend/public/locales"
   ],
   "i18n-ally.enabledFrameworks": ["react"],
-  "i18n-ally.keystyle": "nested"
+  "i18n-ally.keystyle": "nested",
+  "search.exclude": { "**/dist": true }
 }

@@ -1,3 +1,6 @@
 {
-  "invalid_credentials": "Invalid credentials"
+  "invalid_credentials": "Invalid credentials",
+  "password_changed": "Password changed successfully",
+  "invalid_token": "Invalid security token",
+  "if_user_exists_mail_recieved": "If your email exists in our system, you will receive an email with instructions on how to reset your password."
 }

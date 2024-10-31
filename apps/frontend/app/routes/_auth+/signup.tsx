@@ -18,15 +18,11 @@ import { Button, buttonVariants } from "~/components/ui/button";
 import { Field } from "~/containers/forms";
 import { cn } from "~/lib/utils";
 import i18next, { i18nCookie } from "~/modules/i18n.server";
-import { getOptionalUser } from "~/server/auth.server";
 
-export const loader = async ({ request, context }: LoaderFunctionArgs) => {
+export { meta } from "~/config/meta";
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const t = await i18next.getFixedT(request, "auth");
-  const user = await getOptionalUser({ context });
-
-  if (user) {
-    return redirect("/dashboard");
-  }
 
   return json({
     // Translated meta tags
@@ -34,8 +30,6 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
     description: t("signup.description"),
   } as const);
 };
-
-export { meta } from "~/config/meta";
 
 const signupSchema = z.object({
   email: z.string().email(),
@@ -100,11 +94,10 @@ function SignupPage() {
 
   const [form, fields] = useForm({
     constraint: getZodConstraint(signupSchema),
-    onValidate({ formData }) {
-      return parseWithZod(formData, {
+    onValidate: ({ formData }) =>
+      parseWithZod(formData, {
         schema: signupSchema,
-      });
-    },
+      }),
     lastResult: actionData?.result,
   });
 
@@ -152,42 +145,29 @@ function SignupPage() {
           method="post"
           // action='/auth/login'
           reloadDocument
+          className="flex flex-col"
         >
-          <div className="grid gap-2">
-            <div className="grid gap-1">
-              {/* <Alert>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Doloribus facere molestiae optio porro ipsum asperiores, alias
-                dolorum eveniet perferendis sunt officiis veritatis magni
-                consectetur sit? Fugit magni ea mollitia nulla?
-              </Alert> */}
-              <Field
-                name="email"
-                placeholder={t("fields.email_placeholder", "name@example.com")}
-                type="email"
-                label={t("fields.email")}
-                autoCapitalize="none"
-                autoComplete="email"
-                autoCorrect="off"
-                {...{ ...actionData, fields }}
-              />
-            </div>
-            <div className="grid gap-1">
-              <Field
-                name="password"
-                placeholder="********"
-                type="password"
-                label={t("fields.password")}
-                autoCapitalize="none"
-                autoComplete="password"
-                autoCorrect="off"
-                {...{ ...actionData, fields }}
-              />
-            </div>
-            <Button disabled={false} className="mt-3">
-              {t("signup.action")}
-            </Button>
-          </div>
+          <Field
+            name="email"
+            placeholder={t("fields.email_placeholder", "name@example.com")}
+            type="email"
+            label={t("fields.email")}
+            autoCapitalize="none"
+            autoComplete="email"
+            autoCorrect="off"
+            {...{ ...actionData, fields }}
+          />
+          <Field
+            name="password"
+            placeholder="********"
+            type="password"
+            label={t("fields.password")}
+            autoCapitalize="none"
+            autoComplete="password"
+            autoCorrect="off"
+            {...{ ...actionData, fields }}
+          />
+          <Button className="mt-3">{t("signup.action")}</Button>
         </Form>
       </main>
       <footer>

@@ -5,30 +5,47 @@ import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
   json,
+  replace,
 } from "@remix-run/node";
-import { Form, Link, useActionData } from "@remix-run/react";
+import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
 import { Button } from "~/components/ui/button";
 import { Field } from "~/containers/forms";
 import { generateAlert } from "~/lib/alerts";
-import i18next from "~/modules/i18n.server";
+import { alertMessage, persistToken } from "~/server/cookies.server";
 
 export { meta } from "~/config/meta";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const t = await i18next.getFixedT(request, "auth");
+  const url = new URL(request.url);
+  const tokenParam = url.searchParams.get("token");
 
-  return json({
-    // Translated meta tags
-    title: t("forgot.title"),
-    description: t("forgot.description"),
-  } as const);
+  // console.log("tokenParam", tokenParam);
+
+  // const isTokenValid = await context.remixService.token.verify(tokenParam || "");
+
+  // if(!isTokenValid) {
+  //   return replace("/forgot-password");
+  // }
+
+  const cookieHeader = request.headers.get("Cookie");
+  const persistedToken = (await persistToken.parse(cookieHeader)) || false;
+
+  if (tokenParam)
+    return replace(`${url.pathname}`, {
+      headers: [["Set-Cookie", await persistToken.serialize(tokenParam)]],
+    });
+
+  if (!persistedToken) return replace("/forgot-password");
+
+  return json({ token: persistedToken });
 };
 
 const forgotSchema = z.object({
-  email: z.string().email(),
+  password: z.string().min(8),
+  token: z.string(),
 });
 
 export const action = async ({ request, context }: ActionFunctionArgs) => {
@@ -37,33 +54,74 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
   const submission = await parseWithZod(formData, {
     async: true,
     schema: forgotSchema.superRefine(async (data, ctx) => {
-      const { email } = data;
+      const { token } = data;
 
-      const existingUser = await context.remixService.auth.forgotPassword({
-        email,
-      });
+      const isTokenValid = await context.remixService.token.verify(
+        token,
+        "PASSWORD_RESET",
+      );
 
-      ctx.addIssue({
-        code: "custom",
-        path: ["alert", "success"],
-        message: existingUser.message,
-      });
+      if (!isTokenValid) {
+        return ctx.addIssue({
+          code: "custom",
+          path: ["alert", "destructive"],
+          message: "invalid_token",
+        });
+      }
     }),
   });
 
   if (submission.status !== "success") {
-    return json(
-      { result: submission.reply() },
+    return replace(
+      "/signin",
       {
-        status: 400,
+        status: 401,
+        headers: [
+          [
+            "Set-Cookie",
+            await persistToken.serialize("", {
+              expires: new Date(-1),
+            }),
+          ],
+          [
+            "Set-Cookie",
+            await alertMessage.serialize({
+              message: "invalid_token",
+              type: "destructive",
+            }),
+          ],
+        ],
       },
     );
   }
+
+  await context.remixService.auth.changePassword({
+    ...submission.value
+  });
+
+  return replace("/signin", {
+    headers: [
+      [
+        "Set-Cookie",
+        await persistToken.serialize("", {
+          expires: new Date(-1),
+        }),
+      ],
+      [
+        "Set-Cookie",
+        await alertMessage.serialize({
+          message: "password_changed",
+          type: "success",
+        }),
+      ],
+    ],
+  });
 };
 
-function ForgotPasswordPage() {
+function ChangePasswordPage() {
   const { t } = useTranslation("auth");
 
+  const { token } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
   const [form, fields] = useForm({
@@ -84,10 +142,10 @@ function ForgotPasswordPage() {
     <div className="mx-auto flex w-full flex-col justify-center space-y-6 max-w-[420px]">
       <header className="flex flex-col space-y-2 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">
-          {t("forgot.title")}
+          {t("change_password.title")}
         </h1>
         <p className="text-muted-foreground text-sm">
-          {t("forgot.description")}
+          {t("change_password.description")}
         </p>
       </header>
       <main className="grid gap-6">
@@ -103,17 +161,18 @@ function ForgotPasswordPage() {
           className="flex flex-col"
         >
           {generateAlert(actionData)}
+          <input type="hidden" name="token" value={token as string} />
           <Field
-            name="email"
-            placeholder={t("fields.email_placeholder", "name@example.com")}
-            type="email"
-            label={t("fields.email")}
+            name="password"
+            placeholder="********"
+            type="password"
+            label={t("fields.password_new")}
             autoCapitalize="none"
-            autoComplete="email"
+            autoComplete="password"
             autoCorrect="off"
-            {...{ ...actionData, fields }}
+            {...{ fields }}
           />
-          <Button className="mt-3">{t("forgot.confirm")}</Button>
+          <Button className="mt-3">{t("change_password.update")}</Button>
         </Form>
       </main>
       <footer>
@@ -137,4 +196,4 @@ function ForgotPasswordPage() {
   );
 }
 
-export default ForgotPasswordPage;
+export default ChangePasswordPage;

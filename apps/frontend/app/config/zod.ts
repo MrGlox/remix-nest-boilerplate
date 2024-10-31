@@ -4,13 +4,20 @@ import { z } from "zod";
 export const customErrorMap: z.ZodErrorMap = (issue) => {
   if (issue.code === z.ZodIssueCode.invalid_type) {
     if (issue.received === "undefined" && issue.expected === "string") {
-      return { message: `errors.required` };
+      return { ...issue, message: `errors.required` };
     }
   }
 
   if (issue.code === z.ZodIssueCode.invalid_string) {
-    return { message: `errors.bad_format` };
+    return { ...issue, message: `errors.bad_format` };
   }
 
-  return { message: `errors.${issue.code}` };
+  if (issue.code === (z.ZodIssueCode.too_small || z.ZodIssueCode.too_big)) {
+    return {
+      ...issue,
+      message: `errors.${issue.code}.${issue.type}.${issue.exact ? "exact" : "inclusive"}`,
+    };
+  }
+
+  return { ...issue, message: `errors.${issue.code}` };
 };
