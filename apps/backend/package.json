@@ -5,8 +5,8 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
-  "main": "./dist/remix/remix.service.js",
-  "types": "./dist/remix/remix.service.d.ts",
+  "main": "./dist/core/remix/remix.service.js",
+  "types": "./dist/core/remix/remix.service.d.ts",
   "scripts": {
     "dev": "nest start --watch",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

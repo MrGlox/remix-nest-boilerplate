@@ -14,21 +14,16 @@ import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import { Field } from "~/containers/forms";
 import { generateAlert } from "~/lib/alerts";
+import i18next from "~/modules/i18n.server";
 import { alertMessage, persistToken } from "~/server/cookies.server";
 
 export { meta } from "~/config/meta";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ context, request }: LoaderFunctionArgs) => {
+  const t = await i18next.getFixedT(request, "auth");
+
   const url = new URL(request.url);
   const tokenParam = url.searchParams.get("token");
-
-  // console.log("tokenParam", tokenParam);
-
-  // const isTokenValid = await context.remixService.token.verify(tokenParam || "");
-
-  // if(!isTokenValid) {
-  //   return replace("/forgot-password");
-  // }
 
   const cookieHeader = request.headers.get("Cookie");
   const persistedToken = (await persistToken.parse(cookieHeader)) || false;
@@ -38,12 +33,33 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       headers: [["Set-Cookie", await persistToken.serialize(tokenParam)]],
     });
 
-  if (!persistedToken) return replace("/forgot-password");
+  const isTokenValid = await context.remixService.token.verify({
+    token: persistedToken || "",
+    type: "PASSWORD_RESET",
+  });
 
-  return json({ token: persistedToken });
+  if (!isTokenValid)
+    return replace("/forgot-password", {
+      headers: [
+        [
+          "Set-Cookie",
+          await alertMessage.serialize({
+            message: "invalid_token",
+            type: "destructive",
+          }),
+        ],
+      ],
+    });
+
+  return json({
+    token: persistedToken,
+    // Translated meta tags
+    title: t("change_password.title"),
+    description: t("change_password.description"),
+  });
 };
 
-const forgotSchema = z.object({
+const changeSchema = z.object({
   password: z.string().min(8),
   token: z.string(),
 });
@@ -53,51 +69,15 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 
   const submission = await parseWithZod(formData, {
     async: true,
-    schema: forgotSchema.superRefine(async (data, ctx) => {
-      const { token } = data;
-
-      const isTokenValid = await context.remixService.token.verify(
-        token,
-        "PASSWORD_RESET",
-      );
-
-      if (!isTokenValid) {
-        return ctx.addIssue({
-          code: "custom",
-          path: ["alert", "destructive"],
-          message: "invalid_token",
-        });
-      }
-    }),
+    schema: changeSchema,
   });
 
-  if (submission.status !== "success") {
-    return replace(
-      "/signin",
-      {
-        status: 401,
-        headers: [
-          [
-            "Set-Cookie",
-            await persistToken.serialize("", {
-              expires: new Date(-1),
-            }),
-          ],
-          [
-            "Set-Cookie",
-            await alertMessage.serialize({
-              message: "invalid_token",
-              type: "destructive",
-            }),
-          ],
-        ],
-      },
-    );
-  }
-
-  await context.remixService.auth.changePassword({
-    ...submission.value
-  });
+  await context.remixService.auth.changePassword(
+    submission.payload as {
+      token: string;
+      password: string;
+    },
+  );
 
   return replace("/signin", {
     headers: [
@@ -120,23 +100,23 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 
 function ChangePasswordPage() {
   const { t } = useTranslation("auth");
+  // const navigate = useNavigate();
 
   const { token } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
   const [form, fields] = useForm({
-    constraint: getZodConstraint(forgotSchema),
-    onValidate: ({ formData }) => {
-      const result = parseWithZod(formData, {
-        schema: forgotSchema,
-      });
-
-      console.log("result", result);
-
-      return result;
-    },
+    constraint: getZodConstraint(changeSchema),
+    onValidate: ({ formData }) =>
+      parseWithZod(formData, {
+        schema: changeSchema,
+      }),
     lastResult: actionData?.result,
   });
+
+  // useEffect(() => {
+  //   if (actionData?.result.error) navigate("/forgot-password");
+  // }, [actionData]);
 
   return (
     <div className="mx-auto flex w-full flex-col justify-center space-y-6 max-w-[420px]">

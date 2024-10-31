@@ -14,12 +14,9 @@ import { LazyImage, generateImageWithBlurhash } from "~/containers/lazy-image";
 import { Footer } from "~/containers/showcase/footer";
 import { cn } from "~/lib/utils";
 import { getOptionalUser } from "~/server/auth.server";
-import { alertMessage } from "~/server/cookies.server";
 
-export const loader = async ({ context, request }: LoaderFunctionArgs) => {
+export const loader = async ({ context }: LoaderFunctionArgs) => {
   const user = await getOptionalUser({ context });
-  const cookieHeader = request.headers.get("Cookie");
-  const message = await alertMessage.parse(cookieHeader);
 
   if (user) {
     return redirect("/dashboard");
@@ -33,25 +30,16 @@ export const loader = async ({ context, request }: LoaderFunctionArgs) => {
     },
   );
 
-  return json(
-    {
-      background,
-      message,
-    },
-    {
-      headers: {
-        // Effacer le message après l'avoir lu
-        "Set-Cookie": await alertMessage.serialize("", { maxAge: 0 }),
-      },
-    },
-  );
+  return json({
+    background,
+  });
 };
 
 export default function AuthLayout() {
   const { t } = useTranslation("auth");
   const { pathname } = useLocation();
 
-  const { background, message } = useLoaderData<typeof loader>();
+  const { background } = useLoaderData<typeof loader>();
 
   return (
     <>
@@ -83,6 +71,7 @@ export default function AuthLayout() {
               layout="fullWidth"
               alt="Palm tree"
               containerClassName="after:absolute after:inset-0 after:bg-gradient-to-b after:from-transparent after:to-zinc-900 after:opacity-75"
+              src={background.src}
               {...background}
             />
           </div>
@@ -104,7 +93,7 @@ export default function AuthLayout() {
           </footer>
         </aside>
         <article className="lg:p-8">
-          <Outlet context={{ ...message }} />
+          <Outlet />
         </article>
       </section>
       <Footer />

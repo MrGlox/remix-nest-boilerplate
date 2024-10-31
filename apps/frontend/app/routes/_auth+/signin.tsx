@@ -7,7 +7,7 @@ import {
   json,
   redirect,
 } from "@remix-run/node";
-import { Form, useActionData, useOutletContext } from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
@@ -18,17 +18,26 @@ import { Button, buttonVariants } from "~/components/ui/button";
 import { Field } from "~/containers/forms";
 import { cn, generateAlert, generateFlash } from "~/lib/utils";
 import i18next from "~/modules/i18n.server";
+import { alertMessageHelper } from "~/server/cookies.server";
 
 export { meta } from "~/config/meta";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const t = await i18next.getFixedT(request, "auth");
 
-  return json({
-    // Translated meta tags
-    title: t("signin.title"),
-    description: t("signin.description"),
-  } as const);
+  const { message, headers } = await alertMessageHelper(request);
+
+  return json(
+    {
+      message,
+      // Translated meta tags
+      title: t("signin.title"),
+      description: t("signin.description"),
+    },
+    {
+      headers,
+    },
+  );
 };
 
 export const action = async ({ request, context }: ActionFunctionArgs) => {
@@ -87,8 +96,8 @@ const signinSchema = z.object({
 
 function SigninPage() {
   const { t } = useTranslation("auth");
-  const context = useOutletContext();
 
+  const { message } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
   const [form, fields] = useForm({
@@ -146,7 +155,7 @@ function SigninPage() {
           reloadDocument
           className="flex flex-col"
         >
-          {generateAlert(actionData) || generateFlash(context)}
+          {generateAlert(actionData) || generateFlash(message)}
           <Field
             name="email"
             placeholder={t("fields.email_placeholder", "name@example.com")}

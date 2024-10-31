@@ -71,6 +71,7 @@ export class AuthService {
       select: {
         id: true,
         email: true,
+        password: true,
         preferredLocale: true,
       },
     });
@@ -82,8 +83,11 @@ export class AuthService {
       };
     }
 
+    const [salt] = user.password.replace('user_', '').split('.');
+
     const { token } = await this.tokenService.generatePasswordResetToken({
       userId: user.id,
+      salt,
     });
 
     await this.mailerService.sendMailFromTemplate('forgot-password', {
@@ -106,40 +110,30 @@ export class AuthService {
     token: string;
     password: string;
   }) => {
-    const retrivedToken = await this.prisma.token.findFirst({
-      where: {
-        token,
-      },
-      select: {
-        userId: true,
-      },
-    });
+    const retrivedUser = await this.prisma.token
+      .findFirst({
+        where: {
+          token,
+        },
+      })
+      .user();
 
-    if (!retrivedToken) {
+    if (!retrivedUser) {
       return {
         message: 'invalid_token',
         error: false,
       };
     }
 
-    const existingUser = await this.prisma.user.findUnique({
-      where: {
-        id: retrivedToken.userId,
-      },
+    await this.tokenService.expireToken({
+      token,
     });
-
-    if (!existingUser) {
-      return {
-        message: 'invalid_credentials',
-        error: true,
-      };
-    }
 
     const { hash, salt } = await hashWithSalt(password);
 
     await this.prisma.user.update({
       where: {
-        id: existingUser.id,
+        id: retrivedUser.id,
       },
       data: {
         password: `user_${salt}.${hash}`,
@@ -147,13 +141,8 @@ export class AuthService {
     });
 
     await this.mailerService.sendMailFromTemplate('change-password', {
-      to: existingUser.email,
-      lang: existingUser.preferredLocale || 'en',
-    });
-
-    await this.tokenService.expireTokens({
-      userId: existingUser.id,
-      type: 'PASSWORD_RESET',
+      to: retrivedUser.email,
+      lang: retrivedUser.preferredLocale || 'en',
     });
 
     return {

@@ -10,5 +10,12 @@
   ],
   "i18n-ally.enabledFrameworks": ["react"],
   "i18n-ally.keystyle": "nested",
-  "search.exclude": { "**/dist": true }
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist/**/*": true,
+    "**/*.log": true,
+    "**/coverage": true,
+    "**/package-lock.json": true,
+    "**/pnpm-lock.yaml": true
+  }
 }

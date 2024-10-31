@@ -6,25 +6,33 @@ import {
   type LoaderFunctionArgs,
   json,
 } from "@remix-run/node";
-import { Form, Link, useActionData } from "@remix-run/react";
+import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
 import { Button } from "~/components/ui/button";
 import { Field } from "~/containers/forms";
-import { generateAlert } from "~/lib/alerts";
+import { generateAlert, generateFlash } from "~/lib/alerts";
 import i18next from "~/modules/i18n.server";
+import { alertMessageHelper } from "~/server/cookies.server";
 
 export { meta } from "~/config/meta";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const t = await i18next.getFixedT(request, "auth");
+  const { message, headers } = await alertMessageHelper(request);
 
-  return json({
-    // Translated meta tags
-    title: t("forgot.title"),
-    description: t("forgot.description"),
-  } as const);
+  return json(
+    {
+      message,
+      // Translated meta tags
+      title: t("forgot.title"),
+      description: t("forgot.description"),
+    },
+    {
+      headers,
+    },
+  );
 };
 
 const forgotSchema = z.object({
@@ -51,32 +59,21 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
     }),
   });
 
-  if (submission.status !== "success") {
-    return json(
-      { result: submission.reply() },
-      {
-        status: 400,
-      },
-    );
-  }
+  return json({ result: submission.reply() });
 };
 
 function ForgotPasswordPage() {
   const { t } = useTranslation("auth");
 
+  const { message } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
   const [form, fields] = useForm({
     constraint: getZodConstraint(forgotSchema),
-    onValidate: ({ formData }) => {
-      const result = parseWithZod(formData, {
+    onValidate: ({ formData }) =>
+      parseWithZod(formData, {
         schema: forgotSchema,
-      });
-
-      console.log("result", result);
-
-      return result;
-    },
+      }),
     lastResult: actionData?.result,
   });
 
@@ -102,7 +99,7 @@ function ForgotPasswordPage() {
           method="post"
           className="flex flex-col"
         >
-          {generateAlert(actionData)}
+          {generateAlert(actionData) || generateFlash(message)}
           <Field
             name="email"
             placeholder={t("fields.email_placeholder", "name@example.com")}

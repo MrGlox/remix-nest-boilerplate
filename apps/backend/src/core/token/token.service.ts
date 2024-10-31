@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 
 import { TokenType } from '@prisma/client';
@@ -8,7 +8,7 @@ import { PrismaService } from '../database/prisma.service';
 export class TokenService {
   constructor(public readonly prisma: PrismaService) {}
 
-  public readonly expireTokens = async ({
+  public readonly expireUserTokens = async ({
     userId,
     type,
   }: {
@@ -17,11 +17,24 @@ export class TokenService {
   }) =>
     await this.prisma.token.updateMany({
       where: {
+        expiresAt: {
+          gt: new Date(Date.now()),
+        },
         userId,
         ...(type ? { type } : {}),
       },
       data: {
-        expiresAt: new Date(Date.now()),
+        expiresAt: new Date(Date.now() - 1),
+      },
+    });
+
+  public readonly expireToken = async ({ token }: { token: string }) =>
+    await this.prisma.token.updateMany({
+      where: {
+        token: token,
+      },
+      data: {
+        expiresAt: new Date(Date.now() - 1),
       },
     });
 
@@ -32,13 +45,13 @@ export class TokenService {
     userId: string;
     salt: string;
   }) => {
-    this.expireTokens({ userId, type: 'VERIFY_EMAIL' });
+    await this.expireUserTokens({ userId, type: 'VERIFY_EMAIL' });
 
     const hash = createHash('sha256');
     return await this.prisma.token.create({
       data: {
         userId,
-        token: hash.update(userId + salt).digest('hex'),
+        token: `${hash.update(randomBytes(4).toString('hex') + userId + salt).digest('hex')}`,
         type: 'VERIFY_EMAIL', // or any appropriate type
         expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24), // example: 24 hours from now
       },
@@ -47,16 +60,18 @@ export class TokenService {
 
   public readonly generatePasswordResetToken = async ({
     userId,
+    salt,
   }: {
     userId: string;
+    salt: string;
   }) => {
-    this.expireTokens({ userId, type: 'PASSWORD_RESET' });
+    await this.expireUserTokens({ userId, type: 'PASSWORD_RESET' });
 
     const hash = createHash('sha256');
     return await this.prisma.token.create({
       data: {
         userId,
-        token: hash.update(userId).digest('hex'),
+        token: `${hash.update(randomBytes(4).toString('hex') + userId + salt).digest('hex')}`,
         type: 'PASSWORD_RESET', // or any appropriate type
         expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24), // example: 24 hours from now
       },
