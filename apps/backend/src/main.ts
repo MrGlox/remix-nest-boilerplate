@@ -78,7 +78,6 @@ async function bootstrap() {
 
   app.use('/authenticate', urlencoded({ extended: true }));
   app.use('/auth/logout', urlencoded({ extended: true }));
-  app.use('/auth/confirm-email', urlencoded({ extended: true }));
 
   const selectedPort = process.env.PORT ?? 3000;
 

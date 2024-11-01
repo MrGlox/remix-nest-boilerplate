@@ -7,7 +7,7 @@ import {
   json,
   redirect,
 } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
@@ -16,19 +16,30 @@ import { Link } from "~/components/atoms/link";
 import { Badge } from "~/components/ui/badge";
 import { Button, buttonVariants } from "~/components/ui/button";
 import { Field } from "~/containers/forms";
-import { cn } from "~/lib/utils";
+import { cn, generateAlert, generateFlash } from "~/lib/utils";
 import i18next, { i18nCookie } from "~/modules/i18n.server";
+import {
+  alertMessageGenerator,
+  alertMessageHelper,
+} from "~/server/cookies.server";
 
 export { meta } from "~/config/meta";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const t = await i18next.getFixedT(request, "auth");
+  const { message, headers } = await alertMessageHelper(request);
 
-  return json({
-    // Translated meta tags
-    title: t("signup.title"),
-    description: t("signup.description"),
-  } as const);
+  return json(
+    {
+      message,
+      // Translated meta tags
+      title: t("signup.title"),
+      description: t("signup.description"),
+    },
+    {
+      headers,
+    },
+  );
 };
 
 const signupSchema = z.object({
@@ -54,8 +65,8 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
       if (existingUser.error === false) {
         ctx.addIssue({
           code: "custom",
-          path: ["email"],
-          message: "Cet utilisateur existe déjà.",
+          path: ["alert", "destructive"],
+          message: "invalid_email",
         });
       }
     }),
@@ -72,24 +83,22 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 
   const { email, password } = submission.value;
 
-  const { email: createdUserEmail } =
-    await context.remixService.auth.createUser({
-      email,
-      password,
-      lang,
-    });
-
-  const { sessionToken } = await context.remixService.auth.authenticateUser({
-    email: createdUserEmail,
+  // const { email: createdUserEmail } =
+  await context.remixService.auth.createUser({
+    email,
+    password,
+    lang,
   });
 
-  // Connecter l'utilisateur associé à l'email
-  return redirect(`/authenticate?token=${sessionToken}`);
+  return redirect(`/signin`, {
+    headers: [await alertMessageGenerator("user_created", "success")],
+  });
 };
 
 function SignupPage() {
   const { t } = useTranslation("auth");
 
+  const { message } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
   const [form, fields] = useForm({
@@ -147,6 +156,7 @@ function SignupPage() {
           reloadDocument
           className="flex flex-col"
         >
+          {generateAlert(actionData) || generateFlash(message)}
           <Field
             name="email"
             placeholder={t("fields.email_placeholder", "name@example.com")}

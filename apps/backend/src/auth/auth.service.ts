@@ -63,6 +63,94 @@ export class AuthService {
     };
   };
 
+  public readonly createUser = async ({
+    email,
+    password,
+    lang,
+  }: {
+    email: string;
+    password: string;
+    lang: string;
+  }) => {
+    const { hash, salt } = await hashWithSalt(password);
+
+    const user = await this.prisma.user.create({
+      data: {
+        email: email.toLowerCase(),
+        password: `user_${salt}.${hash}`,
+      },
+      select: {
+        id: true,
+        email: true,
+      },
+    });
+
+    const { token } = await this.tokenService.generateVerifyEmailToken({
+      userId: user.id,
+      salt,
+    });
+
+    await this.mailerService.sendMailFromTemplate('email-confirmation', {
+      to: email,
+      data: {
+        url: `${process.env.APP_DOMAIN}/confirm-email?token=${token}`,
+      },
+      lang,
+    });
+
+    return user;
+  };
+
+  public readonly authenticateUser = async ({ email }: { email: string }) => {
+    return await this.prisma.session.create({
+      data: {
+        user: {
+          connect: {
+            email,
+          },
+        },
+        sessionToken: createId(),
+      },
+      select: {
+        sessionToken: true,
+      },
+    });
+  };
+
+  public readonly confirmEmail = async ({ token }: { token: string }) => {
+    const retrivedUser = await this.prisma.token
+      .findFirst({
+        where: {
+          token,
+        },
+      })
+      .user();
+
+    if (!retrivedUser) {
+      return {
+        message: 'invalid_email_token',
+        error: true,
+      };
+    }
+
+    await this.tokenService.expireToken({
+      token,
+    });
+
+    await this.prisma.user.update({
+      where: {
+        id: retrivedUser.id,
+      },
+      data: {
+        active: true,
+      },
+    });
+
+    return {
+      message: 'email_confirmed',
+    };
+  };
+
   public readonly forgotPassword = async ({ email }: { email: string }) => {
     const user = await this.prisma.user.findUnique({
       where: {
@@ -148,59 +236,5 @@ export class AuthService {
     return {
       message: 'password_changed',
     };
-  };
-
-  public readonly createUser = async ({
-    email,
-    password,
-    lang,
-  }: {
-    email: string;
-    password: string;
-    lang: string;
-  }) => {
-    const { hash, salt } = await hashWithSalt(password);
-
-    const user = await this.prisma.user.create({
-      data: {
-        email: email.toLowerCase(),
-        password: `user_${salt}.${hash}`,
-      },
-      select: {
-        id: true,
-        email: true,
-      },
-    });
-
-    const { token } = await this.tokenService.generateVerifyEmailToken({
-      userId: user.id,
-      salt,
-    });
-
-    await this.mailerService.sendMailFromTemplate('email-confirmation', {
-      to: email,
-      data: {
-        url: `${process.env.APP_DOMAIN}/auth/confirm-email?token=${token}`,
-      },
-      lang,
-    });
-
-    return user;
-  };
-
-  public readonly authenticateUser = async ({ email }: { email: string }) => {
-    return await this.prisma.session.create({
-      data: {
-        user: {
-          connect: {
-            email,
-          },
-        },
-        sessionToken: createId(),
-      },
-      select: {
-        sessionToken: true,
-      },
-    });
   };
 }

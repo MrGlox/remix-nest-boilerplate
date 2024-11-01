@@ -2,5 +2,8 @@
   "invalid_credentials": "Invalid credentials",
   "password_changed": "Password changed successfully",
   "invalid_token": "Invalid security token",
+  "invalid_email_token": "Invalid email verification token",
+  "email_confirmed": "Email confirmed successfully",
+  "user_created": "User created successfully, please check your email to activate your account",
   "if_user_exists_mail_recieved": "If your email exists in our system, you will receive an email with instructions on how to reset your password."
 }

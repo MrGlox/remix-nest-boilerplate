@@ -22,7 +22,7 @@ import { alertMessageHelper } from "~/server/cookies.server";
 
 export { meta } from "~/config/meta";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   const t = await i18next.getFixedT(request, "auth");
 
   const { message, headers } = await alertMessageHelper(request);

@@ -2,5 +2,9 @@
   "invalid_credentials": "Identifiants invalides",
   "password_changed": "Mot de passe changé avec succès",
   "invalid_token": "Jeton de sécurité invalide",
+  "invalid_email_token": "Jeton de vérification de mail périmé",
+  "invalid_email": "Email invalide",
+  "email_confirmed": "Email confirmé avec succès",
+  "user_created": "Utilisateur créé avec succès, veuillez vérifier votre email pour activer votre compte",
   "if_user_exists_mail_recieved": "Si votre adresse email existe dans notre système, vous recevrez un email avec des instructions pour réinitialiser votre mot de passe."
 }

@@ -15,7 +15,7 @@ import { Button } from "~/components/ui/button";
 import { Field } from "~/containers/forms";
 import { generateAlert } from "~/lib/alerts";
 import i18next from "~/modules/i18n.server";
-import { alertMessage, persistToken } from "~/server/cookies.server";
+import { alertMessageGenerator, persistToken } from "~/server/cookies.server";
 
 export { meta } from "~/config/meta";
 
@@ -40,15 +40,7 @@ export const loader = async ({ context, request }: LoaderFunctionArgs) => {
 
   if (!isTokenValid)
     return replace("/forgot-password", {
-      headers: [
-        [
-          "Set-Cookie",
-          await alertMessage.serialize({
-            message: "invalid_token",
-            type: "destructive",
-          }),
-        ],
-      ],
+      headers: [await alertMessageGenerator("invalid_token", "destructive")],
     });
 
   return json({
@@ -87,20 +79,13 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
           expires: new Date(-1),
         }),
       ],
-      [
-        "Set-Cookie",
-        await alertMessage.serialize({
-          message: "password_changed",
-          type: "success",
-        }),
-      ],
+      await alertMessageGenerator("password_changed", "success"),
     ],
   });
 };
 
 function ChangePasswordPage() {
   const { t } = useTranslation("auth");
-  // const navigate = useNavigate();
 
   const { token } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
@@ -113,10 +98,6 @@ function ChangePasswordPage() {
       }),
     lastResult: actionData?.result,
   });
-
-  // useEffect(() => {
-  //   if (actionData?.result.error) navigate("/forgot-password");
-  // }, [actionData]);
 
   return (
     <div className="mx-auto flex w-full flex-col justify-center space-y-6 max-w-[420px]">
