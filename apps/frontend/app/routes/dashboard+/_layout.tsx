@@ -1,9 +1,21 @@
+import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { Link, Outlet } from "@remix-run/react";
 import { useTranslation } from "react-i18next";
 
 import { Brand } from "~/assets";
 import { Container } from "~/components/layout/container";
 import { Button } from "~/components/ui/button";
+import { getOptionalUser } from "~/server/auth.server";
+
+export const loader = async ({ context }: LoaderFunctionArgs) => {
+  const user = await getOptionalUser({ context });
+
+  if (!user) {
+    return redirect("/signin");
+  }
+
+  return null;
+};
 
 const DashboardLayout = () => {
   const { t } = useTranslation();

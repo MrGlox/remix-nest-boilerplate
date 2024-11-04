@@ -11,17 +11,47 @@ import { ShowcaseHeader } from "~/containers/showcase/header";
 import { cn } from "~/lib/utils";
 import { getOptionalUser } from "~/server/auth.server";
 
+import {
+  getAuthenticatedUser,
+  lemonSqueezySetup,
+  listProducts,
+} from "@lemonsqueezy/lemonsqueezy.js";
+
 export const loader = async ({ context }: LoaderFunctionArgs) => {
   const user = await getOptionalUser({ context });
 
+  const { data: offers } = await context.remixService.offer.getOffers();
+
+  lemonSqueezySetup({
+    apiKey: process.env.LEMONSQUEEZY_API_KEY,
+    onError: (error) => console.error("Error!", error),
+  });
+
+  const { data, error } = await getAuthenticatedUser();
+  console.log("getProduct", listProducts());
+
+  if (error) {
+    console.log(error.message);
+  } else {
+    console.log(data);
+  }
+
   return json({
     isAuth: !!user,
+    offers,
+    data,
   });
 };
 
 const HomePage = () => {
-  const { isAuth } = useLoaderData<typeof loader>();
+  const { isAuth, offers, data } = useLoaderData<typeof loader>();
   const { t } = useTranslation();
+
+  console.log("data", data);
+  console.log("offers", offers);
+
+  offers[0].id;
+  offers[0].attributes.buy_now_url;
 
   return (
     <main className="flex flex-col">
@@ -45,6 +75,7 @@ const HomePage = () => {
                   consequatur. Explicabo.
                 </p>
               </div>
+              <a href={offers[0].attributes.buy_now_url as string}>Buy now</a>
               <div className="mt-4 flex justify-center gap-2">
                 <Button>Get Started</Button>
                 <Button variant="outline">Learn more</Button>

@@ -32,10 +32,7 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
       },
     });
     if (!session) {
-      throw new RedirectException(
-        'Votre session a expiré. Veuillez vous reconnecter.',
-        '/signin',
-      );
+      throw new RedirectException('session_expired', '/signin');
     }
 
     const { user } = session;

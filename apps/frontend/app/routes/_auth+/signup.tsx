@@ -83,7 +83,6 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 
   const { email, password } = submission.value;
 
-  // const { email: createdUserEmail } =
   await context.remixService.auth.createUser({
     email,
     password,

@@ -5,6 +5,7 @@
   "invalid_email_token": "Jeton de vérification de mail périmé",
   "invalid_email": "Email invalide",
   "email_confirmed": "Email confirmé avec succès",
+  "session_expired": "Session expirée, veuillez vous reconnecter",
   "user_created": "Utilisateur créé avec succès, veuillez vérifier votre email pour activer votre compte",
   "if_user_exists_mail_recieved": "Si votre adresse email existe dans notre système, vous recevrez un email avec des instructions pour réinitialiser votre mot de passe."
 }

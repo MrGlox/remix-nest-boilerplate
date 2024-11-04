@@ -1,3 +1,4 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
@@ -8,9 +9,12 @@ import { TokenModule } from '../token/token.module';
 import { RemixController } from './remix.controller';
 import { RemixService } from './remix.service';
 
+import { OfferModule } from '../../offer/offer.module';
+import { OfferService } from '../../offer/offer.service';
+
 @Module({
-  imports: [ConfigModule, AuthModule, TokenModule],
-  providers: [RemixService, PrismaService],
+  imports: [ConfigModule, HttpModule, AuthModule, OfferModule, TokenModule],
+  providers: [RemixService, PrismaService, OfferService],
   controllers: [RemixController],
   exports: [RemixService],
 })

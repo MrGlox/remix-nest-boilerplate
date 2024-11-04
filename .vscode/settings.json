@@ -17,5 +17,8 @@
     "**/coverage": true,
     "**/package-lock.json": true,
     "**/pnpm-lock.yaml": true
+  },
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
   }
 }

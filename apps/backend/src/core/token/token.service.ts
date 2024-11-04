@@ -52,8 +52,8 @@ export class TokenService {
       data: {
         userId,
         token: `${hash.update(randomBytes(4).toString('hex') + userId + salt).digest('hex')}`,
-        type: 'VERIFY_EMAIL', // or any appropriate type
-        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24), // example: 24 hours from now
+        type: 'VERIFY_EMAIL',
+        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
       },
     });
   };
@@ -72,8 +72,8 @@ export class TokenService {
       data: {
         userId,
         token: `${hash.update(randomBytes(4).toString('hex') + userId + salt).digest('hex')}`,
-        type: 'PASSWORD_RESET', // or any appropriate type
-        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24), // example: 24 hours from now
+        type: 'PASSWORD_RESET',
+        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
       },
     });
   };

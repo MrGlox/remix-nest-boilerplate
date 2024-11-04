@@ -1,4 +1,3 @@
-import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { Container } from "~/components/layout/container";
 
 import {
@@ -9,17 +8,6 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { getOptionalUser } from "~/server/auth.server";
-
-export const loader = async ({ context }: LoaderFunctionArgs) => {
-  const user = await getOptionalUser({ context });
-
-  if (!user) {
-    return redirect("/signin");
-  }
-
-  return null;
-};
 
 const DashboardHome = () => {
   return (

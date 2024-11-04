@@ -1,6 +1,9 @@
+import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { createId } from '@paralleldrive/cuid2';
 
+import { ConfigService } from '@nestjs/config';
+import { AllConfigType } from 'src/core/config/config.type';
 import { PrismaService } from '../core/database/prisma.service';
 import { TokenService } from '../core/token/token.service';
 import { hashWithSalt, verifyPassword } from '../core/utils/crypt';
@@ -10,6 +13,8 @@ import { MailerService } from '../mailer/mailer.service';
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly httpService: HttpService,
+    private configService: ConfigService<AllConfigType>,
     private mailerService: MailerService,
     private tokenService: TokenService,
   ) {}
@@ -237,4 +242,45 @@ export class AuthService {
       message: 'password_changed',
     };
   };
+
+  async refreshAccessToken(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+
+    const refreshToken = await this.prisma.token.findFirst({
+      where: {
+        userId: userId,
+        type: 'REFRESH',
+      },
+    });
+
+    if (!user || refreshToken) {
+      throw new Error('Refresh token not found');
+    }
+
+    const response = await this.httpService.post(
+      'https://oauth2.googleapis.com/token',
+      {
+        client_id: this.configService.get('google.clientID', { infer: true }),
+        client_secret: this.configService.get('google.clientSecret', {
+          infer: true,
+        }),
+        refresh_token: refreshToken,
+        grant_type: 'refresh_token',
+      },
+    );
+
+    const newAccessToken = response; // .data.access_token;
+    console.log('newAccessToken', newAccessToken);
+
+    await this.prisma.token.create({
+      data: {
+        userId,
+        type: 'ACCESS',
+        token: newAccessToken.toString(),
+        expiresAt: new Date(),
+      },
+    });
+
+    return newAccessToken;
+  }
 }

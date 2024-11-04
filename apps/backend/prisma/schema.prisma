@@ -16,12 +16,13 @@ datasource db {
 model User {
   id String @id @default(cuid())
 
-  email           String  @unique
-  pseudo          String?  @unique
-  password        String
-  preferredLocale String  @default("en")
-  active          Boolean @default(false)
+  email    String  @unique
+  pseudo   String? @unique
+  googleId String? @unique
+  password String
 
+  preferredLocale  String  @default("en")
+  active           Boolean @default(false)
   stripeCustomerId String? @unique
   rememberMeToken  String?
   isEmailVerified  Boolean @default(false)
@@ -33,7 +34,7 @@ model User {
 
   profile Profile?
 
-  tokens      Token[]
+  tokens Token[]
 }
 
 model Session {
@@ -95,9 +96,9 @@ model Payment {
   // orderId String @unique
   // order   Order  @relation(fields: [orderId], references: [id])
 
-  stripePaymentId String // Stripe payment intent or charge ID
-  amount          Float // Payment amount
-  currency        String // Payment currency (e.g., USD, EUR)
+  paymentId String // Stripe payment intent or charge ID
+  amount    Float // Payment amount
+  currency  String // Payment currency (e.g., USD, EUR)
 
   status PaymentStatus // Payment status (Pending, Completed, Failed)
 

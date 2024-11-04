@@ -12,6 +12,7 @@ CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "pseudo" TEXT,
+    "googleId" TEXT,
     "password" TEXT NOT NULL,
     "preferredLocale" TEXT NOT NULL DEFAULT 'en',
     "active" BOOLEAN NOT NULL DEFAULT false,
@@ -66,7 +67,7 @@ CREATE TABLE "Token" (
 -- CreateTable
 CREATE TABLE "Payment" (
     "id" TEXT NOT NULL,
-    "stripePaymentId" TEXT NOT NULL,
+    "paymentId" TEXT NOT NULL,
     "amount" DOUBLE PRECISION NOT NULL,
     "currency" TEXT NOT NULL,
     "status" "PaymentStatus" NOT NULL,
@@ -81,6 +82,9 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_pseudo_key" ON "User"("pseudo");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_googleId_key" ON "User"("googleId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_stripeCustomerId_key" ON "User"("stripeCustomerId");
