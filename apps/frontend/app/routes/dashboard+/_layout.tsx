@@ -1,48 +1,38 @@
-import { LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { Link, Outlet } from "@remix-run/react";
-import { useTranslation } from "react-i18next";
+import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
+import { Outlet } from "@remix-run/react";
 
-import { Brand } from "~/assets";
-import { Container } from "~/components/layout/container";
-import { Button } from "~/components/ui/button";
+import { DashboardFooter } from "~/containers/dashboard/footer";
+import { DashboardHeader } from "~/containers/dashboard/header";
+import i18next from "~/modules/i18n.server";
 import { getOptionalUser } from "~/server/auth.server";
 
-export const loader = async ({ context }: LoaderFunctionArgs) => {
+export const loader = async ({ context, request }: LoaderFunctionArgs) => {
+  const t = await i18next.getFixedT(request, "dashboard");
   const user = await getOptionalUser({ context });
 
   if (!user) {
     return redirect("/signin");
   }
 
-  return null;
+  return json({
+    // Global
+    user,
+    // Translated meta tags
+    title: t("title", { website: process.env.APP_NAME }),
+    description: t("description"),
+  });
 };
 
-const DashboardLayout = () => {
-  const { t } = useTranslation();
+export { meta } from "~/config/meta";
 
+const DashboardLayout = () => {
   return (
     <>
-      <header className="hidden flex-col md:flex border-b">
-        <Container size="large">
-          <div className="flex h-16 items-center px-4 justify-between">
-            <nav>
-              <Link
-                to="/dashboard"
-                className="flex items-center text-lg font-medium"
-              >
-                <Brand className="w-10 h-10 min-w-10 mr-2" />
-                Boilerplate
-              </Link>
-            </nav>
-            <form method="POST" action="/auth/logout">
-              <Button type="submit" className="text-xs">
-                {t("logout")}
-              </Button>
-            </form>
-          </div>
-        </Container>
-      </header>
-      <Outlet />
+      <DashboardHeader />
+      <main className="flex flex-col min-h-[calc(100vh-64px)] py-10">
+        <Outlet />
+      </main>
+      <DashboardFooter />
     </>
   );
 };

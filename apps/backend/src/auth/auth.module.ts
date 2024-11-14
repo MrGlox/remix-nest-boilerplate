@@ -10,6 +10,7 @@ import { MailerService } from '../mailer/mailer.service';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { GoogleController } from './google/google.controller';
 import { GoogleStrategy } from './google/google.strategy';
 import { LocalAuthGuard } from './local/local.guard';
 import { LocalStrategy } from './local/local.strategy';
@@ -23,7 +24,7 @@ import { LocalStrategy } from './local/local.strategy';
       session: true,
     }),
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, GoogleController],
   providers: [
     LocalStrategy,
     LocalAuthGuard,

@@ -121,8 +121,8 @@ function SigninPage() {
         </p>
       </header>
       <main className={cn("grid gap-6")}>
-        <Link
-          to="/google/redirect"
+        <a
+          href="/auth/google"
           className={cn(
             "group relative inline-flex",
             buttonVariants({ variant: "outline" }),
@@ -138,7 +138,7 @@ function SigninPage() {
           >
             {t("recommended", { ns: "common" })}
           </Badge>
-        </Link>
+        </a>
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t" />

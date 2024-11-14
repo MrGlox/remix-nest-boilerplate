@@ -63,7 +63,7 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
     // Translated meta tags
     title: t("title", { website: process.env.APP_NAME }),
     description: t("description"),
-  } as const);
+  });
 };
 
 export async function action({ request }: ActionFunctionArgs) {

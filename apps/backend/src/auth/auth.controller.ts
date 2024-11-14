@@ -15,8 +15,6 @@ import { LocalAuthGuard } from './local/local.guard';
 
 @Controller()
 export class AuthController {
-  constructor() {}
-
   @UseGuards(LocalAuthGuard)
   @Get('/authenticate')
   @Redirect('/')

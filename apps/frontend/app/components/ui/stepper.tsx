@@ -1,11 +1,11 @@
 import * as React from "react";
 
+import { useMediaQuery } from "~/hooks/use-media-query";
 import { cn } from "~/lib/utils";
 
 import { StepperProvider } from "./stepper/context";
 import { Step } from "./stepper/step";
 import type { StepItem, StepProps, StepperProps } from "./stepper/types";
-import { useMediaQuery } from "~/hooks/use_media_query";
 import { useStepper } from "./stepper/use_stepper";
 
 const VARIABLE_SIZES = {

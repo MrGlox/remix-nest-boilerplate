@@ -31,5 +31,17 @@
   "fields": {
     "password": "Password",
     "password_confirm": "Confirm Password"
-  }
+  },
+  "my_account": "Mon compte",
+  "profile": "Profil",
+  "billing": "Facturation",
+  "settings": "Paramètres",
+  "team": "Équipe",
+  "invite_users": "Inviter des utilisateurs",
+  "invite": {
+    "email": "Email",
+    "message": "Message",
+    "more": "Plus..."
+  },
+  "support": "Support"
 }

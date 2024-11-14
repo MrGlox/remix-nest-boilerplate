@@ -16,22 +16,23 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     private readonly configService: ConfigService<AllConfigType>,
     private readonly prisma: PrismaService,
   ) {
-    console.log(
-      "configService.get('google.clientID', { infer: true });",
-      configService.get('google.clientID', { infer: true }),
-    );
-
     super({
       clientID: configService.get('google.clientID', { infer: true }),
       clientSecret: configService.get('google.clientSecret', { infer: true }),
       callbackURL: configService.get('google.callbackURL', { infer: true }),
+      accessType: 'offline',
+      display: 'page',
+      prompt: 'consent',
+      scope: ['email', 'profile'],
+
       // Google specific
       //   prompt: 'select_account',
       //   accessType: 'offline',
       //   hostedDomain: 'localhost',
       //   display: 'page',
+      //   resave: false,
+      //   saveUninitialized: true,
       //   scopes: ['userinfo.email', 'userinfo.profile'],
-      scope: ['email', 'profile'],
     } as IStrategyOptions);
   }
 
@@ -50,7 +51,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       profile,
     });
 
-    let user = await this.prisma.user.findUnique({ where: { googleId: id } });
+    let user = await this.prisma.user.findUnique({ where: { email } });
 
     const { hash, salt } = await hashWithSalt(
       crypto.randomBytes(16).toString('hex'),
@@ -66,21 +67,30 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       });
     }
 
-    await this.prisma.token.createMany({
-      data: [
-        {
-          userId: user.id,
-          token: accessToken,
-          type: 'ACCESS',
-          expiresAt: new Date(Date.now() + 2),
-        },
-        {
-          userId: user.id,
-          token: refreshToken,
-          type: 'REFRESH',
-          expiresAt: new Date(Date.now() + 2),
-        },
-      ],
+    // await this.prisma.token.createMany({
+    //   data: [
+    //     {
+    //       userId: user.id,
+    //       token: accessToken,
+    //       type: 'ACCESS',
+    //       expiresAt: new Date(Date.now() + 2),
+    //     },
+    //     {
+    //       userId: user.id,
+    //       token: refreshToken,
+    //       type: 'REFRESH',
+    //       expiresAt: new Date(Date.now() + 2),
+    //     },
+    //   ],
+    // });
+
+    await this.prisma.token.create({
+      data: {
+        userId: user.id,
+        token: accessToken,
+        type: 'ACCESS',
+        expiresAt: new Date(Date.now() + 2),
+      },
     });
 
     done(null, user);

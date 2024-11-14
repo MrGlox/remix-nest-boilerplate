@@ -19,6 +19,13 @@ const generateImageWithBlurhash = async (
 ) => {
   const { width, height, fit } = options;
 
+  try {
+    new URL(url); // Validate URL
+  } catch (err) {
+    console.error("Invalid URL:", url, err);
+    throw new Error("Invalid URL");
+  }
+
   const urlWithParams = generateUrlWithParams(url, {
     width: width && Number.isInteger(width) ? `${width / 10}` : undefined,
     height: `${height / 10}`,

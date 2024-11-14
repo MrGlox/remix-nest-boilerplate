@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 
 import { LanguageSwitcher } from "../language-switcher";
 
-export const ShowcaseFooter = () => {
+export const DashboardFooter = () => {
   const { t } = useTranslation();
 
   return (

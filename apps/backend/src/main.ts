@@ -79,8 +79,10 @@ async function bootstrap() {
   app.use('/authenticate', urlencoded({ extended: true }));
   app.use('/auth/logout', urlencoded({ extended: true }));
 
-  const selectedPort = process.env.PORT ?? 3000;
+  app.use('/auth/google', urlencoded({ extended: true }));
+  app.use('/auth/google/callback', urlencoded({ extended: true }));
 
+  const selectedPort = process.env.PORT ?? 3000;
   console.log(`Running on port http://localhost:${selectedPort}`);
 
   await app.listen(selectedPort);
