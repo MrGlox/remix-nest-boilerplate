@@ -1,0 +1,94 @@
+{
+  "title": "Dashboard",
+  "description": "",
+  "onboarding": {
+    "title": "Onboarding",
+    "description": "Onboarding process",
+    "step1": {
+      "title": "Step 1",
+      "description": "Link google account",
+      "subtitle": "Link your google account to retrieve your youtube channel",
+      "heading": "Welcome to the onboarding process",
+      "intro": "Welcome to the onboarding process"
+    },
+    "step2": {
+      "title": "Step 2",
+      "description": "Youtube channel verification",
+      "subtitle": "Verify your channel informations",
+      "heading": "Welcome to the onboarding process",
+      "intro": "Welcome to the onboarding process"
+    },
+    "step3": {
+      "title": "Step 3",
+      "description": "Invite moderators",
+      "subtitle": "Please verify your channel informations",
+      "heading": "Welcome to the onboarding process",
+      "intro": "Welcome to the onboarding process"
+    }
+  },
+  "options": {
+    "done": "Already done !",
+    "optional": "(optional)"
+  },
+  "fields": {
+    "password": "Password",
+    "password_confirm": "Confirm Password"
+  },
+  "account": {
+    "title": "Account",
+    "title_meta": "My Account | {{website}}",
+    "description": "Manage your account settings and set e-mail preferences."
+  },
+  "appearance": {
+    "title": "Appearance",
+    "title_meta": "Appearance | {{website}}",
+    "description": "Select your subscription plan or manage your billing information."
+  },
+  "billings": {
+    "title": "Billings",
+    "title_meta": "Billings | {{website}}",
+    "description": "Select your subscription plan or manage your billing information."
+  },
+  "display": {
+    "title": "Display",
+    "title_meta": "Display | {{website}}",
+    "description": "Select your subscription plan or manage your billing information."
+  },
+  "profile": {
+    "title": "Profile",
+    "title_meta": "Profile | {{website}}",
+    "description": "Select your subscription plan or manage your billing information."
+  },
+  "settings": {
+    "title": "Settings",
+    "title_meta": "Settings | {{website}}",
+    "description": "Select your subscription plan or manage your billing information."
+  },
+  "subscription": {
+    "title": "Subscription",
+    "title_meta": "Subscription | {{website}}",
+    "description": "Select your subscription plan or manage your billing information."
+  },
+  "my_account": {
+    "title": "My Account",
+    "title_meta": "My Account | {{website}}",
+    "description": "Select your subscription plan or manage your billing information."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "title_meta": "Notifications | {{website}}",
+    "description": "Select your subscription plan or manage your billing information."
+  },
+
+  "settings_desc": "Manage your account settings and set e-mail preferences.",
+  "team": "Team",
+  "invite_users": "Invite users",
+  "invite": {
+    "email": "Email",
+    "message": "Message",
+    "more": "More..."
+  },
+  "select_offer": "Select an offer",
+  "annual": "Annual",
+  "support": "Support"
+}

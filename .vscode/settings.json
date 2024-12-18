@@ -5,8 +5,9 @@
     "source.removeUnusedImports": "explicit"
   },
   "i18n-ally.localesPaths": [
-    "apps/frontend/locales",
-    "apps/backend/public/locales"
+    "apps/web/locales",
+    "apps/server/public/locales",
+    "apps/cms/locales"
   ],
   "i18n-ally.enabledFrameworks": ["react"],
   "i18n-ally.keystyle": "nested",

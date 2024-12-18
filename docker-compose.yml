@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:16-alpine3.19
-    container_name: watch-over-db
+    container_name: boilerplate-db
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -11,7 +11,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - watchover-network
+      - boilerplate-network
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
@@ -31,7 +31,7 @@ services:
   #     - REDIS_URL=redis://redis_dev:6379
   #     - NODE_ENV=development
   #     - DATABASE_URL
-  #   container_name: watch-over-comments
+  #   container_name: boilerplate-comments
   #   image: mrglox/nestjs-remix-monorepo:dev
   #   restart: always
   #   ports:
@@ -39,7 +39,7 @@ services:
   #   depends_on:
   #     - db
   #   networks:
-  #     - watchover-network
+  #     - boilerplate-network
 
   redis:
     image: redis:latest
@@ -57,5 +57,5 @@ volumes:
 
 
 networks:
-  watchover-network:
+  boilerplate-network:
     driver: bridge

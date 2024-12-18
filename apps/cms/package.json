@@ -1,0 +1,69 @@
+{
+  "name": "@repo/cms",
+  "version": "1.0.0",
+  "description": "A blank template to get started with Payload 3.0",
+  "license": "MIT",
+  "type": "module",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "serve": {
+        "types": "./dist/index.js",
+        "require": "./dist/index.js",
+        "import": "./dist/index.js"
+      },
+      "default": {
+        "types": "./src/index.ts",
+        "require": "./src/index.ts",
+        "import": "./src/index.ts"
+      }
+    },
+    "./types": {
+      "types": "./src/types.ts",
+      "require": "./src/types.ts",
+      "import": "./src/types.ts"
+    }
+  },
+  "scripts": {
+    "clean": "rm -rf node_modules dist build .turbo",
+    "build:payload": "cross-env PAYLOAD_CONFIG_PATH=src/config.ts payload build",
+    "build:server": "rm -rf dist/* && tsc",
+    "build": "pnpm build:payload && pnpm build:server && pnpm copyfiles",
+    "copyfiles": "copyfiles -u 1 \"src/**/*.{html,css,scss,ttf,woff,woff2,eot,svg,jpg,png}\" dist/ && copyfiles -u 1 \"build/**/*\" ../server/build",
+    "generate:types": "cross-env PAYLOAD_CONFIG_PATH=src/config.ts payload generate:types",
+    "generate:graphQLSchema": "PAYLOAD_CONFIG_PATH=src/config.ts payload generate:graphQLSchema",
+    "lint": "eslint --ext .ts,.tsx,.js,.jsx ./src"
+  },
+  "dependencies": {
+    "@repo/ui": "workspace:*",
+    "@payloadcms/next": "latest",
+    "@payloadcms/payload-cloud": "latest",
+    "@payloadcms/richtext-lexical": "latest",
+    "cross-env": "^7.0.3",
+    "graphql": "^16.8.1",
+    "next": "15.1.0",
+    "payload": "latest",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "sharp": "0.32.6",
+    "@payloadcms/db-postgres": "latest"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.2.0",
+    "@types/node": "^22.5.4",
+    "@types/react": "19.0.1",
+    "@types/react-dom": "19.0.1",
+    "eslint": "^9.16.0",
+    "eslint-config-next": "15.1.0",
+    "prettier": "^3.4.2",
+    "typescript": "5.7.2"
+  },
+  "engines": {
+    "node": "^18.20.2 || >=20.9.0"
+  },
+  "peerDependencies": {
+    "@repo/shared": "workspace:*",
+    "react": "^18.2.0",
+    "react-router-dom": "^5.3.4"
+  }
+}

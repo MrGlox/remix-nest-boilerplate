@@ -7,12 +7,19 @@
       "persistent": true
     },
     "build": {
-      "outputs": ["backend/dist/**", "frontend/build/**"],
+      "outputs": ["server/dist/**", "web/build/**", "cms/build/**"],
       "dependsOn": ["^build"]
     },
     "typecheck": {},
     "lint": {
       "cache": false
     }
-  }
+  },
+  "globalEnv": [
+    "MONGODB_URL",
+    "PAYLOADCMS_SECRET",
+    "NODE_ENV",
+    "PAYLOAD_CONFIG_PATH",
+    "PORT"
+  ]
 }

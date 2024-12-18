@@ -9,7 +9,7 @@ RUN apk update
 WORKDIR /app
 RUN npm install --global turbo
 COPY --chown=node:node . .
-RUN turbo prune @repo/backend --docker
+RUN turbo prune @repo/server --docker
 
 # Add lockfile and package.json's of isolated subworkspace
 FROM base AS installer
@@ -36,8 +36,8 @@ ENV TURBO_TOKEN=$TURBO_TOKEN
 ENV TZ=Europe/Paris
 ENV NODE_ENV="production"
 
-ADD backend/prisma backend/prisma
-RUN cd backend && npx prisma generate
+ADD server/prisma server/prisma
+RUN cd server && npx prisma generate
 
 RUN npm run build
 
@@ -52,14 +52,14 @@ USER remix-api
 # ENV TZ=Europe/Paris
 # ENV NODE_ENV="production"
 
-COPY --chown=remix-api:nodejs --from=installer /app/backend/package.json ./backend/package.json
-COPY --chown=remix-api:nodejs --from=installer /app/backend/dist ./backend/dist
+COPY --chown=remix-api:nodejs --from=installer /app/server/package.json ./server/package.json
+COPY --chown=remix-api:nodejs --from=installer /app/server/dist ./server/dist
 COPY --chown=remix-api:nodejs --from=installer /app/node_modules ./node_modules
-COPY --chown=remix-api:nodejs --from=installer /app/node_modules/@repo/frontend ./node_modules/@repo/frontend
+COPY --chown=remix-api:nodejs --from=installer /app/node_modules/@repo/web ./node_modules/@repo/web
 COPY --chown=remix-api:nodejs --from=installer /app/node_modules/@repo/typescript-config ./node_modules/@repo/typescript-config
 COPY --chown=remix-api:nodejs --from=installer /app/node_modules/@repo/eslint-config ./node_modules/@repo/eslint-config
-COPY --chown=remix-api:nodejs --from=installer /app/backend/prisma ./backend/prisma
+COPY --chown=remix-api:nodejs --from=installer /app/server/prisma ./server/prisma
 
-COPY --chown=remix-api:nodejs --from=builder /app/backend/start.sh ./backend/start.sh
+COPY --chown=remix-api:nodejs --from=builder /app/server/start.sh ./server/start.sh
 
-ENTRYPOINT [ "backend/start.sh" ]
+ENTRYPOINT [ "server/start.sh" ]

@@ -1,0 +1,94 @@
+{
+  "title": "Tableau de bord",
+  "description": "",
+  "onboarding": {
+    "title": "Onboarding",
+    "description": "Processus d'intégration",
+    "step1": {
+      "title": "Étape 1",
+      "description": "Lier un compte Google",
+      "subtitle": "Liez votre compte Google pour récupérer votre chaîne YouTube",
+      "heading": "Bienvenue dans le processus d'intégration",
+      "intro": "Bienvenue dans le processus d'intégration"
+    },
+    "step2": {
+      "title": "Étape 2",
+      "description": "Vérification de la chaîne YouTube",
+      "subtitle": "Vérifiez les informations de votre chaîne",
+      "heading": "Bienvenue dans le processus d'intégration",
+      "intro": "Bienvenue dans le processus d'intégration"
+    },
+    "step3": {
+      "title": "Étape 3",
+      "description": "Inviter des modérateurs",
+      "subtitle": "Veuillez vérifier les informations de votre chaîne",
+      "heading": "Bienvenue dans le processus d'intégration",
+      "intro": "Bienvenue dans le processus d'intégration"
+    }
+  },
+  "options": {
+    "done": "Déjà fait !",
+    "optional": "(facultatif)"
+  },
+  "fields": {
+    "password": "Mot de passe",
+    "password_confirm": "Confirmez le mot de passe"
+  },
+  "account": {
+    "title": "Compte",
+    "title_meta": "Mon compte | {{website}}",
+    "description": "Gérez les paramètres de votre compte et définissez vos préférences e-mail."
+  },
+  "appearance": {
+    "title": "Apparence",
+    "title_meta": "Apparence | {{website}}",
+    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation."
+  },
+  "billings": {
+    "title": "Facturation",
+    "title_meta": "Facturation | {{website}}",
+    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation."
+  },
+  "display": {
+    "title": "Affichage",
+    "title_meta": "Affichage | {{website}}",
+    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation."
+  },
+  "profile": {
+    "title": "Profil",
+    "title_meta": "Profil | {{website}}",
+    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation."
+  },
+  "settings": {
+    "title": "Paramètres",
+    "title_meta": "Paramètres | {{website}}",
+    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation."
+  },
+  "subscription": {
+    "title": "Abonnement",
+    "title_meta": "Abonnement | {{website}}",
+    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation."
+  },
+  "my_account": {
+    "title": "Mon compte",
+    "title_meta": "Mon compte | {{website}}",
+    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "title_meta": "Notifications | {{website}}",
+    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation."
+  },
+
+  "settings_desc": "Gérez les paramètres de votre compte et définissez vos préférences e-mail.",
+  "team": "Équipe",
+  "invite_users": "Inviter des utilisateurs",
+  "invite": {
+    "email": "E-mail",
+    "message": "Message",
+    "more": "Plus..."
+  },
+  "select_offer": "Sélectionnez une offre",
+  "annual": "Annuel",
+  "support": "Support"
+}

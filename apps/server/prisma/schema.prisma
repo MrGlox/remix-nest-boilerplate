@@ -1,0 +1,150 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(cuid())
+
+  email    String  @unique
+  pseudo   String? @unique
+  googleId String? @unique
+  password String
+
+  preferredLocale  String  @default("en")
+  active           Boolean @default(false)
+  stripeCustomerId String? @unique
+  rememberMeToken  String?
+  isEmailVerified  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions Session[]
+
+  profile Profile?
+
+  tokens Token[]
+}
+
+model Session {
+  id String @id @default(cuid())
+
+  ipAddress    String?
+  userAgent    String?
+  sessionToken String  @unique
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Profile {
+  id String @id @default(cuid())
+
+  pseudo    String
+  firstName String
+  lastName  String
+
+  avatar   String?
+  bio      String?
+  location String?
+  website  String?
+
+  userId String @unique // relation scalar field (used in the `@relation` attribute above)
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TokenType {
+  ACCESS
+  REFRESH
+  VERIFY_EMAIL
+  PASSWORD_RESET
+}
+
+model Token {
+  id String @id @default(cuid())
+
+  type  TokenType
+  token String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  expiresAt DateTime
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Payment {
+  id String @id @default(cuid())
+
+  // orderId String @unique
+  // order   Order  @relation(fields: [orderId], references: [id])
+
+  paymentId String // Stripe payment intent or charge ID
+  amount    Float // Payment amount
+  currency  String // Payment currency (e.g., USD, EUR)
+
+  status PaymentStatus // Payment status (Pending, Completed, Failed)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model Plan {
+  id String @id @default(cuid())
+
+  productId          Int
+  productName        String
+  variantId          Int     @unique
+  name               String
+  description        String?
+  price              String
+  isUsageBased       Boolean @default(false)
+  interval           String?
+  intervalCount      Int?
+  trialInterval      String?
+  trialIntervalCount Int?
+  sort               Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // subscriptions Subscription[]
+  // @@map("plans") // Optional: maps to a specific table name in your database
+}
+
+// model Transaction {
+//   id        String   @id @default(cuid())
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+//   offerId   String
+//   offer     Offer    @relation(fields: [offerId], references: [id])
+
+//   userId   String
+//   user     User      @relation(fields: [userId], references: [id])
+//   messages Message[]
+
+//   @@unique([offerId, userId])
+// }
