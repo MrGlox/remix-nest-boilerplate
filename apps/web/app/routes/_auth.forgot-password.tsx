@@ -6,7 +6,7 @@ import {
   type LoaderFunctionArgs,
   data,
 } from "react-router";
-import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
+import { Form, Link, useActionData, useLoaderData } from "react-router";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 

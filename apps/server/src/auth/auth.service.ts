@@ -243,43 +243,47 @@ export class AuthService {
     };
   };
 
-  // async refreshAccessToken(userId: string) {
-  //   const user = await this.prisma.user.findUnique({ where: { id: userId } });
+  public readonly refreshAccessToken = async (
+    userId: string,
+  ): Promise<void> => {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
-  //   const refreshToken = await this.prisma.token.findFirst({
-  //     where: {
-  //       userId: userId,
-  //       type: 'REFRESH',
-  //     },
-  //   });
+    const refreshToken = await this.prisma.token.findFirst({
+      where: {
+        userId: userId,
+        type: 'REFRESH',
+      },
+    });
 
-  //   if (!user || refreshToken) {
-  //     throw new Error('Refresh token not found');
-  //   }
+    if (!user || refreshToken) {
+      throw new Error('Refresh token not found');
+    }
 
-  //   const response = await this.httpService.post(
-  //     'https://oauth2.googleapis.com/token',
-  //     {
-  //       client_id: this.configService.get('google.clientID', { infer: true }),
-  //       client_secret: this.configService.get('google.clientSecret', {
-  //         infer: true,
-  //       }),
-  //       refresh_token: refreshToken,
-  //       grant_type: 'refresh_token',
-  //     },
-  //   );
+    const response = await this.httpService.post(
+      'https://oauth2.googleapis.com/token',
+      {
+        client_id: this.configService.get('google.clientID', { infer: true }),
+        client_secret: this.configService.get('google.clientSecret', {
+          infer: true,
+        }),
+        refresh_token: refreshToken,
+        grant_type: 'refresh_token',
+      },
+    );
 
-  //   const newAccessToken = response;
+    // const newAccessToken = response?.data?.access_token ;
+    // const newAccessToken = response;
+    // console.log('response', response);
 
-  //   await this.prisma.token.create({
-  //     data: {
-  //       userId,
-  //       type: 'ACCESS',
-  //       token: newAccessToken.toString(),
-  //       expiresAt: new Date(),
-  //     },
-  //   });
+    // await this.prisma.token.create({
+    //   data: {
+    //     userId,
+    //     type: 'ACCESS',
+    //     token: newAccessToken || '',
+    //     expiresAt: new Date(),
+    //   },
+    // });
 
-  //   return newAccessToken;
-  // }
+    // return newAccessToken;
+  };
 }

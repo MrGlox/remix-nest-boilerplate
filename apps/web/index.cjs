@@ -13,7 +13,7 @@ module.exports.getServerBuild = async function getServerBuild() {
     return import(SERVER_DIR);
   }
 
-  const ssrModule = await devServer.ssrLoadModule("virtual:remix/server-build");
+  const ssrModule = await devServer.ssrLoadModule('virtual:react-router/server-build');
 
   return ssrModule;
 };

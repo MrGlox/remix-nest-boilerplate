@@ -3,18 +3,18 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 
-import { PrismaService } from '../core/database/prisma.service';
+import { PrismaModule } from '../core/database/prisma.module';
+
 import { CustomerService } from './customer/customer.service';
 import { PaymentController } from './payment.controller';
 import { PaymentService } from './payment.service';
 
 @Module({
-  imports: [HttpModule, ConfigModule],
+  imports: [HttpModule, ConfigModule, PrismaModule],
   controllers: [PaymentController],
   providers: [
     CustomerService,
     PaymentService,
-    PrismaService,
     {
       provide: 'STRIPE',
       useFactory: (configService: ConfigService) =>

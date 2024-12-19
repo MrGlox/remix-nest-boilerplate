@@ -7,7 +7,7 @@ import {
   data,
   redirect,
 } from "react-router";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "react-router";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
@@ -17,22 +17,24 @@ import { Badge } from "~/components/ui/badge";
 import { Button, buttonVariants } from "~/components/ui/button";
 import { Field } from "~/containers/forms";
 import { cn, generateAlert, generateFlash } from "~/lib/utils";
-import i18next from "~/modules/i18n.server";
-import { alertMessageHelper } from "~/server/cookies.server";
+import i18next, { i18nCookie } from "~/modules/i18n.server";
+import {
+  alertMessageGenerator,
+  alertMessageHelper,
+} from "~/server/cookies.server";
 
 export { meta } from "~/config/meta";
 
-export const loader = async ({ request, context }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const t = await i18next.getFixedT(request, "auth");
-
   const { message, headers } = await alertMessageHelper(request);
 
   return data(
     {
       message,
       // Translated meta tags
-      title: t("signin.title"),
-      description: t("signin.description"),
+      title: t("signup.title"),
+      description: t("signup.description"),
     },
     {
       headers,
@@ -40,25 +42,31 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   );
 };
 
+const signupSchema = z.object({
+  email: z.string().email(),
+  password: z.string(),
+});
+
 export const action = async ({ request, context }: ActionFunctionArgs) => {
   const formData = await request.formData();
+  const lang = await i18nCookie.parse(request.headers.get("Cookie"));
 
   const submission = await parseWithZod(formData, {
     async: true,
-    schema: signinSchema.superRefine(async (data, ctx) => {
-      const { email, password } = data;
+    schema: signupSchema.superRefine(async (data, ctx) => {
+      const { email } = data;
 
       const existingUser = await context.remixService.auth.checkIfUserExists({
         email,
-        withPassword: true,
-        password,
+        withPassword: false,
+        password: "",
       });
 
-      if (existingUser.error) {
+      if (existingUser.error === false) {
         ctx.addIssue({
           code: "custom",
           path: ["alert", "destructive"],
-          message: existingUser.message,
+          message: "invalid_email",
         });
       }
     }),
@@ -73,39 +81,30 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
     );
   }
 
-  // l'email et le mot de passe sont valides, et un compte utilisateur existe.
-  // connecter l'utilisateur.
-  const { email } = submission.value;
-  const { sessionToken } = await context.remixService.auth.authenticateUser({
+  const { email, password } = submission.value;
+
+  await context.remixService.auth.createUser({
     email,
+    password,
+    lang,
   });
 
-  const urlParams = new URL(request.url).searchParams;
-  const redirectTo = urlParams.get("redirectTo") || "/dashboard";
-
-  // Connecter l'utilisateur associé à l'email
-  return redirect(
-    `/authenticate?token=${sessionToken}&redirectTo=${redirectTo}`,
-  );
+  return redirect(`/signin`, {
+    headers: [await alertMessageGenerator("user_created", "success")],
+  });
 };
 
-const signinSchema = z.object({
-  email: z.string().email(),
-  password: z.string(),
-});
-
-function SigninPage() {
+function SignupPage() {
   const { t } = useTranslation("auth");
 
   const { message } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
   const [form, fields] = useForm({
-    id: "signin-form",
-    constraint: getZodConstraint(signinSchema),
+    constraint: getZodConstraint(signupSchema),
     onValidate: ({ formData }) =>
       parseWithZod(formData, {
-        schema: signinSchema,
+        schema: signupSchema,
       }),
     lastResult: actionData?.result,
   });
@@ -114,17 +113,17 @@ function SigninPage() {
     <div className="mx-auto flex w-full flex-col justify-center space-y-6 max-w-[420px]">
       <header className="flex flex-col space-y-2 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">
-          {t("signin.title")}
+          {t("signup.title")}
         </h1>
         <p className="text-muted-foreground text-sm">
-          {t("signin.description")}
+          {t("signup.description")}
         </p>
       </header>
       <main className={cn("grid gap-6")}>
         <a
           href="/auth/google"
           className={cn(
-            "group relative inline-flex",
+            "group relative inline-flex ",
             buttonVariants({ variant: "outline" }),
           )}
         >
@@ -152,6 +151,7 @@ function SigninPage() {
         <Form
           {...getFormProps(form)}
           method="post"
+          // action='/auth/login'
           reloadDocument
           className="flex flex-col"
         >
@@ -164,7 +164,7 @@ function SigninPage() {
             autoCapitalize="none"
             autoComplete="email"
             autoCorrect="off"
-            {...{ fields }}
+            {...{ ...actionData, fields }}
           />
           <Field
             name="password"
@@ -174,34 +174,22 @@ function SigninPage() {
             autoCapitalize="none"
             autoComplete="password"
             autoCorrect="off"
-            {...{ fields }}
+            {...{ ...actionData, fields }}
           />
-          <Button className="mt-3">{t("signin.action")}</Button>
-          <Link
-            to="/forgot-password"
-            className="self-end text-right text-sm mt-2"
-          >
-            {t("forgot.link")}
-          </Link>
+          <Button className="mt-3">{t("signup.action")}</Button>
         </Form>
       </main>
       <footer>
         <p className="text-muted-foreground -mb-10 mt-10 px-8 text-center text-sm">
           {t("agree")}{" "}
           <Button asChild variant="link">
-            <Link
-              to="/terms"
-              className="variant underline-offset-4 hover:underline"
-            >
+            <Link to="/terms" className="variant underline-offset-4">
               {t("terms")}
             </Link>
           </Button>{" "}
           {t("and")}{" "}
           <Button asChild variant="link">
-            <Link
-              to="/privacy"
-              className="variant underline-offset-4 hover:underline"
-            >
+            <Link to="/privacy" className="variant underline-offset-4">
               {t("privacy")}
             </Link>
           </Button>
@@ -212,4 +200,4 @@ function SigninPage() {
   );
 }
 
-export default SigninPage;
+export default SignupPage;

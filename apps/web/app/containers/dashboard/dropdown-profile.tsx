@@ -1,6 +1,6 @@
 import { AvatarFallback } from "@radix-ui/react-avatar";
 import { PersonIcon } from "@radix-ui/react-icons";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import {
   ChevronDown,
   Cloud,

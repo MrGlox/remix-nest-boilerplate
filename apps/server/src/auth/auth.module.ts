@@ -5,6 +5,7 @@ import { PassportModule } from '@nestjs/passport';
 import { CookieSerializer } from '../core/cookie-serializer';
 import { PrismaService } from '../core/database/prisma.service';
 import { TokenService } from '../core/token/token.service';
+import { PrismaModule } from '../core/database/prisma.module';
 import { TemplateService } from '../mailer/core/template.service';
 import { MailerService } from '../mailer/mailer.service';
 
@@ -23,6 +24,7 @@ import { LocalStrategy } from './local/local.strategy';
       property: 'user',
       session: true,
     }),
+    PrismaModule,
   ],
   controllers: [AuthController, GoogleController],
   providers: [

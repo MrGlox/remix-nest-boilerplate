@@ -7,11 +7,10 @@
 import { PassThrough } from "node:stream";
 
 import {
+  ServerRouter,
   type AppLoadContext,
   type EntryContext,
-  createReadableStreamFromReadable,
 } from "react-router";
-import { RemixServer } from "@remix-run/react";
 import { createInstance, type i18n as i18next } from "i18next";
 import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
@@ -19,6 +18,7 @@ import { I18nextProvider, initReactI18next } from "react-i18next";
 
 import * as i18n from "./config/i18n";
 import i18nServer from "./modules/i18n.server";
+import { createReadableStreamFromReadable } from "@react-router/node";
 
 const ABORT_DELAY = 5_000;
 
@@ -71,7 +71,7 @@ async function handleBotRequest(
 
     const { pipe, abort } = renderToPipeableStream(
       <I18nextProvider i18n={i18next}>
-        <RemixServer
+        <ServerRouter
           context={remixContext}
           url={request.url}
           abortDelay={ABORT_DELAY}
@@ -118,7 +118,7 @@ async function handleBrowserRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
-  remixContext: EntryContext,
+  reactRouterContext: EntryContext,
   _loadContext: AppLoadContext,
   i18next: i18next,
 ) {
@@ -127,8 +127,8 @@ async function handleBrowserRequest(
 
     const { pipe, abort } = renderToPipeableStream(
       <I18nextProvider i18n={i18next}>
-        <RemixServer
-          context={remixContext}
+        <ServerRouter
+          context={reactRouterContext}
           url={request.url}
           abortDelay={ABORT_DELAY}
         />
@@ -168,3 +168,69 @@ async function handleBrowserRequest(
     setTimeout(abort, ABORT_DELAY);
   });
 }
+
+// import { resolve } from "node:path";
+// import { createInstance } from "i18next";
+// import Backend from "i18next-fs-backend";
+// import { isbot } from "isbot";
+
+// import { I18nextProvider, initReactI18next } from "react-i18next";
+// import type { EntryContext } from "react-router";
+// import { ServerRouter } from "react-router";
+
+// import * as i18n from "./config/i18n";
+// import i18next from "./modules/i18n.server";
+
+// import ReactDOMServer from "react-dom/server";
+
+// export default async function handleRequest(
+//   request: Request,
+//   responseStatusCode: number,
+//   responseHeaders: Headers,
+//   reactRouterContext: EntryContext,
+// ) {
+//   const instance = createInstance();
+//   // i18next.server.tsにあるRemixI18Nextを使い、言語を取得する
+//   const lng = await i18next.getLocale(request);
+//   const ns = i18next.getRouteNamespaces(reactRouterContext);
+
+//   await instance
+//     .use(initReactI18next)
+//     .use(Backend)
+//     .init({
+//       ...i18n,
+//       lng,
+//       ns,
+//       backend: { loadPath: resolve("./public/locales/{{lng}}/{{ns}}.json") },
+//     });
+
+//   const { pipe } = await ReactDOMServer.renderToPipeableStream(
+//     <I18nextProvider i18n={instance}>
+//       <ServerRouter context={reactRouterContext} url={request.url} />
+//     </I18nextProvider>,
+//     {
+//       onError(error: unknown) {
+//         console.error(error);
+//         responseStatusCode = 500;
+//       },
+//     },
+//   );
+
+//   if (isbot(request.headers.get("user-agent") || "")) {
+//     await new Promise((resolve) => {
+//       pipe(resolve);
+//     });
+//   }
+
+//   responseHeaders.set("Content-Type", "text/html");
+//   const stream = new ReadableStream({
+//     start(controller) {
+//       pipe(controller);
+//     },
+//   });
+
+//   return new Response(stream, {
+//     headers: responseHeaders,
+//     status: responseStatusCode,
+//   });
+// }

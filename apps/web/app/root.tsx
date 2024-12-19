@@ -4,14 +4,7 @@ import {
   type LoaderFunctionArgs,
   replace,
 } from "react-router";
-import {
-  Links,
-  Meta,
-  Outlet,
-  Scripts,
-  ScrollRestoration,
-  useLoaderData,
-} from "@remix-run/react";
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData } from "react-router";
 
 import { useTranslation } from "react-i18next";
 import { z } from "zod";

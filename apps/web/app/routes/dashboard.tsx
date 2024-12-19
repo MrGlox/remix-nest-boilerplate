@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs, redirect } from "react-router";
-import { Outlet, useLoaderData } from "@remix-run/react";
+import { Outlet, useLoaderData } from "react-router";
 
 import { DashboardFooter } from "~/containers/dashboard/footer";
 import { DashboardHeader } from "~/containers/dashboard/header";

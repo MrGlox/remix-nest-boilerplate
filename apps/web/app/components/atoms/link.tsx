@@ -1,7 +1,4 @@
-import {
-  Link as RouterLink,
-  type LinkProps as RouterLinkProps,
-} from "@remix-run/react";
+import { Link as RouterLink, type LinkProps as RouterLinkProps } from "react-router";
 
 import { cn } from "~/lib/utils";
 

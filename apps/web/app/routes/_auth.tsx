@@ -1,11 +1,5 @@
 import { LoaderFunctionArgs } from "react-router";
-import {
-  Link,
-  Outlet,
-  redirect,
-  useLoaderData,
-  useLocation,
-} from "@remix-run/react";
+import { Link, Outlet, redirect, useLoaderData, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
 
 import { Brand } from "~/assets";

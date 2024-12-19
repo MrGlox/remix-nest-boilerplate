@@ -1,4 +1,4 @@
-import { Link, useLocation } from "@remix-run/react";
+import { Link, useLocation } from "react-router";
 import { Fragment, useState } from "react";
 import { useTranslation } from "react-i18next";
 

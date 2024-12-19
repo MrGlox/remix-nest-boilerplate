@@ -6,7 +6,7 @@ import {
   data,
   replace,
 } from "react-router";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "react-router";
 import {
   PaymentElement,
   useElements,

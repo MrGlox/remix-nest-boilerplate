@@ -1,4 +1,4 @@
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "react-router";
 
 export const loader = async ({ context, request }) => {
   const url = new URL(request.url);

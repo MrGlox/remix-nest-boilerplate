@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs } from "react-router";
-import { Outlet } from "@remix-run/react";
+import { Outlet } from "react-router";
 import { useTranslation } from "react-i18next";
 
 import { Container } from "~/components/layout/container";

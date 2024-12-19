@@ -1,5 +1,5 @@
 import { All, Controller, Next, Req, Res } from '@nestjs/common';
-import { createRequestHandler } from '@remix-run/express';
+import { createRequestHandler } from '@react-router/express';
 import { getServerBuild } from '@repo/web';
 import { NextFunction, Request, Response } from 'express';
 

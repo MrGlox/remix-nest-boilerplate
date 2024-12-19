@@ -1,9 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ActionFunctionArgs, LoaderFunctionArgs, data } from "react-router";
-import { Outlet, useActionData, useLoaderData } from "@remix-run/react";
-import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
-import { useRemixForm } from "remix-hook-form";
+import { useActionData, useLoaderData } from "react-router";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
@@ -24,6 +21,7 @@ import { Switch } from "~/components/ui/switch";
 // import { getOptionalUser } from "~/server/auth.server";
 import { alertMessageHelper } from "~/server/cookies.server";
 import { Button } from "~/components/ui/button";
+import { useRemixForm } from "remix-hook-form";
 
 type FormData = z.infer<typeof schema>;
 
@@ -69,9 +67,11 @@ const AccountSubscription = () => {
   const { products, ENV } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
+  console.log(products, ENV);
+
   console.log("actionData", actionData);
 
-  const stripeConfig = loadStripe(ENV.STRIPE_API_KEY || "");
+  // const stripeConfig = loadStripe(ENV.STRIPE_API_KEY || "");
 
   // const form = useRemixForm<z.infer<typeof FormSchema>>({
   //   resolver: zodResolver(FormSchema),
@@ -194,7 +194,7 @@ const AccountSubscription = () => {
           {t("payment_methods", "Payment methods")}
         </h4>
 
-        {form.formState.isValid && actionData ? (
+        {/* {form.formState.isValid && actionData ? (
           <Elements
             stripe={stripeConfig}
             options={{
@@ -208,7 +208,7 @@ const AccountSubscription = () => {
           </Elements>
         ) : (
           "Awaiting offer selection"
-        )}
+        )} */}
       </main>
     </Container>
   );

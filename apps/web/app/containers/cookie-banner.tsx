@@ -1,6 +1,6 @@
-import { useLocation } from "@remix-run/react";
+import { useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
-import { Form } from "react-router-dom";
+import { Form } from "react-router";
 
 import { Link } from "~/components/atoms/link";
 import { Button } from "~/components/ui/button";

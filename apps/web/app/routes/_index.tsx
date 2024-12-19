@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs } from "react-router";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Brand } from "~/assets";
 
