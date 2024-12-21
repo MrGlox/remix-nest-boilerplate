@@ -46,7 +46,7 @@ const Alert = forwardRef<
         className={cn("mb-4", className)}
       >
         {IconVariants[variant]}
-        {title && (
+        {typeof title === "boolean" && title ? (
           <AlertTitle>
             {t(
               variant as
@@ -58,6 +58,8 @@ const Alert = forwardRef<
               typeof title === "string" ? title : "",
             )}
           </AlertTitle>
+        ) : (
+          title && <AlertTitle>{title}</AlertTitle>
         )}
         <AlertDescription>{children}</AlertDescription>
       </AlertComponent>

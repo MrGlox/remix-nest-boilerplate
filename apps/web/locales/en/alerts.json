@@ -3,6 +3,7 @@
   "password_changed": "Password changed successfully",
   "invalid_token": "Invalid security token",
   "invalid_email_token": "Invalid email verification token",
+  "invalid_email": "Invalid Email",
   "email_confirmed": "Email confirmed successfully",
   "session_expired": "Session expired, please login again",
   "user_created": "User created successfully, please check your email to activate your account",

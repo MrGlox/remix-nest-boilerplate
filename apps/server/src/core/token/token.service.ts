@@ -101,8 +101,8 @@ export class TokenService {
   }: {
     token: string;
     type: TokenType;
-  }) =>
-    !!(await this.prisma.token.findFirst({
+  }): Promise<{ type: string; token: string } | null> => {
+    const foundToken = await this.prisma.token.findFirst({
       where: {
         expiresAt: {
           gt: new Date(Date.now()),
@@ -110,5 +110,8 @@ export class TokenService {
         token,
         type,
       },
-    }));
+    });
+
+    return foundToken ? { type, token } : null;
+  };
 }

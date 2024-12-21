@@ -11,11 +11,42 @@ import {
   FormProvider,
   useFormContext,
 } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { Form as ReactRouterForm } from "react-router";
 
 import { Label } from "~/components/ui/label";
-import { cn } from "~/lib/utils";
+import { cn, generateAlert, generateFlash } from "~/lib/utils";
 
-const Form = FormProvider;
+const Form = React.forwardRef(
+  (
+    {
+      children,
+      handleSubmit,
+      className,
+      actionData,
+      loaderData,
+      ...props
+    }: any,
+    ref,
+  ) => {
+    const { t } = useTranslation();
+
+    return (
+      <FormProvider {...props}>
+        <ReactRouterForm
+          ref={ref as React.Ref<HTMLFormElement>}
+          method="POST"
+          onSubmit={handleSubmit}
+          className={cn("space-y-4 py-4", className)}
+        >
+          {(actionData && generateAlert({ t, actionData })) ||
+            (loaderData && generateFlash({ t, loaderData }))}
+          {children}
+        </ReactRouterForm>
+      </FormProvider>
+    );
+  },
+);
 
 type FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,
@@ -44,7 +75,8 @@ const FormField = <
 const useFormField = () => {
   const fieldContext = React.useContext(FormFieldContext);
   const itemContext = React.useContext(FormItemContext);
-  const { getFieldState, formState } = useFormContext();
+  const { getFieldState, formState, control, getValues, ...rest } =
+    useFormContext();
 
   const fieldState = getFieldState(fieldContext.name, formState);
 
@@ -80,7 +112,7 @@ const FormItem = React.forwardRef<
 
   return (
     <FormItemContext.Provider value={{ id }}>
-      <div ref={ref} className={cn("space-y-2", className)} {...props} />
+      <div ref={ref} className={cn("space-y-1", className)} {...props} />
     </FormItemContext.Provider>
   );
 });
@@ -95,7 +127,7 @@ const FormLabel = React.forwardRef<
   return (
     <Label
       ref={ref}
-      className={cn(error && "text-destructive", className)}
+      className={cn(className, error && "text-destructive")}
       htmlFor={formItemId}
       {...props}
     />
@@ -147,8 +179,11 @@ const FormMessage = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
+  const { t } = useTranslation("validations");
   const { error, formMessageId } = useFormField();
-  const body = error ? String(error?.message) : children;
+
+  const body: any = error ? String(error?.message) : children;
+  const [message, value] = body?.split("/") || "";
 
   if (!body) {
     return null;
@@ -161,7 +196,9 @@ const FormMessage = React.forwardRef<
       className={cn("text-sm font-medium text-destructive", className)}
       {...props}
     >
-      {body}
+      {t(message, {
+        value: value || "",
+      })}
     </p>
   );
 });

@@ -1,12 +1,3 @@
-import { getFormProps, useForm } from "@conform-to/react";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  data,
-  replace,
-} from "react-router";
-import { Form, useActionData, useLoaderData } from "react-router";
 import {
   PaymentElement,
   useElements,
@@ -14,16 +5,16 @@ import {
 } from "@stripe/react-stripe-js";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { ActionFunctionArgs, LoaderFunctionArgs, data } from "react-router";
+import { useActionData, useLoaderData } from "react-router";
 import { z } from "zod";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { getValidatedFormData, useRemixForm } from "remix-hook-form";
 import { Button } from "~/components/ui/button";
 import { Loader } from "~/components/ui/loader";
 import { getOptionalUser } from "~/server/auth.server";
-import {
-  alertMessageGenerator,
-  alertMessageHelper,
-  persistToken,
-} from "~/server/cookies.server";
+import { alertMessageHelper } from "~/server/cookies.server";
 
 export const loader = async ({ context, request }: LoaderFunctionArgs) => {
   const { message, headers } = await alertMessageHelper(request);
@@ -50,47 +41,45 @@ const paymentSchema = z.object({
   token: z.string(),
 });
 
-export const action = async ({ request, context }: ActionFunctionArgs) => {
-  const formData = await request.formData();
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const {
+    errors,
+    data: formData,
+    receivedValues: defaultValues,
+  } = await getValidatedFormData<FormData>(request, resolver);
 
-  const submission = await parseWithZod(formData, {
-    async: true,
-    schema: paymentSchema,
-  });
+  if (errors)
+    return {
+      errors,
+      defaultValues,
+    };
 
-  await context.remixService.auth.changePassword(
-    submission.payload as {
-      token: string;
-      password: string;
+  return data(
+    { result: formData },
+    {
+      status: 400,
     },
   );
-
-  return replace("/signin", {
-    headers: [
-      [
-        "Set-Cookie",
-        await persistToken.serialize("", {
-          expires: new Date(-1),
-        }),
-      ],
-      await alertMessageGenerator("password_changed", "success"),
-    ],
-  });
 };
+
+const schema = z.object({
+  firstname: z.string(),
+  lastname: z.string(),
+  birthdate: z.coerce.date(),
+  language: z.string(),
+});
+
+type FormData = z.infer<typeof schema>;
+const resolver = zodResolver(schema);
 
 export default function Payment() {
   const { t } = useTranslation("dashboard");
 
+  const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-  const { message } = useLoaderData<typeof loader>();
 
-  const [form, fields] = useForm({
-    constraint: getZodConstraint(paymentSchema),
-    onValidate: ({ formData }) =>
-      parseWithZod(formData, {
-        schema: paymentSchema,
-      }),
-    lastResult: actionData?.result,
+  const form = useRemixForm({
+    resolver,
   });
 
   const elements = useElements();
@@ -131,15 +120,8 @@ export default function Payment() {
   };
 
   return (
-    <Form
-      {...getFormProps(form)}
-      onSubmit={handleSubmit}
-      method="post"
-      reloadDocument
-      className="flex flex-col"
-    >
+    <form>
       {isStripeLoading && <Loader />}
-      {/* {generateAlert(actionData) || generateFlash(message)} */}
       <PaymentElement
         options={{
           layout: {
@@ -150,13 +132,15 @@ export default function Payment() {
           },
         }}
       />
-      <Button
-        type="submit"
-        className="mt-3 self-end min-w-[120px]"
-        disabled={isStripeLoading || !elements}
-      >
-        {t("submit", { ns: "common" })}
-      </Button>
-    </Form>
+      <div className="flex justify-end">
+        <Button
+          type="submit"
+          className="mt-3 self-end min-w-[120px]"
+          disabled={isStripeLoading || !elements}
+        >
+          {t("submit", { ns: "common" })}
+        </Button>
+      </div>
+    </form>
   );
 }

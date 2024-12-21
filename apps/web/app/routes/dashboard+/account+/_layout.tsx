@@ -15,8 +15,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   return {
     // Translated meta tags
-    title: t("account.title_meta", { website: process.env.APP_NAME }),
-    description: t("account.description"),
+    title: t("settings.title_meta", { website: process.env.APP_NAME }),
+    description: t("settings.description"),
   };
 };
 
@@ -54,7 +54,7 @@ const AccountLayout = () => {
       <Card className="flex flex-1 flex-col !mt-2">
         <CardHeader className="space-y-0.5">
           <h2 className="text-2xl font-bold tracking-tight">
-            {t("settings", "Settings")}
+            {t("settings.title", "Settings")}
           </h2>
           <p className="text-muted-foreground">
             {t(

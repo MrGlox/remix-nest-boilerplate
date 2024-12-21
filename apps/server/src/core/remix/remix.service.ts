@@ -25,6 +25,7 @@ export class RemixService {
         id: true,
         pseudo: true,
         email: true,
+        stripeCustomerId: true,
       },
     });
 

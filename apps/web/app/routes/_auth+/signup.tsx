@@ -1,13 +1,10 @@
-import { getFormProps, useForm } from "@conform-to/react";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-
 import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
   data,
   redirect,
 } from "react-router";
-import { Form, useActionData, useLoaderData } from "react-router";
+import { useActionData, useLoaderData } from "react-router";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
@@ -15,13 +12,23 @@ import { Google } from "~/assets/logos";
 import { Link } from "~/components/atoms/link";
 import { Badge } from "~/components/ui/badge";
 import { Button, buttonVariants } from "~/components/ui/button";
-import { Field } from "~/containers/forms";
-import { cn, generateAlert, generateFlash } from "~/lib/utils";
+import { cn } from "~/lib/utils";
 import i18next, { i18nCookie } from "~/modules/i18n.server";
 import {
   alertMessageGenerator,
   alertMessageHelper,
 } from "~/server/cookies.server";
+import { getValidatedFormData, useRemixForm } from "remix-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
+import { Input } from "~/components/ui/input";
 
 export { meta } from "~/config/meta";
 
@@ -42,46 +49,32 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   );
 };
 
-const signupSchema = z.object({
-  email: z.string().email(),
-  password: z.string(),
-});
-
-export const action = async ({ request, context }: ActionFunctionArgs) => {
-  const formData = await request.formData();
+export const action = async ({ context, request }: ActionFunctionArgs) => {
   const lang = await i18nCookie.parse(request.headers.get("Cookie"));
+  const {
+    errors,
+    data,
+    receivedValues: defaultValues,
+  } = await getValidatedFormData<FormData>(request, resolver);
 
-  const submission = await parseWithZod(formData, {
-    async: true,
-    schema: signupSchema.superRefine(async (data, ctx) => {
-      const { email } = data;
+  if (errors) return { errors, defaultValues };
 
-      const existingUser = await context.remixService.auth.checkIfUserExists({
-        email,
-        withPassword: false,
-        password: "",
-      });
-
-      if (existingUser.error === false) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["alert", "destructive"],
-          message: "invalid_email",
-        });
-      }
-    }),
+  const existingUser = await context.remixService.auth.checkIfUserExists({
+    ...data,
+    withPassword: false,
   });
 
-  if (submission.status !== "success") {
-    return data(
-      { result: submission.reply() },
-      {
-        status: 400,
-      },
-    );
+  if (existingUser.error === false) {
+    return {
+      error: true,
+      code: "custom",
+      path: ["alert", "destructive"],
+      message: "invalid_email",
+      defaultValues,
+    };
   }
 
-  const { email, password } = submission.value;
+  const { email, password } = data;
 
   await context.remixService.auth.createUser({
     email,
@@ -94,19 +87,21 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
   });
 };
 
-function SignupPage() {
-  const { t } = useTranslation("auth");
+const schema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+});
 
-  const { message } = useLoaderData<typeof loader>();
+type FormData = z.infer<typeof schema>;
+const resolver = zodResolver(schema);
+
+function SignupPage() {
+  const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
-  const [form, fields] = useForm({
-    constraint: getZodConstraint(signupSchema),
-    onValidate: ({ formData }) =>
-      parseWithZod(formData, {
-        schema: signupSchema,
-      }),
-    lastResult: actionData?.result,
+  const { t } = useTranslation("auth");
+  const form = useRemixForm<FormData>({
+    resolver,
   });
 
   return (
@@ -148,35 +143,54 @@ function SignupPage() {
             </span>
           </div>
         </div>
-        <Form
-          {...getFormProps(form)}
-          method="post"
-          // action='/auth/login'
-          reloadDocument
-          className="flex flex-col"
-        >
-          {generateAlert(actionData) || generateFlash(message)}
-          <Field
+
+        <Form {...{ ...form, actionData, loaderData }}>
+          <FormField
+            control={form.control}
             name="email"
-            placeholder={t("fields.email_placeholder", "name@example.com")}
-            type="email"
-            label={t("fields.email")}
-            autoCapitalize="none"
-            autoComplete="email"
-            autoCorrect="off"
-            {...{ ...actionData, fields }}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("fields.email")}</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder={t(
+                      "fields.email_placeholder",
+                      "name@example.com",
+                    )}
+                    type="email"
+                    autoCapitalize="none"
+                    autoComplete="email"
+                    autoCorrect="off"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          <Field
+          <FormField
+            control={form.control}
             name="password"
-            placeholder="********"
-            type="password"
-            label={t("fields.password")}
-            autoCapitalize="none"
-            autoComplete="password"
-            autoCorrect="off"
-            {...{ ...actionData, fields }}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="********"
+                    type="password"
+                    autoCapitalize="none"
+                    autoComplete="password"
+                    autoCorrect="off"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          <Button className="mt-3">{t("signup.action")}</Button>
+          <div className="flex flex-row-reverse justify-between items-center">
+            <Button>{t("signup.action", "Signup with email")}</Button>
+          </div>
         </Form>
       </main>
       <footer>

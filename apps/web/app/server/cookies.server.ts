@@ -29,7 +29,7 @@ export const alertMessageHelper = async (request) => {
 };
 
 export const alertMessageGenerator = async (message, type) => {
-  return ["Set-Cookie", await alertMessage.serialize({ message, type })] as [
+  return ["Set-Cookie", await alertMessage.serialize([message, type])] as [
     string,
     string,
   ];

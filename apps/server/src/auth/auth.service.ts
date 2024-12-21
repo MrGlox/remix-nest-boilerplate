@@ -22,12 +22,12 @@ export class AuthService {
   public readonly checkIfUserExists = async ({
     email,
     password,
-    withPassword,
+    withPassword = false,
   }: {
     email: string;
     withPassword: boolean;
-    password: string;
-  }) => {
+    password?: string;
+  }): Promise<{ message: string; error: boolean }> => {
     const existingUser = await this.prisma.user.findUnique({
       where: {
         email,
@@ -46,7 +46,7 @@ export class AuthService {
       };
     }
 
-    if (withPassword) {
+    if (withPassword && password) {
       const [salt, hash] = existingUser.password
         .replace('user_', '')
         .split('.');
@@ -172,7 +172,7 @@ export class AuthService {
     // return early success if user does not exist to prevent email enumeration
     if (!user) {
       return {
-        message: 'if_user_exists_mail_recieved',
+        message: 'if_user_exists_mail_received',
       };
     }
 

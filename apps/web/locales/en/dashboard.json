@@ -32,7 +32,9 @@
   },
   "fields": {
     "password": "Password",
-    "password_confirm": "Confirm Password"
+    "password_confirm": "Confirm Password",
+    "pseudo": "Pseudo",
+    "language": "Language"
   },
   "account": {
     "title": "Account",

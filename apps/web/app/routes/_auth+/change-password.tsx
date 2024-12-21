@@ -1,20 +1,26 @@
-import { getFormProps, useForm } from "@conform-to/react";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-
 import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
   replace,
 } from "react-router";
-import { Form, Link, useActionData, useLoaderData } from "react-router";
+import { useActionData, useLoaderData } from "react-router";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
 import { Button } from "~/components/ui/button";
-import { Field } from "~/containers/forms";
-import { generateAlert } from "~/lib/alerts";
 import i18next from "~/modules/i18n.server";
 import { alertMessageGenerator, persistToken } from "~/server/cookies.server";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
+import { Input } from "~/components/ui/input";
+import { getValidatedFormData, useRemixForm } from "remix-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export { meta } from "~/config/meta";
 
@@ -25,7 +31,7 @@ export const loader = async ({ context, request }: LoaderFunctionArgs) => {
   const tokenParam = url.searchParams.get("token");
 
   const cookieHeader = request.headers.get("Cookie");
-  const persistedToken = (await persistToken.parse(cookieHeader)) || false;
+  const persistedToken = (await persistToken.parse(cookieHeader)) || "";
 
   if (tokenParam)
     return replace(`${url.pathname}`, {
@@ -50,25 +56,20 @@ export const loader = async ({ context, request }: LoaderFunctionArgs) => {
   };
 };
 
-const changeSchema = z.object({
-  password: z.string().min(8),
-  token: z.string(),
-});
+export const action = async ({ context, request }: ActionFunctionArgs) => {
+  const {
+    errors,
+    data,
+    receivedValues: defaultValues,
+  } = await getValidatedFormData<FormData>(request, resolver);
 
-export const action = async ({ request, context }: ActionFunctionArgs) => {
-  const formData = await request.formData();
+  console.log("data", data, errors);
 
-  const submission = await parseWithZod(formData, {
-    async: true,
-    schema: changeSchema,
-  });
+  if (errors) {
+    return { errors, defaultValues };
+  }
 
-  await context.remixService.auth.changePassword(
-    submission.payload as {
-      token: string;
-      password: string;
-    },
-  );
+  // await context.remixService.auth.changePassword(data);
 
   return replace("/signin", {
     headers: [
@@ -83,19 +84,27 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
   });
 };
 
-function ChangePasswordPage() {
-  const { t } = useTranslation("auth");
+const schema = z.object({
+  password: z.string().min(8),
+  token: z.string(),
+});
 
-  const { token } = useLoaderData<typeof loader>();
+type FormData = z.infer<typeof schema>;
+const resolver = zodResolver(schema);
+
+function ChangePasswordPage() {
+  const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
-  const [form, fields] = useForm({
-    constraint: getZodConstraint(changeSchema),
-    onValidate: ({ formData }) =>
-      parseWithZod(formData, {
-        schema: changeSchema,
-      }),
-    lastResult: actionData?.result,
+  const { t } = useTranslation("auth");
+
+  const token = "token" in loaderData ? loaderData.token : "";
+
+  const form = useRemixForm<FormData>({
+    defaultValues: {
+      token,
+    },
+    resolver,
   });
 
   return (
@@ -114,28 +123,44 @@ function ChangePasswordPage() {
             <span className="w-full border-t" />
           </div>
         </div>
-        <Form
-          {...getFormProps(form)}
-          reloadDocument
-          method="post"
-          className="flex flex-col"
-        >
-          {generateAlert(actionData)}
-          <input type="hidden" name="token" value={token as string} />
-          <Field
-            name="password"
-            placeholder="********"
-            type="password"
-            label={t("fields.password_new")}
-            autoCapitalize="none"
-            autoComplete="password"
-            autoCorrect="off"
-            {...{ fields }}
+        <Form {...{ ...form, actionData }}>
+          <FormField
+            control={form.control}
+            name="token"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input type="hidden" {...field} />
+                </FormControl>
+              </FormItem>
+            )}
           />
-          <Button className="mt-3">{t("change_password.update")}</Button>
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="********"
+                    type="password"
+                    autoCapitalize="none"
+                    autoComplete="password"
+                    autoCorrect="off"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="flex justify-end">
+            <Button className="mt-3">{t("change_password.update")}</Button>
+          </div>
         </Form>
       </main>
-      <footer>
+      {/* <footer>
         <p className="text-muted-foreground -mb-10 mt-10 px-8 text-center text-sm">
           {t("agree")}{" "}
           <Button asChild variant="link">
@@ -151,7 +176,7 @@ function ChangePasswordPage() {
           </Button>
           .
         </p>
-      </footer>
+      </footer> */}
     </div>
   );
 }

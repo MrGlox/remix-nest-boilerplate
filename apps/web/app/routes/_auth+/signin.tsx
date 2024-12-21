@@ -1,13 +1,10 @@
-import { getFormProps, useForm } from "@conform-to/react";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-
 import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
   data,
-  redirect,
+  redirectDocument,
 } from "react-router";
-import { Form, useActionData, useLoaderData } from "react-router";
+import { useActionData, useLoaderData } from "react-router";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
@@ -15,14 +12,24 @@ import { Google } from "~/assets/logos";
 import { Link } from "~/components/atoms/link";
 import { Badge } from "~/components/ui/badge";
 import { Button, buttonVariants } from "~/components/ui/button";
-import { Field } from "~/containers/forms";
-import { cn, generateAlert, generateFlash } from "~/lib/utils";
+import { cn } from "~/lib/utils";
 import i18next from "~/modules/i18n.server";
 import { alertMessageHelper } from "~/server/cookies.server";
+import { getValidatedFormData, useRemixForm } from "remix-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
+import { Input } from "~/components/ui/input";
 
 export { meta } from "~/config/meta";
 
-export const loader = async ({ request, context }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const t = await i18next.getFixedT(request, "auth");
 
   const { message, headers } = await alertMessageHelper(request);
@@ -40,42 +47,32 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   );
 };
 
-export const action = async ({ request, context }: ActionFunctionArgs) => {
-  const formData = await request.formData();
+export const action = async ({ context, request }: ActionFunctionArgs) => {
+  const {
+    errors,
+    data,
+    receivedValues: defaultValues,
+  } = await getValidatedFormData<FormData>(request, resolver);
 
-  const submission = await parseWithZod(formData, {
-    async: true,
-    schema: signinSchema.superRefine(async (data, ctx) => {
-      const { email, password } = data;
-
-      const existingUser = await context.remixService.auth.checkIfUserExists({
-        email,
-        withPassword: true,
-        password,
-      });
-
-      if (existingUser.error) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["alert", "destructive"],
-          message: existingUser.message,
-        });
-      }
-    }),
-  });
-
-  if (submission.status !== "success") {
-    return data(
-      { result: submission.reply() },
-      {
-        status: 400,
-      },
-    );
+  if (errors) {
+    return { errors, defaultValues };
   }
 
-  // l'email et le mot de passe sont valides, et un compte utilisateur existe.
-  // connecter l'utilisateur.
-  const { email } = submission.value;
+  const existingUser = await context.remixService.auth.checkIfUserExists({
+    ...data,
+    withPassword: true,
+  });
+
+  if (errors || existingUser.error) {
+    return {
+      ...existingUser,
+      code: "custom",
+      path: ["alert", "destructive"],
+      defaultValues,
+    };
+  }
+
+  const { email } = data;
   const { sessionToken } = await context.remixService.auth.authenticateUser({
     email,
   });
@@ -83,31 +80,26 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
   const urlParams = new URL(request.url).searchParams;
   const redirectTo = urlParams.get("redirectTo") || "/dashboard";
 
-  // Connecter l'utilisateur associé à l'email
-  return redirect(
+  return redirectDocument(
     `/authenticate?token=${sessionToken}&redirectTo=${redirectTo}`,
   );
 };
 
-const signinSchema = z.object({
+const schema = z.object({
   email: z.string().email(),
   password: z.string(),
 });
 
-function SigninPage() {
-  const { t } = useTranslation("auth");
+type FormData = z.infer<typeof schema>;
+const resolver = zodResolver(schema);
 
-  const { message } = useLoaderData<typeof loader>();
+function SigninPage() {
+  const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
-  const [form, fields] = useForm({
-    id: "signin-form",
-    constraint: getZodConstraint(signinSchema),
-    onValidate: ({ formData }) =>
-      parseWithZod(formData, {
-        schema: signinSchema,
-      }),
-    lastResult: actionData?.result,
+  const { t } = useTranslation("auth");
+  const form = useRemixForm<FormData>({
+    resolver,
   });
 
   return (
@@ -149,60 +141,76 @@ function SigninPage() {
             </span>
           </div>
         </div>
-        <Form
-          {...getFormProps(form)}
-          method="post"
-          reloadDocument
-          className="flex flex-col"
-        >
-          {generateAlert(actionData) || generateFlash(message)}
-          <Field
+        <Form {...{ ...form, actionData, loaderData }}>
+          <FormField
+            control={form.control}
             name="email"
-            placeholder={t("fields.email_placeholder", "name@example.com")}
-            type="email"
-            label={t("fields.email")}
-            autoCapitalize="none"
-            autoComplete="email"
-            autoCorrect="off"
-            {...{ fields }}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("fields.email")}</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder={t(
+                      "fields.email_placeholder",
+                      "name@example.com",
+                    )}
+                    type="email"
+                    autoCapitalize="none"
+                    autoComplete="email"
+                    autoCorrect="off"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          <Field
+          <FormField
+            control={form.control}
             name="password"
-            placeholder="********"
-            type="password"
-            label={t("fields.password")}
-            autoCapitalize="none"
-            autoComplete="password"
-            autoCorrect="off"
-            {...{ fields }}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="********"
+                    type="password"
+                    autoCapitalize="none"
+                    autoComplete="password"
+                    autoCorrect="off"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          <Button className="mt-3">{t("signin.action")}</Button>
-          <Link
-            to="/forgot-password"
-            className="self-end text-right text-sm mt-2"
-          >
-            {t("forgot.link")}
-          </Link>
+          <div className="flex flex-row-reverse justify-between items-center">
+            <Button>{t("signin.action", "Connect with Email")}</Button>
+            <Link to="/forgot-password" className="text-sm">
+              {t("forgot.link", "Forgot password ?")}
+            </Link>
+          </div>
         </Form>
       </main>
       <footer>
         <p className="text-muted-foreground -mb-10 mt-10 px-8 text-center text-sm">
-          {t("agree")}{" "}
+          {t("agree", "By clicking continue, you agree to our")}{" "}
           <Button asChild variant="link">
             <Link
               to="/terms"
               className="variant underline-offset-4 hover:underline"
             >
-              {t("terms")}
+              {t("terms", "Terms of Service")}
             </Link>
           </Button>{" "}
-          {t("and")}{" "}
+          {t("and", "and")}{" "}
           <Button asChild variant="link">
             <Link
               to="/privacy"
               className="variant underline-offset-4 hover:underline"
             >
-              {t("privacy")}
+              {t("privacy", "Privacy Policy")}
             </Link>
           </Button>
           .

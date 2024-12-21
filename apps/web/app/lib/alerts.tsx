@@ -1,5 +1,3 @@
-import { useTranslation } from "react-i18next";
-
 import { Alert } from "~/components/molecules";
 
 export type ErrorsData = {
@@ -7,24 +5,33 @@ export type ErrorsData = {
 };
 
 export const extractErrors = (actionData): ErrorsData => {
-  const hasError = actionData?.result.error;
-  return { errors: !!hasError && actionData?.result.error };
+  const hasError = actionData?.error;
+  return { errors: !!hasError && actionData?.error };
 };
 
-export const generateAlert = (actionData, namespace = "alerts") => {
-  const { t } = useTranslation(namespace);
+export const generateAlert = ({
+  t,
+  actionData,
+  namespace = "alerts",
+}: {
+  t: (key: string, options?: { ns; defaultValue: string }) => string;
+  actionData: { error?: boolean; path?: string; message?: string };
+  namespace?: string;
+}) => {
+  if (!t) return null;
 
-  const hasError = actionData?.result.error;
+  const hasError = actionData?.error;
+
   const alert = {
-    type: hasError ? Object.keys(actionData?.result?.error)[0] : "",
-    message: hasError ? Object.values(actionData?.result?.error)[0] : "",
+    type: actionData?.path || "",
+    message: actionData?.message || "",
   };
 
-  if (hasError && alert?.type?.split(".")[0] === "alert")
+  if (hasError || alert?.type?.[0] === "alert")
     return (
       <Alert
         variant={
-          (alert?.type.split(".")[1] || "info") as
+          (alert?.type?.[1] || "info") as
             | "default"
             | "destructive"
             | "success"
@@ -33,7 +40,8 @@ export const generateAlert = (actionData, namespace = "alerts") => {
         }
       >
         {t(alert.message as string, {
-          defaultValue: alert.message,
+          ns: namespace,
+          defaultValue: alert.message || "",
         })}
       </Alert>
     );
@@ -41,17 +49,22 @@ export const generateAlert = (actionData, namespace = "alerts") => {
   return null;
 };
 
-export const generateFlash = (
-  loaderData: { message?: string; type?: string },
+export const generateFlash = ({
+  t,
+  loaderData,
   namespace = "alerts",
-) => {
-  const { t } = useTranslation(namespace);
+}: {
+  t: (key: string, options?: { ns; defaultValue: string }) => string;
+  loaderData: { message?: string; type?: string };
+  namespace?: string;
+}) => {
+  if (!t) return null;
 
-  if (loaderData)
+  if (loaderData.message)
     return (
       <Alert
         variant={
-          (loaderData.type || "info") as
+          (loaderData.message[1] || "info") as
             | "default"
             | "destructive"
             | "success"
@@ -60,7 +73,8 @@ export const generateFlash = (
         }
       >
         {t(loaderData.message as string, {
-          defaultValue: loaderData.message,
+          ns: namespace,
+          defaultValue: loaderData.message[0] || "",
         })}
       </Alert>
     );

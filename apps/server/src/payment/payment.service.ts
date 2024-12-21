@@ -56,10 +56,53 @@ export class PaymentService {
   }
 
   async listProducts(limit = 10): Promise<Stripe.Product[]> {
-    const products = await this.stripe.products.list({ limit });
+    const products = await this.stripe.products.list({ limit, active: true });
+    const prices = await this.stripe.prices.list({
+      limit: limit * 3,
+      active: true,
+    });
 
-    console.log('products', products);
+    const productsWithPrices = products.data.map((product) => {
+      const productPrices = prices.data.filter(
+        (price) => price.product === product.id,
+      );
+      return {
+        ...product,
+        prices: productPrices.reduce(
+          (acc, price) => {
+            const interval = price.recurring?.interval || 'one_time';
+            if (!acc[interval]) {
+              acc[interval] = [];
+            }
+            acc[interval].push(price);
+            return acc;
+          },
+          {} as Record<string, Stripe.Price[]>,
+        ),
+      };
+    });
 
-    return products.data;
+    console.log('productsWithPrices', productsWithPrices);
+    return productsWithPrices;
+
+    // console.log('products', products);
+
+    // return products.data;
+  }
+
+  async retrieveSubscription(
+    stripeCustomerId?: string,
+  ): Promise<Stripe.Subscription | null> {
+    if (!stripeCustomerId) {
+      return null;
+    }
+
+    const subscriptions = await this.stripe.subscriptions.list({
+      customer: stripeCustomerId,
+    });
+
+    console.log('subscriptions', subscriptions);
+
+    return subscriptions.data[0];
   }
 }

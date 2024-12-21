@@ -12,10 +12,10 @@ export const customErrorMap: z.ZodErrorMap = (issue) => {
     return { ...issue, message: `errors.bad_format` };
   }
 
-  if (issue.code === (z.ZodIssueCode.too_small || z.ZodIssueCode.too_big)) {
+  if (issue.code === z.ZodIssueCode.too_small) {
     return {
       ...issue,
-      message: `errors.${issue.code}.${issue.type}.${issue.exact ? "exact" : "inclusive"}`,
+      message: `errors.${issue.code}.${issue.type}.${issue.exact ? "exact" : "inclusive"}/${issue.minimum || issue.maximum || ""}`,
     };
   }
 
