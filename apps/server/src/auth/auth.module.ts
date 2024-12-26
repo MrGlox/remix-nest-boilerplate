@@ -3,10 +3,9 @@ import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 
 import { CookieSerializer } from '../core/cookie-serializer';
+import { PrismaModule } from '../core/database/prisma.module';
 import { PrismaService } from '../core/database/prisma.service';
 import { TokenService } from '../core/token/token.service';
-import { PrismaModule } from '../core/database/prisma.module';
-import { TemplateService } from '../mailer/core/template.service';
 import { MailerService } from '../mailer/mailer.service';
 
 import { AuthController } from './auth.controller';
@@ -35,7 +34,6 @@ import { LocalStrategy } from './local/local.strategy';
     PrismaService,
     AuthService,
     MailerService,
-    TemplateService,
     TokenService,
   ],
   exports: [AuthService],

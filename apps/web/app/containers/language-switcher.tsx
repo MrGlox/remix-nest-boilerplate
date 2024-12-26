@@ -1,6 +1,6 @@
-import { useLocation, useNavigate } from "react-router";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocation, useNavigate } from "react-router";
 
 import {
   Select,
@@ -19,6 +19,7 @@ export const langs = [
 export function LanguageSwitcher() {
   const navigate = useNavigate();
   const location = useLocation();
+
   const { i18n } = useTranslation();
 
   const pathname = location.pathname.replace(/\/$/, "");
@@ -42,7 +43,7 @@ export function LanguageSwitcher() {
       <SelectTrigger className="w-[140px]">
         <SelectValue
           key={resolvedLanguage}
-          placeholder={currentLanguage.text}
+          placeholder={currentLanguage.label}
         />
       </SelectTrigger>
       <SelectContent>

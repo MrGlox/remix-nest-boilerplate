@@ -1,16 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+import { render } from '@react-email/render';
 import nodemailer from 'nodemailer';
 
 import { AllConfigType } from '../core/config/config.type';
 
-import {
-  EmailTemplate,
-  TemplateService,
-  TemplateType,
-} from './core/template.service';
-import { Email } from './mailer.interface';
+import { I18nService } from 'nestjs-i18n';
+import { kebabize } from 'src/core/utils/kebabize';
+import { TemplateType, Templates } from './templates';
+
+interface SendMailConfiguration {
+  from?: string;
+  template: any;
+  to: string;
+  lang?: string;
+  text?: string;
+  data?: any;
+}
 
 @Injectable()
 export class MailerService {
@@ -18,7 +25,7 @@ export class MailerService {
 
   constructor(
     private readonly configService: ConfigService<AllConfigType>,
-    private readonly templateService: TemplateService,
+    private readonly i18n: I18nService,
   ) {
     this.transporter = nodemailer.createTransport({
       host: configService.get('mailer.host', { infer: true }),
@@ -33,32 +40,35 @@ export class MailerService {
     });
   }
 
-  public readonly sendMailFromTemplate = async (
-    template: TemplateType,
-    emailInfo: Partial<Email> & { to: string; lang?: string },
-    // settings: sg.MailDataRequired['mailSettings'] = {},
-  ) => {
-    if (!emailInfo.to.length) {
-      throw new Error('No recipient found');
-    }
+  async generateEmail(template: TemplateType, data: any) {
+    return await render(
+      Templates[kebabize(`${template}`) as keyof typeof Templates](data),
+    );
+  }
 
-    const { data, ...rest } = emailInfo;
-    const { html, metadata } = await this.templateService.getTemplate({
-      name: template,
-      data: { ...data, ...rest },
-    } as EmailTemplate<any>);
+  async sendMail({ from, to, template, data, lang }: SendMailConfiguration) {
+    const translations: { subject: string; [key: string]: any } =
+      await this.i18n.translate(template, {
+        lang: lang || 'en',
+        args: data,
+      });
 
-    return this.transporter.sendMail({
-      ...metadata,
-      to: emailInfo.to,
-      from: emailInfo.from
-        ? emailInfo.from
+    const html = await this.generateEmail(template, {
+      ...(typeof translations === 'object' ? translations : {}),
+      ...data,
+    });
+
+    await this.transporter.sendMail({
+      to: to,
+      from: from
+        ? from
         : `"${this.configService.get('mailer.defaultName', {
             infer: true,
           })}" <${this.configService.get('mailer.defaultEmail', {
             infer: true,
           })}>`,
+      subject: translations?.subject,
       html,
     });
-  };
+  }
 }

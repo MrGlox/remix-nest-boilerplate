@@ -1,7 +1,14 @@
-import path from 'node:path';
+import path, { join } from 'node:path';
 
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+
+import {
+  AcceptLanguageResolver,
+  HeaderResolver,
+  I18nModule,
+  QueryResolver,
+} from 'nestjs-i18n';
 
 import googleConfig from './auth/google/config/google.config';
 import appConfig from './core/config/app.config';
@@ -23,6 +30,22 @@ import { PaymentModule } from './payment/payment.module';
       isGlobal: true,
       load: [appConfig, googleConfig, mailerConfig, stripeConfig],
       envFilePath: path.resolve(__dirname, '../../../.env'),
+    }),
+    I18nModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        fallbackLanguage: configService.getOrThrow('app.fallbackLanguage'),
+        loaderOptions: {
+          path: join(__dirname, '/core/locales/'),
+          watch: true,
+        },
+      }),
+      resolvers: [
+        { use: QueryResolver, options: ['lang'] },
+        AcceptLanguageResolver,
+        new HeaderResolver(['x-lang']),
+      ],
     }),
     AuthModule,
     // CmsModule,

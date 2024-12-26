@@ -1,9 +1,9 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { createId } from '@paralleldrive/cuid2';
 
-import { ConfigService } from '@nestjs/config';
-import { AllConfigType } from 'src/core/config/config.type';
+import { AllConfigType } from '../core/config/config.type';
 import { PrismaService } from '../core/database/prisma.service';
 import { TokenService } from '../core/token/token.service';
 import { hashWithSalt, verifyPassword } from '../core/utils/crypt';
@@ -75,7 +75,7 @@ export class AuthService {
   }: {
     email: string;
     password: string;
-    lang: string;
+    lang?: string;
   }) => {
     const { hash, salt } = await hashWithSalt(password);
 
@@ -87,6 +87,7 @@ export class AuthService {
       select: {
         id: true,
         email: true,
+        preferredLocale: true,
       },
     });
 
@@ -95,12 +96,13 @@ export class AuthService {
       salt,
     });
 
-    await this.mailerService.sendMailFromTemplate('email-confirmation', {
+    await this.mailerService.sendMail({
+      template: 'confirm-email',
+      lang: lang || user.preferredLocale,
       to: email,
       data: {
         url: `${process.env.APP_DOMAIN}/confirm-email?token=${token}`,
       },
-      lang,
     });
 
     return user;
@@ -156,7 +158,13 @@ export class AuthService {
     };
   };
 
-  public readonly forgotPassword = async ({ email }: { email: string }) => {
+  public readonly forgotPassword = async ({
+    email,
+    lang,
+  }: {
+    email: string;
+    lang?: string;
+  }) => {
     const user = await this.prisma.user.findUnique({
       where: {
         email,
@@ -166,6 +174,8 @@ export class AuthService {
         email: true,
         password: true,
         preferredLocale: true,
+        pseudo: true,
+        profile: true,
       },
     });
 
@@ -183,12 +193,20 @@ export class AuthService {
       salt,
     });
 
-    await this.mailerService.sendMailFromTemplate('forgot-password', {
+    const formattedDate = new Intl.DateTimeFormat(lang, {
+      dateStyle: 'long',
+      timeStyle: 'short',
+    }).format(new Date());
+
+    await this.mailerService.sendMail({
+      template: 'forgot-password',
       to: email,
+      lang: lang || user.preferredLocale,
       data: {
+        formattedDate,
+        pseudo: user.pseudo || user.profile?.firstName,
         url: `${process.env.APP_DOMAIN}/change-password?token=${token}`,
       },
-      lang: user.preferredLocale || 'en',
     });
 
     return {
@@ -199,9 +217,11 @@ export class AuthService {
   public readonly changePassword = async ({
     token,
     password,
+    lang,
   }: {
     token: string;
     password: string;
+    lang?: string;
   }) => {
     const retrivedUser = await this.prisma.token
       .findFirst({
@@ -233,9 +253,13 @@ export class AuthService {
       },
     });
 
-    await this.mailerService.sendMailFromTemplate('change-password', {
+    await this.mailerService.sendMail({
+      template: 'password-changed',
       to: retrivedUser.email,
-      lang: retrivedUser.preferredLocale || 'en',
+      data: {
+        url: `${process.env.APP_DOMAIN}/login`,
+      },
+      lang: lang || retrivedUser.preferredLocale,
     });
 
     return {

@@ -9,6 +9,7 @@
     "build": "turbo build",
     "typecheck": "turbo typecheck",
     "start": "npm run start --filter server",
+    "email:dev": "turbo email:dev",
     "clean-node-modules": "rm -rf {node_modules,package-lock.json} **/{node_modules,package-lock.json}",
     "clean-turbo-cache": "rm -rf .turbo **/.turbo"
   },

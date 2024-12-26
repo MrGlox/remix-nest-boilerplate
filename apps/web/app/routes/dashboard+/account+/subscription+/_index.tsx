@@ -121,7 +121,11 @@ export default function Payment() {
 
   return (
     <form>
-      {isStripeLoading && <Loader />}
+      {isStripeLoading && (
+        <div className="w-full min-h[200px] bg-slate-100 flex items-center justify-center rounded">
+          <Loader />
+        </div>
+      )}
       <PaymentElement
         options={{
           layout: {
@@ -132,10 +136,11 @@ export default function Payment() {
           },
         }}
       />
+
       <div className="flex justify-end">
         <Button
           type="submit"
-          className="mt-3 self-end min-w-[120px]"
+          className="mt-3 w-full self-end min-w-[120px]"
           disabled={isStripeLoading || !elements}
         >
           {t("submit", { ns: "common" })}

@@ -11,6 +11,11 @@
       "dependsOn": ["^build"]
     },
     "typecheck": {},
+    "email:dev": {
+      "env": [".env"],
+      "outputs": ["server/dist/**", "web/build/**"],
+      "dependsOn": ["^dev"]
+    },
     "lint": {
       "cache": false
     }
@@ -19,6 +24,7 @@
     "MONGODB_URL",
     "PAYLOADCMS_SECRET",
     "NODE_ENV",
+    "BASE_URL",
     "PAYLOAD_CONFIG_PATH",
     "PORT"
   ]

@@ -5,7 +5,10 @@
   "compilerOptions": {
     "assets": [
       { "include": "mailer/templates/**/*", "watchAssets": true },
-      { "include": "core/locales/**/*", "watchAssets": true }
+      {
+        "include": "core/locales/**/*",
+        "watchAssets": true
+      }
     ],
     "deleteOutDir": true
   }

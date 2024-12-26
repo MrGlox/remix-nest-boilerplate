@@ -17,8 +17,8 @@ model User {
   id String @id @default(cuid())
 
   email    String  @unique
-  pseudo   String? @unique
   googleId String? @unique
+  pseudo   String  @unique
   password String
 
   preferredLocale  String  @default("en")
@@ -51,7 +51,6 @@ model Session {
 model Profile {
   id String @id @default(cuid())
 
-  pseudo    String
   firstName String
   lastName  String
 

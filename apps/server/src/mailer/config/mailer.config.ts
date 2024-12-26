@@ -15,6 +15,9 @@ import validateConfig from '../../core/utils/validate-config';
 import { MailerConfig } from './mailer-config.type';
 
 class EnvironmentVariablesValidator {
+  @IsString()
+  APP_DOMAIN!: string;
+
   @IsInt()
   @Min(0)
   @Max(65535)
@@ -57,6 +60,7 @@ export default registerAs<MailerConfig>('mailer', () => {
       : 587,
     host: process.env.MAIL_HOST,
     user: process.env.MAIL_USER,
+    domain: process.env.APP_DOMAIN,
     password: process.env.MAIL_PASSWORD,
     defaultEmail: process.env.MAIL_DEFAULT_EMAIL,
     defaultName: process.env.MAIL_DEFAULT_NAME,

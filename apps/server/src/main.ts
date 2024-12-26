@@ -1,4 +1,4 @@
-import * as path from 'node:path';
+import { join } from 'node:path';
 
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -60,7 +60,10 @@ async function bootstrap() {
     }),
   );
 
-  app.useStaticAssets(path.join(__dirname, '..', 'public'));
+  app.useStaticAssets(join(__dirname, '..', 'public'), {
+    prefix: '/public/',
+  });
+
   app.useStaticAssets(getPublicDir(), {
     immutable: true,
     maxAge: '1y',

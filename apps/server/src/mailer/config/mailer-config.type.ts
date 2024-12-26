@@ -2,6 +2,7 @@ export type MailerConfig = {
   port: number;
   host?: string;
   user?: string;
+  domain?: string;
   password?: string;
   defaultEmail?: string;
   defaultName?: string;
