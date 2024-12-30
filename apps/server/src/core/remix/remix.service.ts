@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
+import { ProfileService } from 'src/profile/profile.service';
 import { AuthService } from '../../auth/auth.service';
 import { OfferService } from '../../offer/offer.service';
 import { PaymentService } from '../../payment/payment.service';
@@ -13,6 +14,7 @@ export class RemixService {
     public readonly auth: AuthService,
     public readonly token: TokenService,
     public readonly payment: PaymentService,
+    public readonly profile: ProfileService,
     public readonly offer: OfferService,
   ) {}
 
@@ -30,5 +32,31 @@ export class RemixService {
     });
 
     return user;
+  };
+
+  public readonly getProfile = async ({ userId }: { userId: string }) => {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        profile: true,
+      },
+    });
+
+    return user?.profile;
+  };
+
+  public readonly getAddress = async ({ userId }: { userId: string }) => {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        address: true,
+      },
+    });
+
+    return user?.address;
   };
 }

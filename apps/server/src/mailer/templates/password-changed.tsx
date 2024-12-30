@@ -90,7 +90,7 @@ export const PasswordChanged = ({
                 textAlign: 'center',
               }}
             >
-              <Img width={80} src={`${baseUrl}/public/images/brand.png`} />
+              <Img width={80} src={`${baseUrl}/images/brand.png`} />
 
               <Text
                 style={{

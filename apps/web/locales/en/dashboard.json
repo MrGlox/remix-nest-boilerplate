@@ -6,91 +6,162 @@
     "description": "Onboarding process",
     "step1": {
       "title": "Step 1",
-      "description": "Link google account",
-      "subtitle": "Link your google account to retrieve your youtube channel",
+      "description": "Link a Google account",
+      "subtitle": "Link your Google account to retrieve your YouTube channel",
       "heading": "Welcome to the onboarding process",
       "intro": "Welcome to the onboarding process"
     },
     "step2": {
       "title": "Step 2",
-      "description": "Youtube channel verification",
-      "subtitle": "Verify your channel informations",
+      "description": "YouTube channel verification",
+      "subtitle": "Verify your channel information",
       "heading": "Welcome to the onboarding process",
       "intro": "Welcome to the onboarding process"
     },
     "step3": {
       "title": "Step 3",
       "description": "Invite moderators",
-      "subtitle": "Please verify your channel informations",
+      "subtitle": "Please verify your channel information",
+      "heading": "Welcome to the onboarding process",
+      "intro": "Welcome to the onboarding process"
+    },
+    "step4": {
+      "title": "Step 4",
+      "description": "Set up notifications",
+      "subtitle": "Set up your notification preferences",
       "heading": "Welcome to the onboarding process",
       "intro": "Welcome to the onboarding process"
     }
   },
   "options": {
-    "done": "Already done !",
-    "optional": "(optional)"
+    "done": "Done!",
+    "optional": "(optional)",
+    "skip": "Skip",
+    "next": "Next",
+    "previous": "Previous"
   },
   "fields": {
     "password": "Password",
-    "password_confirm": "Confirm Password",
+    "password_confirm": "Confirm password",
     "pseudo": "Pseudo",
-    "language": "Language"
+    "language": "Language",
+    "email": "Email",
+    "username": "Username"
   },
   "account": {
     "title": "Account",
-    "title_meta": "My Account | {{website}}",
-    "description": "Manage your account settings and set e-mail preferences."
+    "title_meta": "My account | {{website}}",
+    "description": "Manage your account settings and set your email preferences.",
+    "security": "Security",
+    "privacy": "Privacy"
   },
   "appearance": {
     "title": "Appearance",
     "title_meta": "Appearance | {{website}}",
-    "description": "Select your subscription plan or manage your billing information."
+    "description": "Select your subscription plan or manage your billing information.",
+    "theme": "Theme",
+    "dark_mode": "Dark mode"
   },
   "billings": {
-    "title": "Billings",
-    "title_meta": "Billings | {{website}}",
-    "description": "Select your subscription plan or manage your billing information."
+    "title": "Billing",
+    "title_meta": "Billing | {{website}}",
+    "description": "Select your subscription plan or manage your billing information.",
+    "payment_history": "Payment history",
+    "billing_address": "Billing address"
   },
   "display": {
     "title": "Display",
     "title_meta": "Display | {{website}}",
-    "description": "Select your subscription plan or manage your billing information."
+    "description": "Select your subscription plan or manage your billing information.",
+    "resolution": "Resolution",
+    "brightness": "Brightness"
   },
   "profile": {
     "title": "Profile",
     "title_meta": "Profile | {{website}}",
-    "description": "Select your subscription plan or manage your billing information."
+    "description": "Select your subscription plan or manage your billing information.",
+    "bio": "Bio",
+    "social_links": "Social links",
+    "update_profile_settings": "Update your profile settings. Set your preferred language and timezone.",
+    "personal_information": "Personal Information",
+    "personal_description": "Update your personal information.",
+    "firstname": "First name",
+    "lastname": "Last name",
+    "birthdate": "Birthdate",
+    "pick_date": "Pick a date",
+    "address": "Address",
+    "address_description": "Update your address information.",
+    "street": "Street",
+    "city": "City",
+    "postal_code": "Postal code",
+    "country": "Country",
+    "country_description": "If your country has states, they will appear after selecting the country."
   },
   "settings": {
     "title": "Settings",
     "title_meta": "Settings | {{website}}",
-    "description": "Select your subscription plan or manage your billing information."
+    "description": "Select your subscription plan or manage your billing information.",
+    "general": "General",
+    "security": "Security"
   },
   "subscription": {
     "title": "Subscription",
     "title_meta": "Subscription | {{website}}",
-    "description": "Select your subscription plan or manage your billing information."
+    "description": "Select your subscription plan or manage your billing information.",
+    "current_plan": "Current plan",
+    "upgrade": "Upgrade"
   },
   "my_account": {
-    "title": "My Account",
-    "title_meta": "My Account | {{website}}",
-    "description": "Select your subscription plan or manage your billing information."
+    "title": "My account",
+    "title_meta": "My account | {{website}}",
+    "description": "Select your subscription plan or manage your billing information.",
+    "personal_info": "Personal information",
+    "security_settings": "Security settings"
   },
   "notifications": {
     "title": "Notifications",
     "title_meta": "Notifications | {{website}}",
-    "description": "Select your subscription plan or manage your billing information."
+    "description": "Select your subscription plan or manage your billing information.",
+    "email_notifications": "Email notifications",
+    "sms_notifications": "SMS notifications"
   },
-
-  "settings_desc": "Manage your account settings and set e-mail preferences.",
+  "settings_desc": "Manage your account settings and set your email preferences.",
   "team": "Team",
   "invite_users": "Invite users",
   "invite": {
     "email": "Email",
     "message": "Message",
-    "more": "More..."
+    "more": "More...",
+    "role": "Role"
   },
   "select_offer": "Select an offer",
+  "payment_methods": "Payment methods",
   "annual": "Annual",
-  "support": "Support"
+  "monthly": "Monthly",
+  "support": "Support",
+  "see_offer": "See offer details",
+  "free": "Free",
+  "product": {
+    "basic": {
+      "title": "Basic",
+      "description": "For individuals, freelancers, and small teams"
+    },
+    "team": {
+      "title": "Team",
+      "description": "For 3 to 8 users, for small teams and agencies"
+    },
+    "enterprise": {
+      "title": "Enterprise",
+      "description": "For more than 5 users, for organizations"
+    }
+  },
+  "common": {
+    "submit": "Submit"
+  },
+  "payment_success": {
+    "title": "Payment successful",
+    "description": "Your payment has been successfully processed.",
+    "thanks": "Thank you for your payment.",
+    "back": "Back to dashboard"
+  }
 }

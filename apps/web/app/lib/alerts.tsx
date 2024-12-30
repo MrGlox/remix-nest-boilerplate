@@ -15,7 +15,7 @@ export const generateAlert = ({
   namespace = "alerts",
 }: {
   t: (key: string, options?: { ns; defaultValue: string }) => string;
-  actionData: { error?: boolean; path?: string; message?: string };
+  actionData: { error?: boolean; path?: string[]; message?: string };
   namespace?: string;
 }) => {
   if (!t) return null;

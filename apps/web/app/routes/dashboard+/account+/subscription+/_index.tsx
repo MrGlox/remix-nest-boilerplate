@@ -5,30 +5,42 @@ import {
 } from "@stripe/react-stripe-js";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActionFunctionArgs, LoaderFunctionArgs, data } from "react-router";
-import { useActionData, useLoaderData } from "react-router";
-import { z } from "zod";
+import {
+  LoaderFunctionArgs,
+  data,
+  redirect,
+  useLoaderData,
+  useOutletContext,
+} from "react-router";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { getValidatedFormData, useRemixForm } from "remix-hook-form";
 import { Button } from "~/components/ui/button";
+import {
+  alertMessageGenerator,
+  alertMessageHelper,
+} from "~/server/cookies.server";
+
+import { Stripe as StripeIcon } from "~/assets/logos";
 import { Loader } from "~/components/ui/loader";
-import { getOptionalUser } from "~/server/auth.server";
-import { alertMessageHelper } from "~/server/cookies.server";
+import { generateAlert } from "~/lib/alerts";
+import { getUserAddress } from "~/server/auth.server";
 
 export const loader = async ({ context, request }: LoaderFunctionArgs) => {
   const { message, headers } = await alertMessageHelper(request);
-  const user = await getOptionalUser({ context });
 
-  const paymentIntent = await context.remixService.payment.createPaymentIntent(
-    1000,
-    "EUR",
-  );
+  const address = await getUserAddress({ context });
+  if (!address)
+    return redirect("/dashboard/account/profile", {
+      headers: [
+        await alertMessageGenerator("missing_billing_address", "warning"),
+      ],
+    });
 
   return data(
     {
       message,
-      paymentIntent,
+      ENV: {
+        APP_DOMAIN: process.env.APP_DOMAIN,
+      },
     },
     {
       headers,
@@ -36,51 +48,20 @@ export const loader = async ({ context, request }: LoaderFunctionArgs) => {
   );
 };
 
-const paymentSchema = z.object({
-  password: z.string().min(8),
-  token: z.string(),
-});
-
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const {
-    errors,
-    data: formData,
-    receivedValues: defaultValues,
-  } = await getValidatedFormData<FormData>(request, resolver);
-
-  if (errors)
-    return {
-      errors,
-      defaultValues,
-    };
-
-  return data(
-    { result: formData },
-    {
-      status: 400,
-    },
-  );
-};
-
-const schema = z.object({
-  firstname: z.string(),
-  lastname: z.string(),
-  birthdate: z.coerce.date(),
-  language: z.string(),
-});
-
-type FormData = z.infer<typeof schema>;
-const resolver = zodResolver(schema);
-
 export default function Payment() {
-  const { t } = useTranslation("dashboard");
+  const { ENV } = useLoaderData<typeof loader>();
 
-  const loaderData = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const { t, i18n } = useTranslation("dashboard");
 
-  const form = useRemixForm({
-    resolver,
-  });
+  const [isSending, setIsSending] = useState(false);
+  const [hasError, setError] = useState<string | undefined>();
+
+  const { amount, annual, currency, paymentIntent } = useOutletContext<{
+    annual: boolean;
+    amount: number;
+    currency: string;
+    paymentIntent: any;
+  }>();
 
   const elements = useElements();
   const stripe = useStripe();
@@ -91,43 +72,52 @@ export default function Payment() {
     if (elements) {
       const element = elements.getElement("payment");
 
-      element.on("ready", () => {
+      element?.on("ready", () => {
         setIsStripeLoading(false);
       });
     }
   }, [elements]);
 
-  // function onSubmit(data: z.infer<typeof FormSchema>) {
-  //   // toast({
-  //   //   title: "You submitted the following values:",
-  //   //   description: (
-  //   //     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-  //   //       <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-  //   //     </pre>
-  //   //   ),
-  //   // });
-  // }
+  const handleSubmit = async (ev) => {
+    ev.preventDefault();
+    setIsSending(true);
+    setError(undefined);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+    const submit = await elements?.submit();
 
-    await stripe.confirmPayment({
-      elements,
+    if (submit?.error) {
+      return setIsSending(false);
+    }
+
+    const confirmPayment = await stripe?.confirmPayment({
+      elements: elements || undefined,
+      clientSecret: paymentIntent.clientSecret,
       confirmParams: {
-        return_url: "http://localhost:3000/pay/success",
+        return_url: `${ENV.APP_DOMAIN}/dashboard/account/subscription/success`,
       },
     });
+
+    if (confirmPayment?.error) {
+      setError(confirmPayment.error.type);
+      setIsSending(false);
+    }
   };
 
   return (
-    <form>
-      {isStripeLoading && (
-        <div className="w-full min-h[200px] bg-slate-100 flex items-center justify-center rounded">
-          <Loader />
-        </div>
-      )}
+    <form onSubmit={handleSubmit}>
+      {hasError &&
+        generateAlert({
+          t,
+          actionData: {
+            error: true,
+            path: ["alert", "destructive"],
+            message: hasError,
+          },
+        })}
       <PaymentElement
         options={{
+          business: { name: "WatchOver Comments" },
+          fields: {},
           layout: {
             type: "accordion",
             defaultCollapsed: false,
@@ -137,13 +127,28 @@ export default function Payment() {
         }}
       />
 
-      <div className="flex justify-end">
+      <div className="flex items-center justify-end">
+        <strong className="inline-flex items-center whitespace-nowrap mr-2 -mb-3">
+          {t("subscription.secured", "Secured by")}{" "}
+          <StripeIcon className="min-w-[80px] -mx-2" />
+        </strong>
         <Button
           type="submit"
-          className="mt-3 w-full self-end min-w-[120px]"
-          disabled={isStripeLoading || !elements}
+          className="mt-3 self-end min-w-[160px]"
+          disabled={isStripeLoading || !elements || isSending}
         >
-          {t("submit", { ns: "common" })}
+          {isSending ? (
+            <Loader />
+          ) : amount ? (
+            `${t("pay", { ns: "common", defaultValue: "Pay" })} ${(
+              amount / 100
+            )?.toLocaleString(i18n.language, {
+              style: "currency",
+              currency: currency || "eur",
+            })} / ${annual ? t("annual", "Annual") : t("monthly", "Monthly")}`
+          ) : (
+            t("free", "Free")
+          )}
         </Button>
       </div>
     </form>

@@ -11,15 +11,17 @@ import { RemixService } from './remix.service';
 
 import { OfferModule } from '../../offer/offer.module';
 import { PaymentModule } from '../../payment/payment.module';
+import { ProfileModule } from '../../profile/profile.module';
 
 @Module({
   imports: [
     ConfigModule,
     HttpModule,
     AuthModule,
+    PaymentModule,
+    ProfileModule,
     OfferModule,
     TokenModule,
-    PaymentModule,
   ],
   providers: [RemixService, PrismaService],
   controllers: [RemixController],

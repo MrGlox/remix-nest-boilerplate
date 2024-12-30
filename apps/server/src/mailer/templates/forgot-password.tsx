@@ -130,7 +130,7 @@ export const ForgotPassword = ({
                 textAlign: 'center',
               }}
             >
-              <Img width={80} src={`${baseUrl}/public/images/brand.png`} />
+              <Img width={80} src={`${baseUrl}/images/brand.png`} />
 
               <Text
                 style={{
@@ -197,9 +197,9 @@ const content = {
   overflow: 'hidden',
 };
 
-const image = {
+const image: React.CSSProperties = {
   maxWidth: '100%',
-  objectFit: 'cover',
+  objectFit: 'cover' as React.CSSProperties['objectFit'],
 };
 
 const boxInfos = {

@@ -1,15 +1,15 @@
+import { useTranslation } from "react-i18next";
 import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
   replace,
 } from "react-router";
 import { useActionData, useLoaderData } from "react-router";
-import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { getValidatedFormData, useRemixForm } from "remix-hook-form";
 import { Button } from "~/components/ui/button";
-import i18next from "~/modules/i18n.server";
-import { alertMessageGenerator, persistToken } from "~/server/cookies.server";
 import {
   Form,
   FormControl,
@@ -19,8 +19,8 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { getValidatedFormData, useRemixForm } from "remix-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import i18next from "~/modules/i18n.server";
+import { alertMessageGenerator, persistToken } from "~/server/cookies.server";
 
 export { meta } from "~/config/meta";
 
@@ -63,13 +63,11 @@ export const action = async ({ context, request }: ActionFunctionArgs) => {
     receivedValues: defaultValues,
   } = await getValidatedFormData<FormData>(request, resolver);
 
-  console.log("data", data, errors);
-
   if (errors) {
     return { errors, defaultValues };
   }
 
-  // await context.remixService.auth.changePassword(data);
+  await context.remixService.auth.changePassword(data);
 
   return replace("/signin", {
     headers: [

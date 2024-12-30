@@ -18,7 +18,7 @@ model User {
 
   email    String  @unique
   googleId String? @unique
-  pseudo   String  @unique
+  pseudo   String? @unique
   password String
 
   preferredLocale  String  @default("en")
@@ -33,6 +33,7 @@ model User {
   sessions Session[]
 
   profile Profile?
+  address Address?
 
   tokens Token[]
 }
@@ -53,11 +54,14 @@ model Profile {
 
   firstName String
   lastName  String
+  birthday  DateTime
 
-  avatar   String?
-  bio      String?
-  location String?
-  website  String?
+  avatar  String?
+  bio     String?
+  website String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   userId String @unique // relation scalar field (used in the `@relation` attribute above)
   user   User   @relation(fields: [userId], references: [id])
@@ -66,6 +70,23 @@ model Profile {
 enum Role {
   USER
   ADMIN
+}
+
+model Address {
+  id   String @id @default(cuid())
+  name String
+
+  street     String
+  city       String
+  state      String?
+  postalCode String
+  country    String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String? @unique
+  User   User?   @relation(fields: [userId], references: [id])
 }
 
 enum TokenType {

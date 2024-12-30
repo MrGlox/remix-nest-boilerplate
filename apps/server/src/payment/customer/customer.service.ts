@@ -11,7 +11,6 @@ export class CustomerService {
   ) {}
 
   async createCustomer(userId: string): Promise<string> {
-    // Récupérer l'utilisateur dans la base de données
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
     if (!user) {
@@ -22,8 +21,6 @@ export class CustomerService {
       email: user.email,
     });
 
-    console.log('customer', customer);
-
     await this.prisma.user.update({
       where: { id: user.id },
       data: { stripeCustomerId: customer.id },
@@ -32,14 +29,11 @@ export class CustomerService {
     return customer.id;
   }
 
-  async retrieveCustomer(userId: string): Promise<string> {
-    // Récupérer l'utilisateur dans la base de données
+  async retrieveCustomer(userId: string): Promise<Stripe.Customer> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: { profile: true },
     });
-
-    // console.log('profile', user?.profile);
 
     if (!user) {
       throw new Error('User not found');
@@ -53,12 +47,6 @@ export class CustomerService {
       customer = await this.stripe.customers.create({
         name: user.pseudo || '',
         email: user.email,
-        // address: {
-        //   line1: user.profile.address,
-        //   city: user.profile.city,
-        //   postal_code: user.profile.zipCode,
-        //   country: user.profile.country,
-        // },
       });
     } else {
       customer = await this.stripe.customers.retrieve(user.stripeCustomerId);
@@ -71,6 +59,6 @@ export class CustomerService {
       data: { stripeCustomerId: customer.id },
     });
 
-    return customer.id;
+    return customer as Stripe.Customer;
   }
 }
