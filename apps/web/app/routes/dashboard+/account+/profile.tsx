@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { sub } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { ActionFunctionArgs, LoaderFunctionArgs, data } from "react-router";
 import { useActionData, useLoaderData } from "react-router";
@@ -21,18 +22,36 @@ import {
 import { Input } from "~/components/ui/input";
 import LocationSelector from "~/components/ui/location-input";
 import { Separator } from "~/components/ui/separator";
-import { alertMessageHelper } from "~/server/cookies.server";
 
 import { DatePicker } from "~/components/ui/date-picker";
+import states from "~/data/states.json";
 import i18next from "~/modules/i18n.server";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+import { getOptionalUser } from "~/server/auth.server";
+import {
+  alertMessageGenerator,
+  alertMessageHelper,
+} from "~/server/cookies.server";
+
+export const loader = async ({ context, request }: LoaderFunctionArgs) => {
   const t = await i18next.getFixedT(request, "dashboard");
   const { message, headers } = await alertMessageHelper(request);
+
+  const user = await getOptionalUser({ context });
+
+  const profile = await context.remixService.getProfile({
+    userId: user?.id || "",
+  });
+
+  const address = await context.remixService.getAddress({
+    userId: user?.id || "",
+  });
 
   return data(
     {
       message,
+      address,
+      profile,
       // Translated meta tags
       title: t("profile.title_meta", { website: process.env.APP_NAME }),
       description: t("profile.description"),
@@ -60,15 +79,43 @@ export const action = async ({ context, request }: ActionFunctionArgs) => {
       defaultValues,
     };
 
-  await context.remixService.profile.updateProfile(formData);
+  const user = await getOptionalUser({ context });
 
-  return data({ result: formData });
+  const { firstName, lastName, birthday, country, ...rest } = formData;
+
+  const updatedProfile =
+    await context.remixService.payment.customer.createOrUpdateProfile(
+      user?.id || "",
+      {
+        firstName,
+        lastName,
+        birthday,
+      },
+    );
+
+  const updatedAddress =
+    await context.remixService.payment.customer.createOrUpdateAddress(
+      user?.id || "",
+      {
+        ...rest,
+        country: country[0],
+        state: country[1] || "",
+        postalCode: states.find((c) => c.name === country[1])?.state_code || "",
+      },
+    );
+
+  return data(
+    { result: formData, updatedProfile, updatedAddress },
+    {
+      headers: [await alertMessageGenerator("profile_udpated", "success")],
+    },
+  );
 };
 
 const schema = z.object({
   firstName: z.string(),
-  lastame: z.string(),
-  birthdate: z.coerce.date(),
+  lastName: z.string(),
+  birthday: z.coerce.date(),
   street: z.string(),
   city: z.string(),
   state: z.string().optional(),
@@ -82,16 +129,28 @@ const ProfileHome = () => {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
+  const { profile, address } = loaderData;
+
+  console.log("address", address);
+
   const { t } = useTranslation("dashboard");
-  const [countryName, setCountryName] = useState<string>("");
-  const [stateName, setStateName] = useState<string>("");
+  const [countryName, setCountryName] = useState<string>(
+    address?.country || "",
+  );
+  const [stateName, setStateName] = useState<string>(address?.state || "");
 
   const form = useRemixForm({
+    defaultValues: {
+      ...profile,
+      ...address,
+      country: [address?.country || "", address?.state || ""],
+    },
     resolver,
   });
 
   useEffect(() => {
     if (!loaderData.message) return;
+
     form.trigger();
   }, []);
 
@@ -141,10 +200,10 @@ const ProfileHome = () => {
             />
             <FormField
               control={form.control}
-              name="lastame"
+              name="lastName"
               render={({ field }) => (
                 <FormItem className="col-span-full md:col-span-3 lg:col-span-6">
-                  <FormLabel>{t("profile.lastame", "Last name")}</FormLabel>
+                  <FormLabel>{t("profile.lastName", "Last name")}</FormLabel>
                   <FormControl>
                     <Input placeholder="" type="text" {...field} />
                   </FormControl>
@@ -155,20 +214,23 @@ const ProfileHome = () => {
           </Grid>
           <FormField
             control={form.control}
-            name="birthdate"
+            name="birthday"
             render={({ field, fieldState: { error } }) => (
               <FormItem className="w-full">
-                <FormLabel>{t("profile.birthdate", "Birthdate")}</FormLabel>
+                <FormLabel>{t("profile.birthday", "Birthdate")}</FormLabel>
                 <FormControl>
                   <DatePicker
                     {...{ error }}
                     date={field.value ? new Date(field.value) : undefined}
                     setDate={(date) => {
                       if (date) {
-                        field.onChange(date);
+                        const dateWithoutTime = new Date(
+                          date.setHours(12, 0, 0, 0),
+                        );
+                        field.onChange(dateWithoutTime);
                       }
                     }}
-                    endYear={2024}
+                    endYear={sub(new Date(), { years: 16 }).getFullYear()}
                   />
                 </FormControl>
                 <FormMessage />
@@ -201,6 +263,7 @@ const ProfileHome = () => {
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="city"
@@ -215,19 +278,7 @@ const ProfileHome = () => {
               )}
             />
           </Grid>
-          {/* <FormField
-            control={form.control}
-            name="postalCode"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t("profile.postal_code", "Postal code")}</FormLabel>
-                <FormControl>
-                  <Input placeholder="" type="text" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          /> */}
+
           <FormField
             control={form.control}
             name="country"
@@ -236,7 +287,7 @@ const ProfileHome = () => {
                 <FormLabel>{t("profile.country", "Country")}</FormLabel>
                 <FormControl>
                   <LocationSelector
-                    {...{ error }}
+                    {...{ error, value: field.value }}
                     onCountryChange={(country) => {
                       setCountryName(country?.name || "");
                       form.setValue(field.name, [

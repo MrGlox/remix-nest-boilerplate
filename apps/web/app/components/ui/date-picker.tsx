@@ -1,6 +1,7 @@
 import { eachMonthOfInterval, endOfYear, format, startOfYear } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import * as React from "react";
+import { FieldError } from "react-hook-form";
 
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
@@ -20,6 +21,7 @@ import { cn } from "~/lib/utils";
 
 interface DatePickerProps {
   date: Date | undefined;
+  error?: FieldError;
   setDate: (date: Date | undefined) => void;
   endYear?: number;
 }
@@ -59,7 +61,7 @@ export function DatePicker({ date, setDate, endYear, error }: DatePickerProps) {
   }, [date]);
 
   const handleYearChange = (selectedYear: string) => {
-    const newYear = parseInt(selectedYear, 10);
+    const newYear = Number.parseInt(selectedYear, 10);
     setYear(newYear);
     if (date) {
       const newDate = new Date(date);
@@ -69,7 +71,7 @@ export function DatePicker({ date, setDate, endYear, error }: DatePickerProps) {
   };
 
   const handleMonthChange = (selectedMonth: string) => {
-    const newMonth = parseInt(selectedMonth, 10);
+    const newMonth = Number.parseInt(selectedMonth, 10);
     setMonth(newMonth);
     if (date) {
       const newDate = new Date(date);

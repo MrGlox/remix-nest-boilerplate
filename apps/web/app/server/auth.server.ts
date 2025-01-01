@@ -26,44 +26,6 @@ export const getOptionalUser = async ({
   return null;
 };
 
-export const getUserAddress = async ({
-  context,
-}: {
-  context: AppLoadContext;
-}) => {
-  const user = authenticatedUserSchema
-    .optional()
-    .nullable()
-    .parse(context.user);
-
-  if (user) {
-    return await context.remixService.getAddress({
-      userId: user.id,
-    });
-  }
-
-  return null;
-};
-
-export const getUserProfile = async ({
-  context,
-}: {
-  context: AppLoadContext;
-}) => {
-  const user = authenticatedUserSchema
-    .optional()
-    .nullable()
-    .parse(context.user);
-
-  if (user) {
-    return await context.remixService.getAddress({
-      userId: user.id,
-    });
-  }
-
-  return null;
-};
-
 export const requireUser = async ({
   context,
   redirectTo = "/",

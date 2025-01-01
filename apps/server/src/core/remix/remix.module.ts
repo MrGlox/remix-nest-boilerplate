@@ -11,7 +11,6 @@ import { RemixService } from './remix.service';
 
 import { OfferModule } from '../../offer/offer.module';
 import { PaymentModule } from '../../payment/payment.module';
-import { ProfileModule } from '../../profile/profile.module';
 
 @Module({
   imports: [
@@ -19,7 +18,6 @@ import { ProfileModule } from '../../profile/profile.module';
     HttpModule,
     AuthModule,
     PaymentModule,
-    ProfileModule,
     OfferModule,
     TokenModule,
   ],

@@ -4,6 +4,7 @@
   "invalid_token": "Invalid security token",
   "invalid_email_token": "Invalid email verification token",
   "invalid_email": "Invalid Email",
+  "profile_udpated": "Profile updated successfully",
   "missing_billing_address": "Missing billing address, please complete this form to access subscription features",
   "payment_intent_missing": "Payment intent missing",
   "invalid_request_error": "Invalid request error",

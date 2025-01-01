@@ -22,7 +22,6 @@ import { RemixModule } from './core/remix/remix.module';
 import { AuthModule } from './auth/auth.module';
 import { MailerModule } from './mailer/mailer.module';
 import { PaymentModule } from './payment/payment.module';
-import { ProfileModule } from './profile/profile.module';
 // import { CmsModule } from './cms/cms.module';
 
 @Module({
@@ -53,7 +52,6 @@ import { ProfileModule } from './profile/profile.module';
     HealthModule,
     PaymentModule,
     PrismaModule,
-    ProfileModule,
     RemixModule,
     MailerModule,
   ],

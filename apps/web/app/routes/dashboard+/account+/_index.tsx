@@ -1,16 +1,13 @@
-import { ActionFunctionArgs, LoaderFunctionArgs, data } from "react-router";
-import { useActionData, useLoaderData } from "react-router";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { ActionFunctionArgs, LoaderFunctionArgs, data } from "react-router";
+import { useActionData, useLoaderData } from "react-router";
 import z from "zod";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { getValidatedFormData, useRemixForm } from "remix-hook-form";
 import { Container } from "~/components/layout/container";
 import { Button } from "~/components/ui/button";
-import { Separator } from "~/components/ui/separator";
-import { langs } from "~/containers/language-switcher";
-import { alertMessageHelper } from "~/server/cookies.server";
-import { getValidatedFormData, useRemixForm } from "remix-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -20,6 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
+import { Input } from "~/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -27,17 +25,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { Input } from "~/components/ui/input";
+import { Separator } from "~/components/ui/separator";
+import { langs } from "~/containers/language-switcher";
+import { alertMessageHelper } from "~/server/cookies.server";
 
 import i18next from "~/modules/i18n.server";
+import { getOptionalUser } from "~/server/auth.server";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ context, request }: LoaderFunctionArgs) => {
   const t = await i18next.getFixedT(request, "dashboard");
   const { message, headers } = await alertMessageHelper(request);
+
+  const user = await getOptionalUser({ context });
 
   return data(
     {
       message,
+      user,
       // Translated meta tags
       title: t("account.title_meta", { website: process.env.APP_NAME }),
       description: t("account.description"),
@@ -71,9 +75,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 const schema = z.object({
   pseudo: z.string(),
-  firstname: z.string(),
-  lastname: z.string(),
-  birthdate: z.coerce.date(),
   language: z.string(),
 });
 
@@ -122,7 +123,7 @@ const AccountHome = () => {
                 <FormLabel>{t("fields.pseudo")}</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder={t("fields.pseudo_placeholder", "JohnSmith")}
+                    placeholder={loaderData.user?.pseudo || t("no_pseudo")}
                     {...field}
                   />
                 </FormControl>

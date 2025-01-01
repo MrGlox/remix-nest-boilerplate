@@ -17,6 +17,7 @@ import {
 import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
 import { cn } from "~/lib/utils";
 
+import { FieldError } from "react-hook-form";
 // Import JSON data directly
 import countries from "~/data/countries.json";
 import states from "~/data/states.json";
@@ -69,6 +70,8 @@ interface StateProps {
 
 interface LocationSelectorProps {
   disabled?: boolean;
+  error?: FieldError;
+  value: string[];
   onCountryChange?: (country: CountryProps | null) => void;
   onStateChange?: (state: StateProps | null) => void;
 }
@@ -77,12 +80,23 @@ const LocationSelector = ({
   disabled,
   onCountryChange,
   onStateChange,
+  value,
   error,
 }: LocationSelectorProps) => {
+  console.log("value", value);
+
   const [selectedCountry, setSelectedCountry] = useState<CountryProps | null>(
-    null,
+    value[0] !== ""
+      ? countries.find((country) => country.name === value[0])
+      : null,
   );
-  const [selectedState, setSelectedState] = useState<StateProps | null>(null);
+
+  const [selectedState, setSelectedState] = useState<StateProps | null>(
+    value[1] !== ""
+      ? states.find((state) => state.name === value[1]) || null
+      : null,
+  );
+
   const [openCountryDropdown, setOpenCountryDropdown] = useState(false);
   const [openStateDropdown, setOpenStateDropdown] = useState(false);
 

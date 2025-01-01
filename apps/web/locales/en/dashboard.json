@@ -85,9 +85,9 @@
     "update_profile_settings": "Update your profile settings. Set your preferred language and timezone.",
     "personal_information": "Personal Information",
     "personal_description": "Update your personal information.",
-    "firstname": "First name",
-    "lastname": "Last name",
-    "birthdate": "Birthdate",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "birthday": "Birthdate",
     "pick_date": "Pick a date",
     "address": "Address",
     "address_description": "Update your address information.",
@@ -109,7 +109,8 @@
     "title_meta": "Subscription | {{website}}",
     "description": "Select your subscription plan or manage your billing information.",
     "current_plan": "Current plan",
-    "upgrade": "Upgrade"
+    "upgrade": "Upgrade",
+    "secured": "Secured"
   },
   "my_account": {
     "title": "My account",
@@ -141,6 +142,7 @@
   "support": "Support",
   "see_offer": "See offer details",
   "free": "Free",
+  "no_pseudo": "No pseudo found yet",
   "product": {
     "basic": {
       "title": "Basic",

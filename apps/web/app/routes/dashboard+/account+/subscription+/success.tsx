@@ -23,6 +23,8 @@ export const loader = async ({ request }) => {
     });
   }
 
+  // const paymentIntent =
+
   return data(
     { paymentIntentId },
     {
@@ -57,6 +59,9 @@ export default function SubscriptionSuccess() {
         <ArrowLeftIcon size={16} className="mr-2" />
         {t("payment_success.back", "Back to dashboard")}
       </Link>
+      {/* <pre>
+        {JSON.stringify(paymentIntent, null, 2)}
+      </pre> */}
     </>
   );
 }

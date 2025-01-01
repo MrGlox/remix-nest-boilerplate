@@ -12,37 +12,38 @@ type ProductsWithPrices = Stripe.Product & {
 export class PaymentService {
   constructor(
     @Inject('STRIPE') private readonly stripe: Stripe,
-    private readonly customer: CustomerService,
+    public readonly customer: CustomerService,
   ) {}
 
-  async listPaymentMethods(
+  public readonly listPaymentMethods = async (
     customerId: string,
-  ): Promise<Stripe.PaymentMethod[]> {
+  ): Promise<Stripe.PaymentMethod[]> => {
     const paymentMethods = await this.stripe.paymentMethods.list({
       customer: customerId,
       type: 'card',
     });
 
     return paymentMethods.data;
-  }
+  };
 
-  // async listInvoices(userId: string): Promise<Stripe.Invoice[]> {
-  //   const customer = await this.customer.retrieveCustomer(userId);
+  public readonly listInvoices = async (userId: string): Promise<void> => {
+    const customer = await this.customer.retrieveCustomer(userId);
 
-  //   const invoices = await this.stripe.invoices.list({
-  //     customer,
-  //   });
+    console.log('customer', customer);
 
-  //   console.log('invoices', invoices);
+    // const invoices = await this.stripe.invoices.list({
+    //   customer,
+    // });
+    // console.log('invoices', invoices);
+    // const subscriptions = await this.stripe.subscriptions.list({
+    //   customer,
+    // });
+    // return invoices.data;
+  };
 
-  //   // const subscriptions = await this.stripe.subscriptions.list({
-  //   //   customer,
-  //   // });
-
-  //   return invoices.data;
-  // }
-
-  async listProducts(limit = 10): Promise<ProductsWithPrices[]> {
+  public readonly listProducts = async (
+    limit = 10,
+  ): Promise<ProductsWithPrices[]> => {
     const products = await this.stripe.products.list({ limit, active: true });
     const prices = await this.stripe.prices.list({
       limit: limit * 3,
@@ -70,27 +71,30 @@ export class PaymentService {
     });
 
     return productsWithPrices;
-  }
+  };
 
-  async retrieveSubscription(userId: string) {
-    // :Promise<Stripe.Subscription | null>
-    // const customer = await this.customer.retrieveCustomer(userId);
-    // console.log('customer', customer);
+  public readonly retrieveSubscription = async (
+    userId: string,
+  ): Promise<void> => {
+    const customer = await this.customer.retrieveCustomer(userId);
+    console.log('customer', customer);
+
     // const subscriptions = await this.stripe.subscriptions.list({
     //   stripeAccount: customer,
     // });
     // console.log('subscriptions', subscriptions);
+
     // return subscriptions.data[0];
-  }
+  };
 
   /**
    * PAYMENT METHODS
    */
-  async createPaymentIntent(
+  public readonly createPaymentIntent = (
     stripeUserId: string,
     amount: number,
     currency = 'eur',
-  ): Promise<Stripe.PaymentIntent> {
+  ): Promise<Stripe.PaymentIntent> => {
     console.log('stripeUserId', stripeUserId);
 
     return this.stripe.paymentIntents.create({
@@ -101,12 +105,12 @@ export class PaymentService {
         enabled: true,
       },
     });
-  }
+  };
 
-  async updatePaymentIntent(
+  public readonly updatePaymentIntent = async (
     id: string,
     params: Stripe.PaymentIntentUpdateParams,
-  ): Promise<Stripe.PaymentIntent> {
+  ): Promise<Stripe.PaymentIntent> => {
     return await this.stripe.paymentIntents.update(id, params);
-  }
+  };
 }

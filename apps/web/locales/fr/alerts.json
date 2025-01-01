@@ -2,10 +2,14 @@
   "invalid_credentials": "Identifiants invalides",
   "password_changed": "Mot de passe changé avec succès",
   "invalid_token": "Jeton de sécurité invalide",
-  "invalid_email_token": "Jeton de vérification de mail périmé",
+  "invalid_email_token": "Jeton de vérification d'e-mail invalide",
   "invalid_email": "Email invalide",
+  "profile_udpated": "Profil mis à jour avec succès",
+  "missing_billing_address": "Adresse de facturation manquante, veuillez compléter ce formulaire pour accéder aux fonctionnalités d'abonnement",
+  "payment_intent_missing": "Intention de paiement manquante",
+  "invalid_request_error": "Erreur de requête invalide",
   "email_confirmed": "Email confirmé avec succès",
   "session_expired": "Session expirée, veuillez vous reconnecter",
   "user_created": "Utilisateur créé avec succès, veuillez vérifier votre email pour activer votre compte",
-  "if_user_exists_mail_recieved": "Si votre adresse email existe dans notre système, vous recevrez un email avec des instructions pour réinitialiser votre mot de passe."
+  "if_user_exists_mail_recieved": "Si votre email existe dans notre système, vous recevrez un email avec des instructions sur la façon de réinitialiser votre mot de passe."
 }

@@ -85,9 +85,9 @@
     "update_profile_settings": "Mettez à jour les paramètres de votre profil. Définissez votre langue et votre fuseau horaire préférés.",
     "personal_information": "Informations personnelles",
     "personal_description": "Mettez à jour vos informations personnelles.",
-    "firstname": "Prénom",
-    "lastname": "Nom de famille",
-    "birthdate": "Date de naissance",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "birthday": "Date de naissance",
     "pick_date": "Choisissez une date",
     "address": "Adresse",
     "address_description": "Mettez à jour vos informations d'adresse.",
@@ -109,7 +109,8 @@
     "title_meta": "Abonnement | {{website}}",
     "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation.",
     "current_plan": "Plan actuel",
-    "upgrade": "Mettre à niveau"
+    "upgrade": "Mettre à niveau",
+    "secured": "Sécurisé"
   },
   "my_account": {
     "title": "Mon compte",
@@ -141,6 +142,7 @@
   "support": "Support",
   "see_offer": "Voir les détails de l'offre",
   "free": "Gratuit",
+  "no_pseudo": "Pas de pseudo",
   "product": {
     "basic": {
       "title": "Basique",

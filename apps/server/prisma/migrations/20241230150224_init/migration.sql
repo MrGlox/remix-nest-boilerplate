@@ -41,6 +41,7 @@ CREATE TABLE "Profile" (
     "id" TEXT NOT NULL,
     "firstName" TEXT NOT NULL,
     "lastName" TEXT NOT NULL,
+    "birthday" TIMESTAMP(3) NOT NULL,
     "avatar" TEXT,
     "bio" TEXT,
     "website" TEXT,
@@ -54,11 +55,11 @@ CREATE TABLE "Profile" (
 -- CreateTable
 CREATE TABLE "Address" (
     "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
+    "name" TEXT,
     "street" TEXT NOT NULL,
     "city" TEXT NOT NULL,
-    "state" TEXT NOT NULL,
-    "postalCode" TEXT NOT NULL,
+    "state" TEXT,
+    "postalCode" TEXT,
     "country" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,

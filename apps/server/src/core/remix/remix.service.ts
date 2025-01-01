@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 
-import { ProfileService } from 'src/profile/profile.service';
 import { AuthService } from '../../auth/auth.service';
 import { OfferService } from '../../offer/offer.service';
 import { PaymentService } from '../../payment/payment.service';
@@ -14,7 +13,6 @@ export class RemixService {
     public readonly auth: AuthService,
     public readonly token: TokenService,
     public readonly payment: PaymentService,
-    public readonly profile: ProfileService,
     public readonly offer: OfferService,
   ) {}
 

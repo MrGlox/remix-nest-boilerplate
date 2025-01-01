@@ -22,7 +22,7 @@ import {
 import { Stripe as StripeIcon } from "~/assets/logos";
 import { Loader } from "~/components/ui/loader";
 import { generateAlert } from "~/lib/alerts";
-import { getUserAddress } from "~/server/auth.server";
+import { getUserAddress } from "~/server/user.server";
 
 export const loader = async ({ context, request }: LoaderFunctionArgs) => {
   const { message, headers } = await alertMessageHelper(request);
@@ -49,7 +49,7 @@ export const loader = async ({ context, request }: LoaderFunctionArgs) => {
 };
 
 export default function Payment() {
-  const { ENV } = useLoaderData<typeof loader>();
+  const { ENV } = useLoaderData<{ ENV: { APP_DOMAIN: string | undefined } }>();
 
   const { t, i18n } = useTranslation("dashboard");
 

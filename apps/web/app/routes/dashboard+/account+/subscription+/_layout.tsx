@@ -46,9 +46,7 @@ export const loader = async ({ context, request }: LoaderFunctionArgs) => {
   const products = await context.remixService.payment.listProducts();
 
   const currentSubscription =
-    await context.remixService.payment.retrieveSubscription(user?.id);
-
-  console.log("currentSubscription", currentSubscription);
+    await context.remixService.payment.retrieveSubscription(user?.id || "");
 
   return data(
     {
@@ -68,6 +66,8 @@ export const loader = async ({ context, request }: LoaderFunctionArgs) => {
     },
   );
 };
+
+export { meta } from "~/config/meta";
 
 export const action = async ({ context, request }: ActionFunctionArgs) => {
   const user = await getOptionalUser({ context });
@@ -94,7 +94,7 @@ export const action = async ({ context, request }: ActionFunctionArgs) => {
   if (!price)
     return {
       errors: {
-        selectedOffer: "Invalid product",
+        selectedOffer: "invalid_product",
       },
       defaultValues,
     };
