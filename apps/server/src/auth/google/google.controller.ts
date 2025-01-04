@@ -25,6 +25,6 @@ export class GoogleController {
       email: req.user.email,
     });
 
-    return { url: `/authenticate?token=${sessionToken}&redirectTo=/dashboard` };
+    return { url: `/auth?token=${sessionToken}&redirectTo=/dashboard` };
   }
 }

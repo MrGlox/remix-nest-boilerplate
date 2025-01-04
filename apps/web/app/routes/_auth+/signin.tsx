@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
@@ -5,18 +6,14 @@ import {
   redirectDocument,
 } from "react-router";
 import { useActionData, useLoaderData } from "react-router";
-import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { getValidatedFormData, useRemixForm } from "remix-hook-form";
 import { Google } from "~/assets/logos";
 import { Link } from "~/components/atoms/link";
 import { Badge } from "~/components/ui/badge";
 import { Button, buttonVariants } from "~/components/ui/button";
-import { cn } from "~/lib/utils";
-import i18next from "~/modules/i18n.server";
-import { alertMessageHelper } from "~/server/cookies.server";
-import { getValidatedFormData, useRemixForm } from "remix-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -26,17 +23,24 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { cn } from "~/lib/utils";
+import i18next from "~/modules/i18n.server";
+import { alertMessageHelper } from "~/server/cookies.server";
 
 export { meta } from "~/config/meta";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const t = await i18next.getFixedT(request, "auth");
 
+  const params = new URL(request.url).searchParams;
+  const error = params.get("error");
+  
   const { message, headers } = await alertMessageHelper(request);
 
   return data(
     {
-      message,
+      message: error ? [error, 'destructive'] : message,
+      error: !!error,
       // Translated meta tags
       title: t("signin.title"),
       description: t("signin.description"),
@@ -81,7 +85,7 @@ export const action = async ({ context, request }: ActionFunctionArgs) => {
   const redirectTo = urlParams.get("redirectTo") || "/dashboard";
 
   return redirectDocument(
-    `/authenticate?token=${sessionToken}&redirectTo=${redirectTo}`,
+    `/auth?token=${sessionToken}&redirectTo=${redirectTo}`,
   );
 };
 

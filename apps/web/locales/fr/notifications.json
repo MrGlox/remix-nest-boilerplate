@@ -1,0 +1,9 @@
+{
+  "title": "Notifications",
+  "title_meta": "Notifications | {{website}}",
+  "description": "Vous avez {{count}} notifications non lues.",
+  "notification_created": {
+    "title": "Notification créée",
+    "description": "Notification créée avec succès"
+  }
+}

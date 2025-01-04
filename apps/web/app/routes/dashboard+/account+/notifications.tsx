@@ -1,11 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import {
-  ActionFunctionArgs,
-  data,
   LoaderFunctionArgs,
+  data,
   useActionData,
-  useLoaderData,
+  useLoaderData
 } from "react-router";
 import { useRemixForm } from "remix-hook-form";
 import { z } from "zod";
@@ -23,9 +22,8 @@ import { Separator } from "~/components/ui/separator";
 import { Switch } from "~/components/ui/switch";
 import { alertMessageHelper } from "~/server/cookies.server";
 
-export const loader = async ({ context, request }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { message, headers } = await alertMessageHelper(request);
-  // const user = await getOptionalUser({ context });
 
   return data(
     {
@@ -35,10 +33,6 @@ export const loader = async ({ context, request }: LoaderFunctionArgs) => {
       headers,
     },
   );
-};
-
-export const action = async ({ context, request }: ActionFunctionArgs) => {
-  return {};
 };
 
 const schema = z.object({

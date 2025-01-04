@@ -71,7 +71,7 @@ interface StateProps {
 interface LocationSelectorProps {
   disabled?: boolean;
   error?: FieldError;
-  value: string[];
+  value?: string[];
   onCountryChange?: (country: CountryProps | null) => void;
   onStateChange?: (state: StateProps | null) => void;
 }
@@ -83,17 +83,15 @@ const LocationSelector = ({
   value,
   error,
 }: LocationSelectorProps) => {
-  console.log("value", value);
-
   const [selectedCountry, setSelectedCountry] = useState<CountryProps | null>(
-    value[0] !== ""
-      ? countries.find((country) => country.name === value[0])
+    value?.[0] !== ""
+      ? countries.find((country) => country.name === value?.[0])
       : null,
   );
 
   const [selectedState, setSelectedState] = useState<StateProps | null>(
-    value[1] !== ""
-      ? states.find((state) => state.name === value[1]) || null
+    value?.[1] !== ""
+      ? states.find((state) => state.name === value?.[1]) || null
       : null,
   );
 

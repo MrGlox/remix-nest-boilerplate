@@ -13,6 +13,10 @@ module.exports = {
       },
     },
     extend: {
+      animationIterationCount: {
+        2: "2",
+        3: "3",
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -105,12 +109,17 @@ module.exports = {
             height: "0",
           },
         },
+        swing: {
+          "0%,100%": { transform: "rotate(15deg)" },
+          "50%": { transform: "rotate(-15deg)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "collapsible-down": "collapsible-down 0.2s ease-out",
         "collapsible-up": "collapsible-up 0.2s ease-out",
+        swing: "swing 0.5s ease-in-out",
       },
     },
   },

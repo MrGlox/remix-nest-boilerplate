@@ -11,5 +11,6 @@
   "email_confirmed": "Email confirmé avec succès",
   "session_expired": "Session expirée, veuillez vous reconnecter",
   "user_created": "Utilisateur créé avec succès, veuillez vérifier votre email pour activer votre compte",
-  "if_user_exists_mail_recieved": "Si votre email existe dans notre système, vous recevrez un email avec des instructions sur la façon de réinitialiser votre mot de passe."
+  "if_user_exists_mail_recieved": "Si votre email existe dans notre système, vous recevrez un email avec des instructions sur la façon de réinitialiser votre mot de passe.",
+  "notification_created": "Notification created successfully"
 }

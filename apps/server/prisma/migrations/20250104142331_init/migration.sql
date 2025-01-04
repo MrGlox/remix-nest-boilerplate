@@ -7,6 +7,15 @@ CREATE TYPE "TokenType" AS ENUM ('ACCESS', 'REFRESH', 'VERIFY_EMAIL', 'PASSWORD_
 -- CreateEnum
 CREATE TYPE "PaymentStatus" AS ENUM ('PENDING', 'COMPLETED', 'FAILED');
 
+-- CreateEnum
+CREATE TYPE "ActionLevel" AS ENUM ('NoUserAction', 'Featured', 'UserActionRequired');
+
+-- CreateEnum
+CREATE TYPE "Status" AS ENUM ('Sent', 'Queued');
+
+-- CreateEnum
+CREATE TYPE "NotificationType" AS ENUM ('INFO', 'WARNING', 'ERROR');
+
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
@@ -21,6 +30,7 @@ CREATE TABLE "User" (
     "isEmailVerified" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "role" "Role" NOT NULL DEFAULT 'USER',
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -28,9 +38,9 @@ CREATE TABLE "User" (
 -- CreateTable
 CREATE TABLE "Session" (
     "id" TEXT NOT NULL,
+    "sessionToken" TEXT NOT NULL,
     "ipAddress" TEXT,
     "userAgent" TEXT,
-    "sessionToken" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
 
     CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
@@ -115,6 +125,22 @@ CREATE TABLE "Plan" (
     CONSTRAINT "Plan_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Notification" (
+    "id" TEXT NOT NULL,
+    "type" "NotificationType" NOT NULL DEFAULT 'INFO',
+    "action" "ActionLevel" NOT NULL DEFAULT 'NoUserAction',
+    "status" "Status" NOT NULL DEFAULT 'Queued',
+    "message" TEXT NOT NULL,
+    "read" BOOLEAN NOT NULL DEFAULT false,
+    "email" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "userId" TEXT NOT NULL,
+
+    CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
@@ -150,3 +176,6 @@ ALTER TABLE "Address" ADD CONSTRAINT "Address_userId_fkey" FOREIGN KEY ("userId"
 
 -- AddForeignKey
 ALTER TABLE "Token" ADD CONSTRAINT "Token_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

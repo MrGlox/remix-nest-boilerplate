@@ -39,6 +39,8 @@ export const loader = async ({ context, request }: LoaderFunctionArgs) => {
 
   const user = await getOptionalUser({ context });
 
+  await context.remixService.notification.createNotification(user?.id || "");
+
   const profile = await context.remixService.getProfile({
     userId: user?.id || "",
   });
@@ -70,8 +72,6 @@ export const action = async ({ context, request }: ActionFunctionArgs) => {
     data: formData,
     receivedValues: defaultValues,
   } = await getValidatedFormData<FormData>(request, resolver);
-
-  console.log("formData", formData);
 
   if (errors)
     return {
@@ -130,8 +130,6 @@ const ProfileHome = () => {
   const actionData = useActionData<typeof action>();
 
   const { profile, address } = loaderData;
-
-  console.log("address", address);
 
   const { t } = useTranslation("dashboard");
   const [countryName, setCountryName] = useState<string>(

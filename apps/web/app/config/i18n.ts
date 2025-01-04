@@ -45,5 +45,6 @@ export const resourcesList = [
   "auth",
   "common",
   "dashboard",
+  "notifications",
   "validations",
 ];

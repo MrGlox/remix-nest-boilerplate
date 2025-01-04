@@ -16,11 +16,13 @@ import mailerConfig from './mailer/config/mailer.config';
 import stripeConfig from './payment/config/stripe.config';
 
 import { PrismaModule } from './core/database/prisma.module';
+import { EventModule } from './core/event/event.module';
 import { HealthModule } from './core/health/health.module';
 import { RemixModule } from './core/remix/remix.module';
 
 import { AuthModule } from './auth/auth.module';
 import { MailerModule } from './mailer/mailer.module';
+import { NotificationModule } from './notification/notification.module';
 import { PaymentModule } from './payment/payment.module';
 // import { CmsModule } from './cms/cms.module';
 
@@ -49,12 +51,15 @@ import { PaymentModule } from './payment/payment.module';
     }),
     AuthModule,
     // CmsModule,
+    EventModule,
     HealthModule,
-    PaymentModule,
-    PrismaModule,
     RemixModule,
     MailerModule,
+    NotificationModule,
+    PaymentModule,
+    PrismaModule,
   ],
+  controllers: [],
   providers: [],
 })
 export class AppModule {}

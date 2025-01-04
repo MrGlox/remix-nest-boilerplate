@@ -10,6 +10,8 @@ import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import passport from 'passport';
 
+import RedisStore from 'connect-redis';
+import Redis from 'ioredis';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './core/exception.filter';
 
@@ -21,18 +23,18 @@ async function bootstrap() {
   await startDevServer(app);
 
   // Initialize client
-  // const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-  // const redisClient = new Redis(redisUrl, {})
-  //   .on('error', console.error)
-  //   .on('connect', () => {
-  //     console.log('Connected to Redis');
-  //   });
+  const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+  const redisClient = new Redis(redisUrl, {})
+    .on('error', console.error)
+    .on('connect', () => {
+      console.log('Connected to Redis');
+    });
 
   // Initialize store
-  // const redisStore = new RedisStore({
-  //   client: redisClient,
-  //   ttl: 86400 * 30,
-  // });
+  const redisStore = new RedisStore({
+    client: redisClient,
+    ttl: 86400 * 30,
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Cats example')
@@ -48,8 +50,8 @@ async function bootstrap() {
 
   app.use(
     session({
-      // store: redisStore,
-      resave: false, // required: force lightweight session keep alive (touch)
+      store: redisStore,
+      resave: true, // required: force lightweight session keep alive (touch)
       saveUninitialized: false, // recommended: only save session when data exists
       secret: process.env.SESSION_SECRET || '123',
       cookie: {
@@ -71,13 +73,13 @@ async function bootstrap() {
   });
 
   app.useGlobalFilters(new HttpExceptionFilter());
-
+ 
   app.use(passport.initialize());
   app.use(passport.session());
 
   app.use(cookieParser());
 
-  app.use('/authenticate', urlencoded({ extended: true }));
+  app.use('/auth', urlencoded({ extended: true }));
   app.use('/auth/logout', urlencoded({ extended: true }));
 
   app.use('/auth/google', urlencoded({ extended: true }));

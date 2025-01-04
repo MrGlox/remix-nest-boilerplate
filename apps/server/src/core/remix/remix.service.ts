@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
 
-import { AuthService } from '../../auth/auth.service';
-import { OfferService } from '../../offer/offer.service';
-import { PaymentService } from '../../payment/payment.service';
 import { PrismaService } from '../database/prisma.service';
 import { TokenService } from '../token/token.service';
+
+import { AuthService } from '../../auth/auth.service';
+import { NotificationService } from '../../notification/notification.service';
+import { PaymentService } from '../../payment/payment.service';
+import { EventService } from '../event/event.service';
 
 @Injectable()
 export class RemixService {
@@ -13,7 +15,8 @@ export class RemixService {
     public readonly auth: AuthService,
     public readonly token: TokenService,
     public readonly payment: PaymentService,
-    public readonly offer: OfferService,
+    public readonly notification: NotificationService,
+    public readonly events: EventService,
   ) {}
 
   public readonly getUser = async ({ userId }: { userId: string }) => {

@@ -1,11 +1,16 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { ActionFunctionArgs, LoaderFunctionArgs, data } from "react-router";
-import { useActionData, useLoaderData } from "react-router";
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  data,
+  useActionData,
+  useLoaderData,
+} from "react-router";
+import { getValidatedFormData, useRemixForm } from "remix-hook-form";
 import z from "zod";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { getValidatedFormData, useRemixForm } from "remix-hook-form";
 import { Container } from "~/components/layout/container";
 import { Button } from "~/components/ui/button";
 import {
@@ -85,8 +90,7 @@ const AccountHome = () => {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
-  const { t } = useTranslation("dashboard");
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation("dashboard");
 
   const { currentLanguage } = useMemo(() => {
     return {

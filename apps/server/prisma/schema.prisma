@@ -31,19 +31,22 @@ model User {
   updatedAt DateTime @updatedAt
 
   sessions Session[]
+  role     Role      @default(USER)
 
   profile Profile?
   address Address?
 
-  tokens Token[]
+  tokens        Token[]
+  notifications Notification[]
 }
 
 model Session {
   id String @id @default(cuid())
 
-  ipAddress    String?
-  userAgent    String?
-  sessionToken String  @unique
+  sessionToken String @unique
+
+  ipAddress String?
+  userAgent String?
 
   userId String
   user   User   @relation(fields: [userId], references: [id])
@@ -153,6 +156,41 @@ model Plan {
 
   // subscriptions Subscription[]
   // @@map("plans") // Optional: maps to a specific table name in your database
+}
+
+model Notification {
+  id String @id @default(cuid())
+
+  type   NotificationType @default(INFO)
+  action ActionLevel      @default(NoUserAction)
+  status Status           @default(Queued)
+
+  message String
+  read    Boolean @default(false)
+  email   Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+enum ActionLevel {
+  NoUserAction
+  Featured
+  UserActionRequired
+}
+
+enum Status {
+  Sent
+  Queued
+}
+
+enum NotificationType {
+  INFO
+  WARNING
+  ERROR
 }
 
 // model Transaction {

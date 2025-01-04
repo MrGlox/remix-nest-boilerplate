@@ -1,6 +1,6 @@
 {
   "title": "Tableau de bord",
-  "description": "",
+  "description": "Tableau de bord qui liste toutes vos activités",
   "onboarding": {
     "title": "Onboarding",
     "description": "Processus d'intégration",
@@ -24,107 +24,62 @@
       "subtitle": "Veuillez vérifier les informations de votre chaîne",
       "heading": "Bienvenue dans le processus d'intégration",
       "intro": "Bienvenue dans le processus d'intégration"
-    },
-    "step4": {
-      "title": "Étape 4",
-      "description": "Configurer les notifications",
-      "subtitle": "Configurez vos préférences de notification",
-      "heading": "Bienvenue dans le processus d'intégration",
-      "intro": "Bienvenue dans le processus d'intégration"
     }
   },
   "options": {
     "done": "Déjà fait !",
-    "optional": "(facultatif)",
-    "skip": "Passer",
-    "next": "Suivant",
-    "previous": "Précédent"
+    "optional": "(facultatif)"
   },
   "fields": {
     "password": "Mot de passe",
     "password_confirm": "Confirmez le mot de passe",
     "pseudo": "Pseudo",
-    "language": "Langue",
-    "email": "E-mail",
-    "username": "Nom d'utilisateur"
+    "language": "Langue"
   },
   "account": {
     "title": "Compte",
     "title_meta": "Mon compte | {{website}}",
-    "description": "Gérez les paramètres de votre compte et définissez vos préférences e-mail.",
-    "security": "Sécurité",
-    "privacy": "Confidentialité"
+    "description": "Gérez les paramètres de votre compte et définissez vos préférences e-mail."
   },
   "appearance": {
     "title": "Apparence",
     "title_meta": "Apparence | {{website}}",
-    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation.",
-    "theme": "Thème",
-    "dark_mode": "Mode sombre"
+    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation."
   },
   "billings": {
     "title": "Facturation",
     "title_meta": "Facturation | {{website}}",
-    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation.",
-    "payment_history": "Historique des paiements",
-    "billing_address": "Adresse de facturation"
+    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation."
   },
   "display": {
     "title": "Affichage",
     "title_meta": "Affichage | {{website}}",
-    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation.",
-    "resolution": "Résolution",
-    "brightness": "Luminosité"
+    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation."
   },
   "profile": {
     "title": "Profil",
     "title_meta": "Profil | {{website}}",
-    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation.",
-    "bio": "Biographie",
-    "social_links": "Liens sociaux",
-    "update_profile_settings": "Mettez à jour les paramètres de votre profil. Définissez votre langue et votre fuseau horaire préférés.",
-    "personal_information": "Informations personnelles",
-    "personal_description": "Mettez à jour vos informations personnelles.",
-    "firstName": "Prénom",
-    "lastName": "Nom",
-    "birthday": "Date de naissance",
-    "pick_date": "Choisissez une date",
-    "address": "Adresse",
-    "address_description": "Mettez à jour vos informations d'adresse.",
-    "street": "Rue",
-    "city": "Ville",
-    "postal_code": "Code postal",
-    "country": "Pays",
-    "country_description": "Si votre pays a des états ou des régions, ils apparaîtront après la sélection du pays."
+    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation."
   },
   "settings": {
     "title": "Paramètres",
     "title_meta": "Paramètres | {{website}}",
-    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation.",
-    "general": "Général",
-    "security": "Sécurité"
+    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation."
   },
   "subscription": {
     "title": "Abonnement",
     "title_meta": "Abonnement | {{website}}",
-    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation.",
-    "current_plan": "Plan actuel",
-    "upgrade": "Mettre à niveau",
-    "secured": "Sécurisé"
+    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation."
   },
   "my_account": {
     "title": "Mon compte",
     "title_meta": "Mon compte | {{website}}",
-    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation.",
-    "personal_info": "Informations personnelles",
-    "security_settings": "Paramètres de sécurité"
+    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation."
   },
   "notifications": {
     "title": "Notifications",
     "title_meta": "Notifications | {{website}}",
-    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation.",
-    "email_notifications": "Notifications par e-mail",
-    "sms_notifications": "Notifications par SMS"
+    "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation."
   },
   "settings_desc": "Gérez les paramètres de votre compte et définissez vos préférences e-mail.",
   "team": "Équipe",
@@ -132,32 +87,10 @@
   "invite": {
     "email": "E-mail",
     "message": "Message",
-    "more": "Plus...",
-    "role": "Rôle"
+    "more": "Plus..."
   },
-  "select_offer": "Sélectionner une offre",
-  "payment_methods": "Méthodes de paiement",
+  "select_offer": "Sélectionnez une offre",
   "annual": "Annuel",
-  "monthly": "Mensuel",
   "support": "Support",
-  "see_offer": "Voir les détails de l'offre",
-  "free": "Gratuit",
-  "no_pseudo": "Pas de pseudo",
-  "product": {
-    "basic": {
-      "title": "Basique",
-      "description": "Pour les particuliers, les freelances et les petites équipes"
-    },
-    "team": {
-      "title": "Groupe",
-      "description": "De 3 à 8 utilisateurs, pour les petites équipes et les agences"
-    },
-    "enterprise": {
-      "title": "Entreprise",
-      "description": "Pour plus de 5 utilisateurs, pour les organisations"
-    }
-  },
-  "common": {
-    "submit": "Soumettre"
-  }
+  "payment_methods": "Moyen de paiements"
 }

@@ -61,6 +61,7 @@
     "react-router-dom": "^7.0.2",
     "remix-hook-form": "^6.1.0",
     "remix-i18next": "^7.0.1",
+    "remix-utils": "^8.0.0",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^1.1.2",

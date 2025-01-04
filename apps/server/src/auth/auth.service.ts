@@ -1,22 +1,22 @@
-import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { createId } from '@paralleldrive/cuid2';
+import { HttpService } from "@nestjs/axios";
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 
-import { AllConfigType } from '../core/config/config.type';
-import { PrismaService } from '../core/database/prisma.service';
-import { TokenService } from '../core/token/token.service';
-import { hashWithSalt, verifyPassword } from '../core/utils/crypt';
-import { MailerService } from '../mailer/mailer.service';
+import { createId } from "@paralleldrive/cuid2";
+import { AllConfigType } from "../core/config/config.type";
+import { PrismaService } from "../core/database/prisma.service";
+import { TokenService } from "../core/token/token.service";
+import { hashWithSalt, verifyPassword } from "../core/utils/crypt";
+import { MailerService } from "../mailer/mailer.service";
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly httpService: HttpService,
-    private configService: ConfigService<AllConfigType>,
-    private mailerService: MailerService,
-    private tokenService: TokenService,
+    private config: ConfigService<AllConfigType>,
+    private mailer: MailerService,
+    private token: TokenService,
   ) {}
 
   public readonly checkIfUserExists = async ({
@@ -41,29 +41,29 @@ export class AuthService {
 
     if (!existingUser) {
       return {
-        message: 'invalid_credentials',
+        message: "invalid_credentials",
         error: true,
       };
     }
 
     if (withPassword && password) {
       const [salt, hash] = existingUser.password
-        .replace('user_', '')
-        .split('.');
+        .replace("user_", "")
+        .split(".");
 
       // Rajouter une logique de validation par mot de passez
       const isPasswordValid = await verifyPassword(hash, salt, password);
 
       if (!isPasswordValid) {
         return {
-          message: 'invalid_credentials',
+          message: "invalid_credentials",
           error: true,
         };
       }
     }
 
     return {
-      message: 'invalid_credentials',
+      message: "invalid_credentials",
       error: false,
     };
   };
@@ -91,13 +91,13 @@ export class AuthService {
       },
     });
 
-    const { token } = await this.tokenService.generateVerifyEmailToken({
+    const { token } = await this.token.generateVerifyEmailToken({
       userId: user.id,
       salt,
     });
 
-    await this.mailerService.sendMail({
-      template: 'confirm-email',
+    await this.mailer.sendMail({
+      template: "confirm-email",
       lang: lang || user.preferredLocale,
       to: email,
       data: {
@@ -109,7 +109,7 @@ export class AuthService {
   };
 
   public readonly authenticateUser = async ({ email }: { email: string }) => {
-    return await this.prisma.session.create({
+    const session = await this.prisma.session.create({
       data: {
         user: {
           connect: {
@@ -122,6 +122,10 @@ export class AuthService {
         sessionToken: true,
       },
     });
+
+    console.log("session", session);
+
+    return session;
   };
 
   public readonly confirmEmail = async ({ token }: { token: string }) => {
@@ -135,12 +139,12 @@ export class AuthService {
 
     if (!retrivedUser) {
       return {
-        message: 'invalid_email_token',
+        message: "invalid_email_token",
         error: true,
       };
     }
 
-    await this.tokenService.expireToken({
+    await this.token.expireToken({
       token,
     });
 
@@ -154,7 +158,7 @@ export class AuthService {
     });
 
     return {
-      message: 'email_confirmed',
+      message: "email_confirmed",
     };
   };
 
@@ -182,24 +186,24 @@ export class AuthService {
     // return early success if user does not exist to prevent email enumeration
     if (!user) {
       return {
-        message: 'if_user_exists_mail_received',
+        message: "if_user_exists_mail_received",
       };
     }
 
-    const [salt] = user.password.replace('user_', '').split('.');
+    const [salt] = user.password.replace("user_", "").split(".");
 
-    const { token } = await this.tokenService.generatePasswordResetToken({
+    const { token } = await this.token.generatePasswordResetToken({
       userId: user.id,
       salt,
     });
 
     const formattedDate = new Intl.DateTimeFormat(lang, {
-      dateStyle: 'long',
-      timeStyle: 'short',
+      dateStyle: "long",
+      timeStyle: "short",
     }).format(new Date());
 
-    await this.mailerService.sendMail({
-      template: 'forgot-password',
+    await this.mailer.sendMail({
+      template: "forgot-password",
       to: email,
       lang: lang || user.preferredLocale,
       data: {
@@ -210,7 +214,7 @@ export class AuthService {
     });
 
     return {
-      message: 'if_user_exists_mail_recieved',
+      message: "if_user_exists_mail_recieved",
     };
   };
 
@@ -233,12 +237,12 @@ export class AuthService {
 
     if (!retrivedUser) {
       return {
-        message: 'invalid_token',
+        message: "invalid_token",
         error: false,
       };
     }
 
-    await this.tokenService.expireToken({
+    await this.token.expireToken({
       token,
     });
 
@@ -253,8 +257,8 @@ export class AuthService {
       },
     });
 
-    await this.mailerService.sendMail({
-      template: 'password-changed',
+    await this.mailer.sendMail({
+      template: "password-changed",
       to: retrivedUser.email,
       data: {
         url: `${process.env.APP_DOMAIN}/login`,
@@ -263,7 +267,7 @@ export class AuthService {
     });
 
     return {
-      message: 'password_changed',
+      message: "password_changed",
     };
   };
 
@@ -275,23 +279,23 @@ export class AuthService {
     const refreshToken = await this.prisma.token.findFirst({
       where: {
         userId: userId,
-        type: 'REFRESH',
+        type: "REFRESH",
       },
     });
 
     if (!user || refreshToken) {
-      throw new Error('Refresh token not found');
+      throw new Error("Refresh token not found");
     }
 
     const response = await this.httpService.post(
-      'https://oauth2.googleapis.com/token',
+      "https://oauth2.googleapis.com/token",
       {
-        client_id: this.configService.get('google.clientID', { infer: true }),
-        client_secret: this.configService.get('google.clientSecret', {
+        client_id: this.config.get("google.clientID", { infer: true }),
+        client_secret: this.config.get("google.clientSecret", {
           infer: true,
         }),
         refresh_token: refreshToken,
-        grant_type: 'refresh_token',
+        grant_type: "refresh_token",
       },
     );
 
@@ -309,5 +313,36 @@ export class AuthService {
     // });
 
     // return newAccessToken;
+  };
+
+  public readonly findById = async (id: string) => {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+
+    return user;
+  };
+
+  public readonly getSessionToken = async (userId: string): Promise<string> => {
+    const session = await this.prisma.session.findFirst({
+      where: {
+        userId,
+      },
+      select: {
+        sessionToken: true,
+      },
+    });
+
+    if (!session) {
+      throw new NotFoundException("Session token not found");
+    }
+
+    return session.sessionToken;
   };
 }

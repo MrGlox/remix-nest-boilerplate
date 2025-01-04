@@ -1,12 +1,13 @@
-import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router";
 
 import { Brand } from "~/assets";
 
 import { CommandMenu } from "./command-menu";
 import { DropdownProfile } from "./dropdown-profile";
+import { NotificationsCard } from "./notifications-card";
 
-export const DashboardHeader = ({ user }) => {
+export const DashboardHeader = (props) => {
   const { t } = useTranslation();
 
   return (
@@ -19,14 +20,17 @@ export const DashboardHeader = ({ user }) => {
         <div className="flex items-center gap-8">
           <CommandMenu />
           <nav>
-            <ul className="flex gap-2">
+            <ul className="flex gap-4">
               {/* <li>
-              <Button asChild variant="ghost">
-                <Link to="/dashboard">{t("title", { ns: "dashboard" })}</Link>
-              </Button>
-            </li> */}
+                <Button asChild variant="ghost">
+                  <Link to="/dashboard">{t("title", { ns: "dashboard" })}</Link>
+                </Button>
+              </li> */}
+              <li>
+                <NotificationsCard {...props} />
+              </li>
               <li className="max-h-[40px]">
-                <DropdownProfile {...{ user }} />
+                <DropdownProfile />
               </li>
             </ul>
           </nav>

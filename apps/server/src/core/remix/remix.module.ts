@@ -4,21 +4,24 @@ import { ConfigModule } from '@nestjs/config';
 
 import { AuthModule } from '../../auth/auth.module';
 import { PrismaService } from '../database/prisma.service';
+import { EventModule } from '../event/event.module';
 import { TokenModule } from '../token/token.module';
 
 import { RemixController } from './remix.controller';
 import { RemixService } from './remix.service';
 
-import { OfferModule } from '../../offer/offer.module';
+import { NotificationModule } from '../../notification/notification.module';
 import { PaymentModule } from '../../payment/payment.module';
 
 @Module({
   imports: [
     ConfigModule,
     HttpModule,
+    // Custom modules
     AuthModule,
+    EventModule,
     PaymentModule,
-    OfferModule,
+    NotificationModule,
     TokenModule,
   ],
   providers: [RemixService, PrismaService],
