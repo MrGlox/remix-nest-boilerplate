@@ -1,11 +1,13 @@
 import { Notification } from "@prisma/client";
 import { BellIcon, Check } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 
+import { Form } from "react-router";
+import { useRemixForm } from "remix-hook-form";
 import {
   CardContent,
   CardDescription,
@@ -18,10 +20,10 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { Loader } from "~/components/ui/loader";
 
 type NotificationsCardProps = {
   notifications: Notification[];
-  newNotifications?: boolean;
 };
 
 const notificationTypes = {
@@ -32,35 +34,33 @@ const notificationTypes = {
 
 export function NotificationsCard({
   notifications,
-  newNotifications,
   ...props
 }: NotificationsCardProps) {
   const { t } = useTranslation("notifications");
 
-  const [active, setActive] = useState<boolean>(false);
-  const [animate, setAnimate] = useState<boolean>(false);
+  const { handleSubmit, formState } = useRemixForm({
+    defaultValues: {
+      notifications,
+    },
+    submitConfig: {
+      method: "POST",
+      action: "/dashboard",
+    },
+  });
 
+  const [active, setActive] = useState<boolean>(false);
   const activeNotifications = notifications.filter(({ read }) => !read);
 
-  useEffect(() => {
-    if (newNotifications) {
-      setAnimate(() => true);
-    }
-
-    setTimeout(() => {
-      setAnimate(() => false);
-    }, 500);
-  }, [newNotifications]);
-
   return (
-    <DropdownMenu {...props} onOpenChange={(open) => setActive(open)}>
+    <DropdownMenu
+      {...props}
+      onOpenChange={(open) => setActive(open)}
+      open={active}
+    >
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className={cn(
-            "relative rounded-full w-10 h-10 p-0 transition-transform ",
-            animate ? "animate-swing repeat-5" : "",
-          )}
+          className={"relative rounded-full w-10 h-10 p-0 transition-transform"}
         >
           <span
             className={cn(
@@ -72,7 +72,7 @@ export function NotificationsCard({
               active ? "scale-0 w-4 h-4 top-1/2 right-1/2" : "",
             )}
           >
-            {activeNotifications.length > 10
+            {activeNotifications.length > 9
               ? "9+"
               : activeNotifications.length !== 0 && activeNotifications.length}
           </span>
@@ -88,50 +88,63 @@ export function NotificationsCard({
             })}
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4">
-          {/* <div className=" flex items-center space-x-4 rounded-md border p-4">
-              <BellRing />
-              <div className="flex-1 space-y-1">
-                <p className="text-sm font-medium leading-none">
-                  Push Notifications
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Send notifications to device.
-                </p>
-              </div>
-              <Switch />
-            </div> */}
-          <ul className="overflow-y-auto max-h-[300px]">
-            {notifications.map(({ message, type, read }, index) => (
-              <li
-                key={index}
-                className="mb-4 grid grid-cols-[25px_1fr] items-start last:mb-0 last:pb-0"
-              >
-                {!read && (
+        {notifications?.length !== 0 && (
+          <CardContent className="grid gap-4">
+            <ul className="overflow-y-auto max-h-[300px]">
+              {notifications.map(({ message, type, read }, index) => (
+                <li
+                  key={index}
+                  className={cn(
+                    "mb-4 items-start last:mb-0 last:pb-0 grid grid-cols-[25px_1fr]",
+                  )}
+                >
                   <span
                     className={cn(
                       "flex h-2 w-2 translate-y-1 rounded-full",
-                      notificationTypes?.[type.toLowerCase()] || "bg-sky-500",
+                      read
+                        ? "bg-gray-300"
+                        : notificationTypes?.[type?.toLowerCase()] ||
+                            "bg-sky-500",
                     )}
                   />
+                  <div className={cn("space-y-1")}>
+                    <p className="text-sm font-medium leading-none">
+                      {t(`${message}.title`)}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {t(`${message}.description`)}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        )}
+
+        {activeNotifications.length !== 0 && (
+          <CardFooter>
+            <Form
+              onSubmit={() => {
+                setTimeout(() => {
+                  setActive(false);
+                }, 100);
+                
+                return handleSubmit();
+              }}
+              className="w-full"
+            >
+              <Button className="w-full" disabled={formState.isSubmitting}>
+                {!formState.isSubmitting ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <Check /> Mark all as read
+                  </div>
+                ) : (
+                  <Loader />
                 )}
-                <div className="space-y-1">
-                  <p className="text-sm font-medium leading-none">
-                    {t(`${message}.title`)}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {t(`${message}.description`)}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-        <CardFooter>
-          <Button className="w-full">
-            <Check /> Mark all as read
-          </Button>
-        </CardFooter>
+              </Button>
+            </Form>
+          </CardFooter>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

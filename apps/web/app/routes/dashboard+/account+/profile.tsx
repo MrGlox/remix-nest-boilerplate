@@ -39,8 +39,6 @@ export const loader = async ({ context, request }: LoaderFunctionArgs) => {
 
   const user = await getOptionalUser({ context });
 
-  await context.remixService.notification.createNotification(user?.id || "");
-
   const profile = await context.remixService.getProfile({
     userId: user?.id || "",
   });
@@ -138,6 +136,7 @@ const ProfileHome = () => {
   const [stateName, setStateName] = useState<string>(address?.state || "");
 
   const form = useRemixForm({
+    mode: "all",
     defaultValues: {
       ...profile,
       ...address,

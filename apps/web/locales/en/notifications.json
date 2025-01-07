@@ -1,7 +1,9 @@
 {
   "title": "Notifications",
   "title_meta": "Notifications | {{website}}",
-  "description": "You have {{count}} unread notifications.",
+  "description_zero": "You have no unread notifications.",
+  "description_one": "You have {{count}} unread notification.",
+  "description_other": "You have {{count}} unread notifications.",
   "notification_created": {
     "title": "Notification created",
     "description": "Notification created successfully"

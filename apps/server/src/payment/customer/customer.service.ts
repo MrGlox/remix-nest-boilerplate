@@ -11,7 +11,7 @@ export class CustomerService {
     @Inject('STRIPE') private readonly stripe: Stripe,
   ) {}
 
-  async createCustomer(userId: string): Promise<string> {
+  public readonly createCustomer = async (userId: string): Promise<string> => {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
     if (!user) {
@@ -30,10 +30,10 @@ export class CustomerService {
     return customer.id;
   }
 
-  async updateCustomer(
+  public readonly updateCustomer = async (
     userId: string,
     data: Address & Profile,
-  ): Promise<string> {
+  ): Promise<string> =>  {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
     if (!user) {
@@ -44,11 +44,8 @@ export class CustomerService {
       throw new Error('Stripe customer ID not found');
     }
 
-    console.log('data', data);
 
     const { firstName, lastName, birthday, ...rest } = data;
-
-    console.log('rest', rest);
 
     const customer = await this.stripe.customers.update(
       user?.stripeCustomerId,
@@ -68,7 +65,7 @@ export class CustomerService {
     return customer.id;
   }
 
-  async retrieveCustomer(userId: string): Promise<Stripe.Customer> {
+  public readonly retrieveCustomer = async (userId: string): Promise<Stripe.Customer> => {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: { profile: true },
@@ -81,8 +78,6 @@ export class CustomerService {
     let customer = null;
 
     if (!user.stripeCustomerId) {
-      console.log('Stripe customer ID not found');
-
       customer = await this.stripe.customers.create({
         name: user.pseudo || '',
         email: user.email,
@@ -90,8 +85,6 @@ export class CustomerService {
     } else {
       customer = await this.stripe.customers.retrieve(user.stripeCustomerId);
     }
-
-    console.log('customer', customer);
 
     await this.prisma.user.update({
       where: { id: user.id },

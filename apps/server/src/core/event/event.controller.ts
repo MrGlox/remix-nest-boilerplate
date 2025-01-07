@@ -1,7 +1,7 @@
-import { Controller, Headers, NotFoundException, Sse } from '@nestjs/common';
-import { Observable, interval, map } from 'rxjs';
+import { Controller, Param, Sse } from "@nestjs/common";
+import { Observable, filter, fromEvent, interval, map } from "rxjs";
 
-import { EventService } from './event.service';
+import { EventEmitter2 } from "@nestjs/event-emitter";
 
 export interface MessageEvent {
   data: string | object;
@@ -13,49 +13,38 @@ export interface MessageEvent {
 /**
  * Server-Sent Events (SSE) controller
  */
-@Controller('events')
+@Controller("events")
 export class EventController {
-  constructor(private readonly eventService: EventService) {}
+  constructor(
+    // private readonly event: EventService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
 
-  // @Get()
-  // sendEvents(@Res() response: Response) {
-  //   response.setHeader('Content-Type', 'text/event-stream');
-  //   response.setHeader('Cache-Control', 'no-cache');
-  //   response.setHeader('Connection', 'keep-alive');
-
-  //   const sendEvent = () => {
-  //     response.write(
-  //       `data: ${JSON.stringify({ message: new Date().toISOString() })}\n\n`,
-  //     );
-  //   };
-
-  //   // Send an event every 5 seconds
-  //   const interval = setInterval(sendEvent, 1000);
-
-  //   // Clean up when the client closes the connection
-  //   response.on('close', () => {
-  //     clearInterval(interval);
-  //     response.end();
-  // }
-
-  // @Sse('notifications/cm5fulfkt0000reo0lrebp4kh')
-  // notifications(): Observable<MessageEvent> {
-  //   return interval(5000).pipe(map((_) => ({ data: { message: "notification_created" } })));
-  // }
-
-  @Sse('notifications')
-  notifications(@Headers('authorization') sessionToken: string): Observable<MessageEvent> {
-    if (!sessionToken) {
-      throw new NotFoundException('Session token not provided');
-    }
-
-    return this.eventService.getObservable(sessionToken).pipe(
-      map((data) => ({ data }))
+  @Sse("notifications/:sessionToken/stream")
+  notifications(
+    @Param("sessionToken") sessionToken: string,
+  ): Observable<MessageEvent> {
+    // Return an observable that emits notifications for the given user
+    return fromEvent(this.eventEmitter, "user.notification").pipe(
+      // Filter notifications by user ID
+      filter(
+        (payload: any) =>
+          payload.user.sessions[0].sessionToken === sessionToken,
+      ),
+      // Map the payload to a MessageEvent
+      map(
+        (payload) =>
+          // Create a new MessageEvent with the notification payload
+          new MessageEvent("message", {
+            data: JSON.stringify(payload),
+          } as MessageEventInit),
+      ),
     );
   }
 
-  @Sse('time')
   time(): Observable<MessageEvent> {
-    return interval(1000).pipe(map((_) => ({ data: { time: new Date().toISOString() } })));
+    return interval(1000).pipe(
+      map((_) => ({ data: { time: new Date().toISOString() } })),
+    );
   }
 }

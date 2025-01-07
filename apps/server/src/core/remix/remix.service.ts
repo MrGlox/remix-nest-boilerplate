@@ -6,7 +6,6 @@ import { TokenService } from '../token/token.service';
 import { AuthService } from '../../auth/auth.service';
 import { NotificationService } from '../../notification/notification.service';
 import { PaymentService } from '../../payment/payment.service';
-import { EventService } from '../event/event.service';
 
 @Injectable()
 export class RemixService {
@@ -16,7 +15,6 @@ export class RemixService {
     public readonly token: TokenService,
     public readonly payment: PaymentService,
     public readonly notification: NotificationService,
-    public readonly events: EventService,
   ) {}
 
   public readonly getUser = async ({ userId }: { userId: string }) => {

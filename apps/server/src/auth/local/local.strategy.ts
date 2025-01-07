@@ -32,17 +32,13 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
       },
     });
 
+    console.log("session", session)
+
     if (!session) {
       throw new RedirectException('session_expired', '/signin');
     }
 
     const { user } = session;
-
-    await this.prisma.session.delete({
-      where: {
-        sessionToken: token,
-      },
-    });
 
     return { email: user.email, id: user.id };
   }

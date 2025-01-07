@@ -7,13 +7,12 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { getOptionalUser } from "~/server/auth.server";
+// import { getOptionalUser } from "~/server/auth.server";
 
 export const loader = async ({ context }) => {
-  const user = await getOptionalUser({ context })
+  // const user = await getOptionalUser({ context })
 
-  const newNotification = await context.remixService.notification.createNotification(user?.id || "");
-  console.log("loader", newNotification);
+  // const newNotification = await context.remixService.notification.createNotification(user?.id || "");
 
   return {};
 };

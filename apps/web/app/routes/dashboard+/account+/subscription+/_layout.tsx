@@ -148,6 +148,7 @@ const AccountSubscription = () => {
     resolver,
   });
 
+  // Save current subscription
   console.log("currentSubscription", loaderData.currentSubscription);
 
   // Retrieve/persit the payment intent

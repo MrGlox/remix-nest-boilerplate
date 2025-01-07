@@ -38,12 +38,40 @@ model User {
 
   tokens        Token[]
   notifications Notification[]
+  Subscription  Subscription[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Token {
+  id String @id @default(cuid())
+
+  type  TokenType
+  token String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  expiresAt DateTime
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+enum TokenType {
+  ACCESS
+  REFRESH
+  VERIFY_EMAIL
+  PASSWORD_RESET
 }
 
 model Session {
   id String @id @default(cuid())
 
-  sessionToken String @unique
+  sessionToken String   @unique
+  createdAt    DateTime @default(now())
 
   ipAddress String?
   userAgent String?
@@ -70,11 +98,6 @@ model Profile {
   user   User   @relation(fields: [userId], references: [id])
 }
 
-enum Role {
-  USER
-  ADMIN
-}
-
 model Address {
   id   String  @id @default(cuid())
   name String?
@@ -92,41 +115,57 @@ model Address {
   user   User?   @relation(fields: [userId], references: [id])
 }
 
-enum TokenType {
-  ACCESS
-  REFRESH
-  VERIFY_EMAIL
-  PASSWORD_RESET
-}
-
-model Token {
+model Subscription {
   id String @id @default(cuid())
-
-  type  TokenType
-  token String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  expiresAt DateTime
 
   userId String
   user   User   @relation(fields: [userId], references: [id])
+
+  priceId String
+  price   Price  @relation(fields: [priceId], references: [priceId])
+
+  status SubscriptionStatus @default(ACTIVE)
+
+  startDate DateTime
+  endDate   DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Stripe-specific fields
+  stripeSubscriptionId String    @unique
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  cancelAtPeriodEnd    Boolean   @default(false)
+  canceledAt           DateTime?
+  trialStart           DateTime?
+  trialEnd             DateTime?
+
+  Payment   Payment?
+  Product   Product? @relation(fields: [productId], references: [id])
+  productId String?
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  PAST_DUE
 }
 
 model Payment {
   id String @id @default(cuid())
 
-  // orderId String @unique
-  // order   Order  @relation(fields: [orderId], references: [id])
+  subscriptionId String       @unique
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id])
 
-  paymentId String // Stripe payment intent or charge ID
-  amount    Float // Payment amount
-  currency  String // Payment currency (e.g., USD, EUR)
+  paymentId String @unique
+  amount    Float
+  currency  String
 
-  status PaymentStatus // Payment status (Pending, Completed, Failed)
+  status PaymentStatus
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now())
 }
 
 enum PaymentStatus {
@@ -135,27 +174,77 @@ enum PaymentStatus {
   FAILED
 }
 
-model Plan {
+model Product {
   id String @id @default(cuid())
 
-  productId          Int
-  productName        String
-  variantId          Int     @unique
-  name               String
-  description        String?
-  price              String
-  isUsageBased       Boolean @default(false)
-  interval           String?
-  intervalCount      Int?
-  trialInterval      String?
-  trialIntervalCount Int?
-  sort               Int?
+  // Stripe identifiers
+  productId String @unique
 
+  // Basic product info
+  name        String
+  description String?
+  active      Boolean @default(true)
+
+  // Product metadata
+  images   String[]
+  features String[]
+  metadata Json?
+
+  // Display and ordering
+  sort Int?
+
+  // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // subscriptions Subscription[]
-  // @@map("plans") // Optional: maps to a specific table name in your database
+  // Relations
+  prices        Price[]
+  subscriptions Subscription[]
+
+  @@map("products")
+}
+
+model Price {
+  id String @id @default(cuid())
+
+  // Stripe identifiers
+  priceId String @unique
+
+  // Basic price info
+  nickname   String?
+  active     Boolean @default(true)
+  currency   String
+  unitAmount Float
+  type       String
+
+  // Billing configuration
+  billingScheme String?
+  taxBehavior   String?
+
+  // Recurring billing configuration
+  isUsageBased   Boolean @default(false)
+  interval       String?
+  intervalCount  Int?
+  usageType      String?
+  aggregateUsage String?
+
+  // Trial configuration
+  trialPeriodDays Int?
+
+  // Metadata
+  metadata Json?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  product   Product @relation(fields: [productId], references: [productId])
+  productId String
+
+  subscriptions Subscription[]
+
+  @@map("prices")
 }
 
 model Notification {
@@ -192,17 +281,3 @@ enum NotificationType {
   WARNING
   ERROR
 }
-
-// model Transaction {
-//   id        String   @id @default(cuid())
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-//   offerId   String
-//   offer     Offer    @relation(fields: [offerId], references: [id])
-
-//   userId   String
-//   user     User      @relation(fields: [userId], references: [id])
-//   messages Message[]
-
-//   @@unique([offerId, userId])
-// }

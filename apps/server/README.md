@@ -29,33 +29,66 @@
 ## Installation
 
 ```bash
-$ npm install
+$ pnpm install
 ```
 
 ## Running the app
 
 ```bash
 # development
-$ npm run start
+$ pnpm run start
 
 # watch mode
-$ npm run start:dev
+$ pnpm run start:dev
 
 # production mode
-$ npm run start:prod
+$ pnpm run start:prod
 ```
 
 ## Test
 
 ```bash
 # unit tests
-$ npm run test
+$ pnpm run test
 
 # e2e tests
-$ npm run test:e2e
+$ pnpm run test:e2e
 
 # test coverage
-$ npm run test:cov
+$ pnpm run test:cov
+```
+
+## Payment Module
+
+The Payment module handles all payment-related functionalities including customer management, subscriptions, and webhooks.
+
+### Services
+
+- **CustomerService**: Manages customer-related operations.
+- **PaymentService**: Handles payment processing.
+- **ProductService**: Manages product-related operations.
+- **SubscriptionService**: Manages subscription-related operations.
+- **WebhookService**: Handles webhook events from Stripe.
+
+### Controllers
+
+- **WebhookController**: Listens for webhook events from Stripe.
+
+### Providers
+
+- **STRIPE**: Provides the Stripe client configured with the secret key from the environment variables.
+
+### Usage
+
+To use the Payment module, import it into your main application module:
+
+```typescript
+import { PaymentModule } from './payment/payment.module';
+
+@Module({
+  imports: [PaymentModule],
+})
+export class AppModule {}
 ```
 
 ## Support
@@ -64,7 +97,7 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 
 ## Stay in touch
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
+- Author - [Your Name](https://yourwebsite.com)
 - Website - [https://nestjs.com](https://nestjs.com/)
 - Twitter - [@nestframework](https://twitter.com/nestframework)
 

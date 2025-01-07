@@ -1,52 +1,66 @@
-## Stack Remix with NestJS, Turborepo
+# Remix Nest Boilerplate
 
-Retrouvez le guide vidéo pour configurer ce projet sur YouTube (en français)
+## Monorepo Structure
 
-- [Partie 1 : Configurer Remix, NestJS et Turborepo](https://www.youtube.com/watch?v=yv96ar6XNnU&list=PL2TfCPpDwZVTQr3Ox9KT0Ex2D-QajUyhM&index=1)
-- [Partie 2 : CI/CD, Déploiement avec Github Actions et Docker](https://www.youtube.com/watch?v=KCMFcHTYf9o&list=PL2TfCPpDwZVTQr3Ox9KT0Ex2D-QajUyhM&index=2)
-- [Partie 3: Intégration Design System | Figma, Tailwind CSS & Shadcn UI](https://www.youtube.com/watch?v=GWfZewdFx4o&list=PL2TfCPpDwZVTQr3Ox9KT0Ex2D-QajUyhM&index=3)
-- [Partie 4: Authentification avec Redis, express-session, Passport.js](https://youtu.be/SyuXRIbECEY?list=PL2TfCPpDwZVTQr3Ox9KT0Ex2D-QajUyhM)
-- [Partie 5: Authentification par token, inscription avec Redis, express-session, Passport.js](https://youtu.be/k6KrmuVgvec)
-- [Partie 6: Développement des fonctionnalités principales d'échange de service, faire une offre, éditer le profil ...](https://youtu.be/0C4Xh1x7flY)
+This project is organized as a monorepo using [Turborepo](https://turborepo.org/). The monorepo contains multiple applications and libraries, which are managed in a single repository. This allows for better code sharing and easier management of dependencies.
 
-### Motivation
+## Architecture
 
-En 4 ans de développement, je n'ai pas encore trouvé une stack qui me plaît. Il y a toujours un élément qui manque (une fonctionnalité, ou une limitation technique). 
+The project is divided into two main parts:
 
-En tant que développeur fullstack, je souhaite bénéficier du meilleur des deux mondes.
+1. **Remix Application**: This is the frontend application built using [Remix](https://remix.run/). It handles the client-side rendering and routing.
+2. **NestJS Application**: This is the backend application built using [NestJS](https://nestjs.com/). It provides the API endpoints and handles server-side logic.
 
-Je souhaite utiliser une technologie : 
-- simple à utiliser
-- qui me permet d'implémenter une fonctionnalité rapidement
-- qui me permet d'avoir un contrôle total sur la logique, front comme back
+## Installation
 
-[Remix](https://remix.run) répond à mes attentes. C'est un framework frontend qui me permet d'utiliser Javascript et React pour créer des sites web performants et ergonomiques.
+To get started with the project, follow these steps:
 
-Ce framework est full-stack, signifiant que tu n'as pas besoin de configurer un serveur pour ajouter une logique backend. Tu peux appeler une base de donnée, intégrer l'authentification, et plein d'autres fonctionnalités.
+1. **Clone the repository**:
+    ```sh
+    git clone https://github.com/mrglox/remix-nest-boilerplate.git
+    cd remix-nest-boilerplate
+    ```
 
-Cependant, il n'a pas suffisamment de maturité. Il manque plein de features, comme les middleware (qui sont très utiles pour ne pas recopier la même logique de protection des routes)
+2. **Install dependencies**:
+    ```sh
+    npm install
+    ```
 
-J'utilisais donc [NestJS](https://nestjs.com/) comme serveur séparé jusqu'à présent. Ce framework Node.JS m'a permi d'utiliser Javascript pour configurer une base de donnée, des routes et toute ma logique métier.
+3. **Set up environment variables**:
+    Create a `.env` file in the root directory and add the necessary environment variables. Refer to the `.env.example` file for the required variables.
 
-Ensuite, j'appelle chaque route dans Remix. Mais c'est sujet à beaucoup d'erreurs d'inattention, ou de perte de synchronisation. J'informe Remix des réponses API de NestJS en déclarant un schéma Zod, qui peut être erroné, et générer des erreurs.
+## Quick Start
 
-Je perd donc pas mal de temps à :
-- déclarer des schémas Zod
-- réparer des bugs, erreurs d'inattention
-- déclarer des méthodes pour appeler mes routes
+To start the project, follow these steps:
 
-MAIS c'est terminé ! J'ai découvert une stack qui me permet d'intégrer ce serveur NestJS avec Remix. Cela remplace le serveur de Remix (celui qui faisait les appels à NestJS) par le serveur NestJS, directement.
+1. **Build the project**:
+    ```sh
+    npm run build
+    ```
 
-Voici les avantages :
-- aucune duplication de code
-- aucun schéma zod
-- aucun bug de ce style à régler
+2. **Start the development server**:
+    ```sh
+    npm run dev
+    ```
 
-C'est un gain de temps énorme.
+3. **Access the application**:
+    Open your browser and navigate to `http://localhost:3000` to access the Remix application. The NestJS API will be running at `http://localhost:4000`.
 
-Et dans cette formation, je te montre comment j'ai configuré cette stack pour que tu puisses l'utiliser dans tes projets.
+## Additional Scripts
 
+- **Lint the code**:
+    ```sh
+    npm run lint
+    ```
 
+- **Run tests**:
+    ```sh
+    npm run test
+    ```
 
+- **Format the code**:
+    ```sh
+    npm run format
+    ```
 
-https://ui.jln.dev/feedback-colors-generator-for-shadcn-ui
+// ...existing code...

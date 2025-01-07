@@ -6,7 +6,6 @@ import { PrismaService } from '../database/prisma.service';
 import { TokenModule } from '../token/token.module';
 
 import { EventController } from './event.controller';
-import { EventService } from './event.service';
 
 @Module({
   imports: [
@@ -15,8 +14,8 @@ import { EventService } from './event.service';
     // Custom modules
     TokenModule,
   ],
-  providers: [EventService, PrismaService],
+  providers: [PrismaService],
   controllers: [EventController],
-  exports: [EventService],
+  exports: [],
 })
 export class EventModule {}

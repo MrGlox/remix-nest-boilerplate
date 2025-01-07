@@ -109,6 +109,18 @@ module.exports = {
             height: "0",
           },
         },
+        "lds-ellipsis1": {
+          "0%": { transform: "scale(0)" },
+          "100%": { transform: "scale(1)" },
+        },
+        "lds-ellipsis2": {
+          "0%": { transform: "translate(0, 0)" },
+          "100%": { transform: "translate(24px, 0)" },
+        },
+        "lds-ellipsis3": {
+          "0%": { transform: "scale(1)" },
+          "100%": { transform: "scale(0)" },
+        },
         swing: {
           "0%,100%": { transform: "rotate(15deg)" },
           "50%": { transform: "rotate(-15deg)" },
@@ -119,6 +131,9 @@ module.exports = {
         "accordion-up": "accordion-up 0.2s ease-out",
         "collapsible-down": "collapsible-down 0.2s ease-out",
         "collapsible-up": "collapsible-up 0.2s ease-out",
+        "lds-ellipsis1": "lds-ellipsis1 0.6s infinite",
+        "lds-ellipsis2": "lds-ellipsis2 0.6s infinite",
+        "lds-ellipsis3": "lds-ellipsis3 0.6s infinite",
         swing: "swing 0.5s ease-in-out",
       },
     },

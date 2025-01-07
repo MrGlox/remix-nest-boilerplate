@@ -1,5 +1,5 @@
 import { HttpService } from "@nestjs/axios";
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
 import { createId } from "@paralleldrive/cuid2";
@@ -109,6 +109,15 @@ export class AuthService {
   };
 
   public readonly authenticateUser = async ({ email }: { email: string }) => {
+    // Clear all existing sessions
+    await this.prisma.session.deleteMany({
+      where: {
+        user: {
+          email,
+        },
+      },
+    })
+
     const session = await this.prisma.session.create({
       data: {
         user: {
@@ -122,8 +131,6 @@ export class AuthService {
         sessionToken: true,
       },
     });
-
-    console.log("session", session);
 
     return session;
   };
@@ -315,20 +322,6 @@ export class AuthService {
     // return newAccessToken;
   };
 
-  public readonly findById = async (id: string) => {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        id,
-      },
-    });
-
-    if (!user) {
-      throw new NotFoundException("User not found");
-    }
-
-    return user;
-  };
-
   public readonly getSessionToken = async (userId: string): Promise<string> => {
     const session = await this.prisma.session.findFirst({
       where: {
@@ -339,10 +332,6 @@ export class AuthService {
       },
     });
 
-    if (!session) {
-      throw new NotFoundException("Session token not found");
-    }
-
-    return session.sessionToken;
-  };
+    return session?.sessionToken || "";
+  }
 }
