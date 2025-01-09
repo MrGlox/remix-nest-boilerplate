@@ -45,12 +45,12 @@ export const loader = async ({ context, request }: LoaderFunctionArgs) => {
 
   const products = await context.remixService.payment.listProducts();
 
-  const currentSubscription =
-    await context.remixService.payment.retrieveSubscription(user?.id || "");
+  // const currentSubscription =
+  //   await context.remixService.payment.retrieveSubscription(user?.id || "");
 
   return data(
     {
-      currentSubscription,
+      // currentSubscription,
       ENV: {
         STRIPE_API_KEY: process.env.STRIPE_API_KEY,
       },
@@ -88,8 +88,10 @@ export const action = async ({ context, request }: ActionFunctionArgs) => {
 
   const { paymentIntentId, annual, selectedOffer } = data;
   const selectedProduct = products?.find(({ id }) => id === selectedOffer);
-  const price =
-    selectedProduct?.prices[annual ? "year" : "month"][0].unit_amount;
+
+  const price = selectedProduct?.prices.find(
+    ({ interval }) => interval === (annual ? "year" : "month"),
+  );
 
   if (!price)
     return {
@@ -101,19 +103,29 @@ export const action = async ({ context, request }: ActionFunctionArgs) => {
 
   let paymentIntent: PaymentIntent;
 
+  const params = {
+    amount: price.unitAmount,
+    currency: price.currency,
+    metadata: {
+      price_id: price.priceId,
+    },
+  };
+
   if (paymentIntentId) {
     paymentIntent = (await context.remixService.payment.updatePaymentIntent(
       paymentIntentId,
-      {
-        amount: price,
-      },
+      params,
     )) as PaymentIntent;
-  } else {
-    paymentIntent = (await context.remixService.payment.createPaymentIntent(
-      user?.stripeCustomerId || "",
-      price,
-    )) as PaymentIntent;
+
+    return {
+      paymentIntent,
+    };
   }
+
+  paymentIntent = (await context.remixService.payment.createPaymentIntent(
+    user?.stripeCustomerId || "",
+    params,
+  )) as PaymentIntent;
 
   return {
     paymentIntent,
@@ -142,14 +154,14 @@ const AccountSubscription = () => {
 
   const form = useRemixForm<FormData>({
     defaultValues: {
-      selectedOffer: loaderData.currentSubscription?.id,
+      // selectedOffer: loaderData.currentSubscription?.id,
       annual: true,
     },
     resolver,
   });
 
   // Save current subscription
-  console.log("currentSubscription", loaderData.currentSubscription);
+  // console.log("currentSubscription", loaderData.currentSubscription);
 
   // Retrieve/persit the payment intent
   const paymentIntent = useMemo(() => {
@@ -241,13 +253,22 @@ const AccountSubscription = () => {
                   {products
                     .sort(
                       (a, b) =>
-                        Number(a.metadata.order) - Number(b.metadata.order),
+                        Number(
+                          a.prices.find(({ interval }) => interval === "year")
+                            ?.unitAmount,
+                        ) -
+                        Number(
+                          b.prices.find(({ interval }) => interval === "year")
+                            ?.unitAmount,
+                        ),
                     )
                     .map(({ id, name, active, prices }) => {
                       if (!active) return null;
 
-                      const { unit_amount, currency } =
-                        prices[form.getValues("annual") ? "year" : "month"][0];
+                      const { unitAmount, currency } =
+                        prices.find(() =>
+                          form.getValues("annual") ? "year" : "month",
+                        ) || {};
 
                       return (
                         <FormItem
@@ -276,8 +297,8 @@ const AccountSubscription = () => {
                                 )}
                               </span>
                               <span className="font-bold">
-                                {unit_amount
-                                  ? (unit_amount / 100)?.toLocaleString(
+                                {unitAmount
+                                  ? (unitAmount / 100)?.toLocaleString(
                                       i18n.language,
                                       {
                                         style: "currency",
@@ -317,13 +338,6 @@ const AccountSubscription = () => {
               <Elements
                 stripe={stripeConfig}
                 options={{
-                  // mode: "subscription",
-                  // currency: "eur",
-                  // amount:
-                  //   loaderData.products?.find(
-                  //     ({ id }) => id === form.getValues("selectedOffer"),
-                  //   )?.prices[form.getValues("annual") ? "year" : "month"][0]
-                  //     .unit_amount || undefined,
                   locale: (i18n.language as StripeElementLocale) || "en",
                   clientSecret: paymentIntent.client_secret || "",
                   appearance: {
@@ -341,12 +355,20 @@ const AccountSubscription = () => {
                   context={{
                     annual: form.getValues("annual"),
                     amount:
-                      loaderData.products?.find(
-                        ({ id }) => id === form.getValues("selectedOffer"),
-                      )?.prices[form.getValues("annual") ? "year" : "month"][0]
-                        .unit_amount || undefined,
+                      loaderData.products
+                        ?.find(
+                          ({ id }) => id === form.getValues("selectedOffer"),
+                        )
+                        ?.prices.find(({ interval }) => interval === "year")
+                        ?.unitAmount || undefined,
                     paymentIntent,
-                    currency: "eur",
+                    currency:
+                      loaderData.products
+                        ?.find(
+                          ({ id }) => id === form.getValues("selectedOffer"),
+                        )
+                        ?.prices.find(({ interval }) => interval === "year")
+                        ?.currency || undefined,
                   }}
                 />
               </Elements>

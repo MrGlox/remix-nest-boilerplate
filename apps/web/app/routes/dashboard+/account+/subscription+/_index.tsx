@@ -89,6 +89,8 @@ export default function Payment() {
       return setIsSending(false);
     }
 
+    // await stripe?.paymentRequest.attach(paymentMethodId as string, { customer: customerId as string })
+
     const confirmPayment = await stripe?.confirmPayment({
       elements: elements || undefined,
       clientSecret: paymentIntent.clientSecret,

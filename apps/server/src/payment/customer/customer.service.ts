@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Stripe } from 'stripe';
 
 import { Address, Profile } from '@prisma/client';
@@ -8,8 +8,9 @@ import { PrismaService } from '../../core/database/prisma.service';
 export class CustomerService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly logger: Logger,
     @Inject('STRIPE') private readonly stripe: Stripe,
-  ) {}
+  ) { }
 
   public readonly createCustomer = async (userId: string): Promise<string> => {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
@@ -30,40 +31,40 @@ export class CustomerService {
     return customer.id;
   }
 
-  public readonly updateCustomer = async (
-    userId: string,
-    data: Address & Profile,
-  ): Promise<string> =>  {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+  // public readonly updateCustomer = async (
+  //   userId: string,
+  //   data: Address & Profile,
+  // ): Promise<string> => {
+  //   const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
-    if (!user) {
-      throw new Error('User not found');
-    }
+  //   if (!user) {
+  //     throw new Error('User not found');
+  //   }
 
-    if (!user.stripeCustomerId) {
-      throw new Error('Stripe customer ID not found');
-    }
+  //   if (!user.stripeCustomerId) {
+  //     throw new Error('Stripe customer ID not found');
+  //   }
 
 
-    const { firstName, lastName, birthday, ...rest } = data;
+  //   const { firstName, lastName, birthday, ...rest } = data;
 
-    const customer = await this.stripe.customers.update(
-      user?.stripeCustomerId,
-      {
-        name: `${firstName} ${lastName}`,
-        address: {
-          ...(rest as Stripe.AddressParam),
-        },
-      },
-    );
+  //   const customer = await this.stripe.customers.update(
+  //     user?.stripeCustomerId,
+  //     {
+  //       name: `${firstName} ${lastName}`,
+  //       address: {
+  //         ...(rest as Stripe.AddressParam),
+  //       },
+  //     },
+  //   );
 
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: { stripeCustomerId: customer.id },
-    });
+  //   await this.prisma.user.update({
+  //     where: { id: user.id },
+  //     data: { stripeCustomerId: customer.id },
+  //   });
 
-    return customer.id;
-  }
+  //   return customer.id;
+  // }
 
   public readonly retrieveCustomer = async (userId: string): Promise<Stripe.Customer> => {
     const user = await this.prisma.user.findUnique({
@@ -94,7 +95,7 @@ export class CustomerService {
     return customer as Stripe.Customer;
   }
 
-  public readonly createOrUpdateProfile = async (
+  public readonly upsertProfile = async (
     userId: string,
     data: Omit<Profile, 'userId'>,
   ): Promise<Profile> => {
@@ -108,45 +109,36 @@ export class CustomerService {
       },
     });
 
-    let profile: Profile | undefined;
-
-    if (!user?.profile) {
-      profile = await this.prisma.profile.create({
-        data: {
-          ...data,
-          user: {
-            connect: {
-              id: userId,
-            },
-          },
-        },
-      });
-
-      return profile;
-    }
-
-    profile = await this.prisma.profile.update({
-      data: {
-        ...data,
-      },
+    const profile = await this.prisma.profile.upsert({
       where: {
         userId,
       },
+      update: {
+        ...data,
+      },
+      create: {
+        ...data,
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
+      },
     });
 
-    if (!user.stripeCustomerId) {
-      throw new Error('Stripe customer ID not found');
+    if (!user?.stripeCustomerId) {
+      this.logger.warn('Stripe customer ID not found, creating customer');
     }
 
     const { firstName, lastName } = data;
-    await this.stripe.customers.update(user?.stripeCustomerId, {
+    await this.stripe.customers.update(user?.stripeCustomerId || '', {
       name: `${firstName} ${lastName}`,
     });
 
     return profile;
   };
 
-  public readonly createOrUpdateAddress = async (
+  public readonly upsertAddress = async (
     userId: string,
     data: Omit<Address, 'userId'>,
   ): Promise<Address> => {
@@ -160,38 +152,29 @@ export class CustomerService {
       },
     });
 
-    let address: Address | undefined;
-
-    if (!user?.address) {
-      address = await this.prisma.address.create({
-        data: {
-          ...data,
-          user: {
-            connect: {
-              id: userId,
-            },
-          },
-        },
-      });
-
-      return address;
-    }
-
-    address = await this.prisma.address.update({
-      data: {
-        ...data,
-      },
+    const address = await this.prisma.address.upsert({
       where: {
         userId,
       },
+      update: {
+        ...data,
+      },
+      create: {
+        ...data,
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
+      },
     });
 
-    if (!user.stripeCustomerId) {
-      throw new Error('Stripe customer ID not found');
+    if (!user?.stripeCustomerId) {
+      this.logger.warn('Stripe customer ID not found, skipping address update');
     }
 
     const { postalCode, state, street, ...rest } = data;
-    await this.stripe.customers.update(user?.stripeCustomerId, {
+    await this.stripe.customers.update(user?.stripeCustomerId || '', {
       address: {
         ...rest,
         line1: street || undefined,

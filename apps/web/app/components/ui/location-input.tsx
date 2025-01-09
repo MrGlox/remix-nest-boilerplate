@@ -71,7 +71,7 @@ interface StateProps {
 interface LocationSelectorProps {
   disabled?: boolean;
   error?: FieldError;
-  value?: string[];
+  defaultValue?: string[];
   onCountryChange?: (country: CountryProps | null) => void;
   onStateChange?: (state: StateProps | null) => void;
 }
@@ -80,18 +80,21 @@ const LocationSelector = ({
   disabled,
   onCountryChange,
   onStateChange,
-  value,
+  defaultValue,
   error,
 }: LocationSelectorProps) => {
   const [selectedCountry, setSelectedCountry] = useState<CountryProps | null>(
-    value?.[0] !== ""
-      ? countries.find((country) => country.name === value?.[0])
+    defaultValue?.[0]
+      ? ((countries.find(
+          (country) => country.name === defaultValue[0],
+        ) as CountryProps) ?? null)
       : null,
   );
-
   const [selectedState, setSelectedState] = useState<StateProps | null>(
-    value?.[1] !== ""
-      ? states.find((state) => state.name === value?.[1]) || null
+    defaultValue?.[1]
+      ? ((states.find(
+          (state) => state.name === defaultValue?.[1],
+        ) as StateProps) ?? null)
       : null,
   );
 
@@ -115,7 +118,7 @@ const LocationSelector = ({
   };
 
   const handleStateSelect = (state: StateProps | null) => {
-    setSelectedState(state);
+    setSelectedState(() => state);
     onStateChange?.(state);
   };
 
@@ -126,6 +129,7 @@ const LocationSelector = ({
         <PopoverTrigger asChild>
           <Button
             variant="outline"
+            // biome-ignore lint/a11y/useSemanticElements: <explanation>
             role="combobox"
             aria-expanded={openCountryDropdown}
             disabled={disabled}

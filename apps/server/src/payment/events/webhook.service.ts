@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { Product, SubscriptionStatus } from "@prisma/client";
+import { SubscriptionStatus } from "@prisma/client";
 import { Stripe } from "stripe";
 
 import { PrismaService } from "../../core/database/prisma.service";
@@ -14,7 +14,7 @@ export class WebhookService {
     private readonly prisma: PrismaService,
     private readonly product: ProductService,
     private readonly payment: PaymentService,
-  ) {}
+  ) { }
 
   public readonly handleCustomerCreated = async (customer: Stripe.Customer) => {
     const existingUser = await this.prisma.user.findUnique({
@@ -33,9 +33,9 @@ export class WebhookService {
 
     // if (existingUser.stripeCustomerId) {
     //   this.logger.error(
-    //     `User ${existingUser.email} already has a stripeCustomerId. Skipping customer creation.`,
+    //     `User ${existingUser.email} already has a stripeCustomerId. Skipping user udpate.`,
     //   );
-      
+
     //   return;
     // }
 
@@ -59,24 +59,22 @@ export class WebhookService {
     }
   };
 
-  public readonly handleProductCreated = async (product: Stripe.Product) => {
+  public readonly handleProductUpdated = async (product: Stripe.Product) => {
     try {
       const newProduct = await this.product.createProduct({
-        productId: product.id,
+        id: product.id,
+        active: product.active,
         name: product.name,
+        productId: product.id,
         description: product.description,
-        variantId: String(product.metadata.variant_id),
-        price: product.metadata.amount,
-        currency: product.metadata.currency,
-        interval: product.metadata.interval,
-        intervalCount: product.metadata.interval_count,
-        sort: Number(product.metadata.sort),
-        trialPeriodDays: Number(product.metadata.trial_period_days),
-        trialInterval: product.metadata.trial_interval,
-        trialIntervalCount: Number(product.metadata.trial_interval_count),
-      } as unknown as Product);
+        variantId: product.metadata.variant_id ? String(product.metadata.variant_id) : null,
+        images: product.images,
+        features: [],
+        sort: product.metadata.sort ? Number(product.metadata.sort) : null,
+        metadata: product.metadata,
+      });
 
-      this.logger.log(`Product ${product.id} created successfully.`);
+      this.logger.log(`Product ${product.id} upserted successfully.`);
 
       return newProduct;
     } catch (error) {
@@ -90,7 +88,7 @@ export class WebhookService {
     try {
       const newSubscription =
         await this.payment.subscription.createSubscription({
-          productId: subscription.items.data[0].plan.id,
+          productId: String(subscription.items.data[0].plan.product),
           stripeSubscriptionId: subscription.id,
           status: subscription.status.toUpperCase() as SubscriptionStatus,
           startDate: new Date(subscription.start_date * 1000),
@@ -127,12 +125,38 @@ export class WebhookService {
   public readonly handleSubscriptionPaused = async (
     subscription: Stripe.Subscription,
   ) => {
-    // TODO
+    try {
+      await this.payment.subscription.updateSubscription(subscription.id, {
+        stripeSubscriptionId: subscription.id,
+        status: subscription.status.toUpperCase() as SubscriptionStatus,
+        currentPeriodStart: new Date(subscription.current_period_start * 1000),
+        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+        cancelAtPeriodEnd: subscription.cancel_at_period_end,
+        canceledAt: subscription.canceled_at ? new Date(subscription.canceled_at * 1000) : null,
+      });
+
+      this.logger.log(`Subscription ${subscription.id} paused successfully.`);
+    } catch (error) {
+      this.logger.error(`Failed to pause subscription ${subscription.id}: ${error}`);
+    }
   };
 
   public readonly handleSubscriptionDeleted = async (
     subscription: Stripe.Subscription,
   ) => {
-    // TODO
+    try {
+      await this.payment.subscription.updateSubscription(subscription.id, {
+        stripeSubscriptionId: subscription.id,
+        status: 'CANCELLED',
+        currentPeriodStart: new Date(subscription.current_period_start * 1000),
+        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+        cancelAtPeriodEnd: subscription.cancel_at_period_end,
+        canceledAt: subscription.canceled_at ? new Date(subscription.canceled_at * 1000) : null,
+      });
+
+      this.logger.log(`Subscription ${subscription.id} deleted successfully.`);
+    } catch (error) {
+      this.logger.error(`Failed to delete subscription ${subscription.id}: ${error}`);
+    }
   };
 }

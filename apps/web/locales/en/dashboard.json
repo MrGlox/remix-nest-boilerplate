@@ -91,7 +91,8 @@
     "pick_date": "Pick a date",
     "address": "Address",
     "address_description": "Update your address information.",
-    "street": "Street",
+    "street1": "Street",
+    "street2": "Street (optional)",
     "city": "City",
     "postal_code": "Postal code",
     "country": "Country",
@@ -110,7 +111,10 @@
     "description": "Select your subscription plan or manage your billing information.",
     "current_plan": "Current plan",
     "upgrade": "Upgrade",
-    "secured": "Secured"
+    "secured": "Secured",
+    "no_current": "No current subscription",
+    "select_offer": "Please select an offer to display the payment form.",
+    "payment": "Your payment information is encrypted and protected."
   },
   "my_account": {
     "title": "My account",

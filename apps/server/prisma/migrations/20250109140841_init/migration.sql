@@ -84,6 +84,7 @@ CREATE TABLE "Address" (
     "id" TEXT NOT NULL,
     "name" TEXT,
     "street" TEXT NOT NULL,
+    "street_optional" TEXT,
     "city" TEXT NOT NULL,
     "state" TEXT,
     "postalCode" TEXT,
@@ -135,6 +136,7 @@ CREATE TABLE "Payment" (
 CREATE TABLE "products" (
     "id" TEXT NOT NULL,
     "productId" TEXT NOT NULL,
+    "variantId" TEXT,
     "name" TEXT NOT NULL,
     "description" TEXT,
     "active" BOOLEAN NOT NULL DEFAULT true,
@@ -221,6 +223,9 @@ CREATE UNIQUE INDEX "Payment_paymentId_key" ON "Payment"("paymentId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "products_productId_key" ON "products"("productId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "products_variantId_key" ON "products"("variantId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "prices_priceId_key" ON "prices"("priceId");

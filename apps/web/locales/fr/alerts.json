@@ -6,7 +6,7 @@
   "invalid_email": "Email invalide",
   "profile_udpated": "Profil mis à jour avec succès",
   "missing_billing_address": "Adresse de facturation manquante, veuillez compléter ce formulaire pour accéder aux fonctionnalités d'abonnement",
-  "payment_intent_missing": "Intention de paiement manquante",
+  "payment_intent_missing": "Aucun paiement en cours, veuillez réessayer",
   "invalid_request_error": "Erreur de requête invalide",
   "email_confirmed": "Email confirmé avec succès",
   "session_expired": "Session expirée, veuillez vous reconnecter",

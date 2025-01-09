@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { SubscriptionStatus } from '@prisma/client';
 import { ConfigService } from "@nestjs/config";
+import { Price, Product, SubscriptionStatus } from '@prisma/client';
 
 import Stripe from 'stripe';
 
@@ -8,15 +8,6 @@ import { PrismaService } from "../core/database/prisma.service";
 
 import { CustomerService } from './customer/customer.service';
 import { SubscriptionService } from './subscription/subscription.service';
-
-type ProductsWithPrices = Stripe.Product & {
-  prices: Record<string, Stripe.Price[]>;
-};
-
-interface ProductWithPrices extends Stripe.Product {
-  prices: Stripe.Price[];
-  features: string[];
-}
 
 @Injectable()
 export class PaymentService {
@@ -27,23 +18,12 @@ export class PaymentService {
     public readonly customer: CustomerService,
     public readonly subscription: SubscriptionService,
     private readonly config: ConfigService,
-  ) {}
-
-  public readonly listPaymentMethods = async (
-    customerId: string,
-  ): Promise<Stripe.PaymentMethod[]> => {
-    const paymentMethods = await this.stripe.paymentMethods.list({
-      customer: customerId,
-      type: 'card',
-    });
-
-    return paymentMethods.data;
-  };
+  ) { }
 
   public readonly listInvoices = async (userId: string): Promise<void> => {
     const customer = await this.customer.retrieveCustomer(userId);
 
-    // console.log('customer', customer);
+    console.log('customer', customer);
 
     // const invoices = await this.stripe.invoices.list({
     //   customer,
@@ -55,69 +35,12 @@ export class PaymentService {
     // return invoices.data;
   };
 
-  public readonly listProducts = async (
-    limit = 10,
-  ): Promise<ProductWithPrices[]> => {
-    // Fetch products with expanded prices
-    const products = await this.stripe.products.list({
-      limit,
-      active: true,
-      expand: ["data.default_price"],
-    });
-
-    // Fetch all prices separately to ensure we get all of them
-    const prices = await this.stripe.prices.list({
-      limit: limit * 3,
-      active: true,
-    });
-
-    // Map products with their prices and extract features
-    const productsWithPrices = products.data.map((product) => {
-      const productPrices = prices.data.filter(
-        (price) => price.product === product.id
-      );
-
-      // Extract features from metadata or description
-      const features = this.extractProductFeatures(product);
-
-      return {
-        ...product,
-        prices: productPrices,
-        features,
-      };
-    });
-
-    return productsWithPrices;
-  };
-
-  private extractProductFeatures(product: Stripe.Product): string[] {
-    // Try to get features from metadata first
-    if (product.metadata?.features) {
-      try {
-        const parsedFeatures = JSON.parse(product.metadata.features);
-        if (Array.isArray(parsedFeatures)) {
-          return parsedFeatures;
-        }
-      } catch (e) {
-        // If JSON parsing fails, try splitting by delimiter
-        return product.metadata.features.split('|').map(f => f.trim());
+  public readonly listProducts = async (): Promise<(Product & { prices: Price[] })[]> => {
+    return await this.prisma.product.findMany({
+      include: {
+        prices: true,
       }
-    }
-
-    // If no features in metadata, try to parse from description
-    if (product.description) {
-      // Look for bullet points or numbered lists in description
-      const bulletPoints = product.description
-        .split(/[\n•-]/) // Split by newline, bullet point, or dash
-        .map(line => line.trim())
-        .filter(line => line.length > 0);
-
-      if (bulletPoints.length > 0) {
-        return bulletPoints;
-      }
-    }
-
-    return []; // Return empty array if no features found
+    });
   }
 
   public readonly updateSubscription = async (subscription: Stripe.Subscription): Promise<void> => {
@@ -140,60 +63,74 @@ export class PaymentService {
     }
   }
 
-  public readonly retrieveSubscription = async (
-    userId: string,
+  public readonly createSubscription = async (
+    paymentIntentId: string,
   ): Promise<Stripe.Subscription | null> => {
-    const customer = await this.customer.retrieveCustomer(userId);
-    const subscription = await this.prisma.subscription.findFirst({
-      where: { userId: customer.id },
+    const paymentIntent = await this.stripe.paymentIntents.retrieve(paymentIntentId);
+
+    const priceId = paymentIntent.metadata?.price_id;
+    const customerId = paymentIntent.customer;
+    const paymentMethodId = paymentIntent.payment_method;
+
+    console.log("paymentIntent", paymentIntent.customer, paymentIntent.metadata)
+
+    if (!paymentIntent.customer || !priceId || !paymentMethodId) {
+      this.logger.warn(`Missing required data for subscription: customer=${customerId}, priceId=${priceId}, paymentMethodId=${paymentMethodId}`);
+      return null;
+    }
+
+    // Attach the payment method to the customer
+    // await this.stripe.paymentMethods.attach(paymentMethodId as string, {
+    //   customer: customerId as string
+    // });
+
+    // Set it as the default payment method
+    // await this.stripe.customers.update(customerId as string, {
+    //   invoice_settings: {
+    //     default_payment_method: paymentMethodId as string,
+    //   },
+    // });
+
+    const subscription = await this.stripe.subscriptions.create({
+      customer: customerId as string,
+      items: [{
+        price: priceId,
+      }],
+      default_payment_method: paymentMethodId as string,
     });
 
-    if (!subscription) {
-      this.logger.warn(`No subscription found for user ${userId}`);
-      return null;
-    }
-
-    try {
-      const stripeSubscription = await this.stripe.subscriptions.retrieve(subscription.stripeSubscriptionId);
-      return stripeSubscription;
-    } catch (error) {
-      console.error(`Failed to retrieve subscription for user ${userId}:`, error);
-      return null;
-    }
+    return subscription;
   };
 
-  public readonly getSubscription = async (subscriptionId: string) => {
-    try {
-      const subscription = await this.prisma.subscription.findUnique({
-        where: { id: subscriptionId },
-      });
+  // public readonly getSubscription = async (subscriptionId: string) => {
+  //   try {
+  //     const subscription = await this.prisma.subscription.findUnique({
+  //       where: { id: subscriptionId },
+  //     });
 
-      if (!subscription) {
-        console.log(`No subscription found with ID ${subscriptionId}`);
-        return null;
-      }
+  //     if (!subscription) {
+  //       console.log(`No subscription found with ID ${subscriptionId}`);
+  //       return null;
+  //     }
 
-      return subscription;
-    } catch (error) {
-      console.error(`Failed to retrieve subscription with ID ${subscriptionId}:`, error);
-      return null;
-    }
-  };
+  //     return subscription;
+  //   } catch (error) {
+  //     console.error(`Failed to retrieve subscription with ID ${subscriptionId}:`, error);
+  //     return null;
+  //   }
+  // };
 
   /**
    * PAYMENT METHODS
    */
-  public readonly createPaymentIntent = (
-    stripeUserId: string,
-    amount: number,
-    currency = 'eur',
+  public readonly createPaymentIntent = async (
+    stripeCustomerId: string,
+    params: Stripe.PaymentIntentCreateParams,
   ): Promise<Stripe.PaymentIntent> => {
-    console.log('stripeUserId', stripeUserId);
-
-    return this.stripe.paymentIntents.create({
-      customer: stripeUserId,
-      amount,
-      currency,
+    return await this.stripe.paymentIntents.create({
+      ...params,
+      customer: stripeCustomerId,
+      setup_future_usage: 'off_session',
       automatic_payment_methods: {
         enabled: true,
       },
@@ -206,4 +143,30 @@ export class PaymentService {
   ): Promise<Stripe.PaymentIntent> => {
     return await this.stripe.paymentIntents.update(id, params);
   };
+
+
+  // public readonly createStripeSubscription = (
+  //   stripeCustomerId: string,
+  //   priceId: string,
+  // ): Promise<Stripe.Subscription> => {
+  //   return this.stripe.subscriptions.create({
+  //     customer: stripeCustomerId,
+  //     items: [
+  //       {
+  //         price: priceId,
+  //       }
+  //     ],
+  //     payment_settings: {
+  //       payment_method_types: ['card'],
+  //     },
+  //     payment_behavior: 'allow_incomplete',
+  //   });
+  // };
+
+  // public readonly updateStripeSubscription = async (
+  //   id: string,
+  //   params: Stripe.SubscriptionUpdateParams,
+  // ): Promise<Stripe.Subscription> => {
+  //   return await this.stripe.subscriptions.update(id, params);
+  // };
 }

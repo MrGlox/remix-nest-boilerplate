@@ -21,7 +21,7 @@ export class WebhookController {
     private readonly webhook: WebhookService,
     private readonly logger: Logger,
     @Inject("STRIPE") private readonly stripe: Stripe,
-  ) {}
+  ) { }
 
   @Post("/webhook")
   async stripeWebhooks(
@@ -49,7 +49,11 @@ export class WebhookController {
         break;
 
       case "product.created":
-        await this.webhook.handleProductCreated(event.data.object as Stripe.Product);
+        await this.webhook.handleProductUpdated(event.data.object as Stripe.Product);
+        break;
+
+      case "product.updated":
+        await this.webhook.handleProductUpdated(event.data.object as Stripe.Product);
         break;
 
       case "customer.subscription.created":
@@ -60,13 +64,14 @@ export class WebhookController {
         await this.webhook.handleSubscriptionPaused(event.data.object as Stripe.Subscription);
         break;
 
+      case "customer.subscription.updated":
+        await this.handleSubscriptionUpdated(event.data.object as Stripe.Subscription); // TODO call service
+        break;
+
       case "customer.subscription.deleted":
         await this.webhook.handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
         break;
 
-      case "customer.subscription.updated":
-        await this.handleSubscriptionUpdated(event.data.object); // TODO call service
-        break;
 
       // case "invoice.payment_succeeded":
       //   // handlePaymentSucceeded(event.data.object);
@@ -76,7 +81,7 @@ export class WebhookController {
       //   // handleUpcomingInvoice(event.data.object);
       //   break;
 
-      
+
 
       // case "invoice.payment_failed":
       //   // handlePaymentFailed(event.data.object);

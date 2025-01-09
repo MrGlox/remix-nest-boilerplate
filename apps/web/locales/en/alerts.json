@@ -6,7 +6,7 @@
   "invalid_email": "Invalid Email",
   "profile_udpated": "Profile updated successfully",
   "missing_billing_address": "Missing billing address, please complete this form to access subscription features",
-  "payment_intent_missing": "Payment intent missing",
+  "payment_intent_missing": "No payment in progress, please try again",
   "invalid_request_error": "Invalid request error",
   "email_confirmed": "Email confirmed successfully",
   "session_expired": "Session expired, please login again",

@@ -102,11 +102,12 @@ model Address {
   id   String  @id @default(cuid())
   name String?
 
-  street     String
-  city       String
-  state      String?
-  postalCode String?
-  country    String
+  street          String
+  street_optional String?
+  city            String
+  state           String?
+  postalCode      String?
+  country         String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -133,13 +134,15 @@ model Subscription {
   updatedAt DateTime @updatedAt
 
   // Stripe-specific fields
-  stripeSubscriptionId String    @unique
+  stripeSubscriptionId String   @unique
   currentPeriodStart   DateTime
   currentPeriodEnd     DateTime
-  cancelAtPeriodEnd    Boolean   @default(false)
-  canceledAt           DateTime?
-  trialStart           DateTime?
-  trialEnd             DateTime?
+
+  cancelAtPeriodEnd Boolean   @default(false)
+  canceledAt        DateTime?
+
+  trialStart DateTime?
+  trialEnd   DateTime?
 
   Payment   Payment?
   Product   Product? @relation(fields: [productId], references: [id])
@@ -178,7 +181,8 @@ model Product {
   id String @id @default(cuid())
 
   // Stripe identifiers
-  productId String @unique
+  productId String  @unique
+  variantId String? @unique
 
   // Basic product info
   name        String

@@ -1,6 +1,6 @@
+import { useTranslation } from "react-i18next";
 import { LoaderFunctionArgs } from "react-router";
 import { Outlet } from "react-router";
-import { useTranslation } from "react-i18next";
 
 import { Container } from "~/components/layout/container";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
@@ -39,12 +39,15 @@ const AccountLayout = () => {
       to: "/dashboard/account/notifications",
     },
     {
-      title: t("billings.title", "Billings"),
-      to: "/dashboard/account/billings",
+      type: "separator",
     },
     {
       title: t("subscription.title", "Subscription"),
       to: "/dashboard/account/subscription",
+    },
+    {
+      title: t("billings.title", "Billings"),
+      to: "/dashboard/account/billings",
     },
   ];
 
@@ -65,7 +68,7 @@ const AccountLayout = () => {
           <Separator className="!mt-4" />
         </CardHeader>
         <CardContent className="flex flex-col flex-1 space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
-          <aside className="flex flex-col lg:flex-row -mx-4 lg:mx-0 lg:w-1/5 gap-x-2 overflow-auto no-scrollbar">
+          <aside className="flex flex-col lg:flex-row -mx-4 lg:mx-0 lg:w-1/5 gap-x-2 overflow-auto lg:overflow-visible no-scrollbar">
             <SidebarNav className="flex-1" items={sidebarNavItems} />
             <Separator
               orientation="vertical"

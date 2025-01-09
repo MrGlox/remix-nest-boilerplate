@@ -8,8 +8,7 @@ import { PrismaService } from "../../core/database/prisma.service";
 export class SubscriptionService {
   constructor(
     private readonly prisma: PrismaService,
-    // @Inject('STRIPE') private readonly stripe: Stripe,
-  ) {}
+  ) { }
 
   public readonly createSubscription = async ({
     stripeCustomerId,
@@ -31,16 +30,35 @@ export class SubscriptionService {
         `User with stripeCustomerId ${stripeCustomerId} not found`,
       );
     }
+
+    console.log("data", data)
+
+    // First verify the price exists
+    const price = await this.prisma.price.findUnique({
+      where: { priceId: data.priceId }
+    });
+
+    if (!price) {
+      throw new Error(`Price with ID ${data.priceId} not found`);
+    }
+
     const subscription = await this.prisma.subscription.create({
       data: {
         userId: user.id,
-        startDate: new Date(),
-        priceId: data.productId || '',
-        endDate: new Date(),
-        stripeSubscriptionId: '',
-        currentPeriodStart: new Date(),
-        currentPeriodEnd: new Date(),
-    }});
+        priceId: data.priceId,
+        status: data.status,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        stripeSubscriptionId: data.stripeSubscriptionId,
+        currentPeriodStart: data.currentPeriodStart,
+        currentPeriodEnd: data.currentPeriodEnd,
+        cancelAtPeriodEnd: data.cancelAtPeriodEnd,
+        canceledAt: data.canceledAt,
+        trialStart: data.trialStart,
+        trialEnd: data.trialEnd,
+        productId: data.productId
+      }
+    });
 
     return subscription;
   };

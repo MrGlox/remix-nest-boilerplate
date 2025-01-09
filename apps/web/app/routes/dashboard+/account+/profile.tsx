@@ -5,7 +5,7 @@ import { ActionFunctionArgs, LoaderFunctionArgs, data } from "react-router";
 import { useActionData, useLoaderData } from "react-router";
 import z from "zod";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { getValidatedFormData, useRemixForm } from "remix-hook-form";
 import { Container } from "~/components/layout/container";
 import { Grid } from "~/components/layout/grid";
@@ -24,9 +24,10 @@ import LocationSelector from "~/components/ui/location-input";
 import { Separator } from "~/components/ui/separator";
 
 import { DatePicker } from "~/components/ui/date-picker";
-import states from "~/data/states.json";
 import i18next from "~/modules/i18n.server";
 
+import { Address, Profile } from "@prisma/client";
+import statesData from "~/data/states.json";
 import { getOptionalUser } from "~/server/auth.server";
 import {
   alertMessageGenerator,
@@ -81,29 +82,26 @@ export const action = async ({ context, request }: ActionFunctionArgs) => {
 
   const { firstName, lastName, birthday, country, ...rest } = formData;
 
+  const customerId = await context.remixService.payment.customer.createCustomer(
+    user?.id || "",
+  );
+
   const updatedProfile =
-    await context.remixService.payment.customer.createOrUpdateProfile(
-      user?.id || "",
-      {
-        firstName,
-        lastName,
-        birthday,
-      },
-    );
+    await context.remixService.payment.customer.upsertProfile(user?.id || "", {
+      firstName,
+      lastName,
+      birthday,
+    } as Omit<Profile, "userId">);
 
   const updatedAddress =
-    await context.remixService.payment.customer.createOrUpdateAddress(
-      user?.id || "",
-      {
-        ...rest,
-        country: country[0],
-        state: country[1] || "",
-        postalCode: states.find((c) => c.name === country[1])?.state_code || "",
-      },
-    );
+    await context.remixService.payment.customer.upsertAddress(user?.id || "", {
+      ...rest,
+      country: country[0],
+      state: country[1] || "",
+    } as Omit<Address, "userId">);
 
   return data(
-    { result: formData, updatedProfile, updatedAddress },
+    { result: formData, updatedProfile, updatedAddress, customerId },
     {
       headers: [await alertMessageGenerator("profile_udpated", "success")],
     },
@@ -115,9 +113,16 @@ const schema = z.object({
   lastName: z.string(),
   birthday: z.coerce.date(),
   street: z.string(),
+  street_optional: z.string().optional(),
   city: z.string(),
   state: z.string().optional(),
-  country: z.tuple([z.string(), z.string().optional()]),
+  country: z.tuple([z.string(), z.string()]).refine(([country, state]) => {
+    if (statesData.find((s) => s.country_name === country)) {
+      return country && state;
+    }
+
+    return country;
+  }),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -130,13 +135,9 @@ const ProfileHome = () => {
   const { profile, address } = loaderData;
 
   const { t } = useTranslation("dashboard");
-  const [countryName, setCountryName] = useState<string>(
-    address?.country || "",
-  );
-  const [stateName, setStateName] = useState<string>(address?.state || "");
 
   const form = useRemixForm({
-    mode: "all",
+    mode: "onChange",
     defaultValues: {
       ...profile,
       ...address,
@@ -246,7 +247,7 @@ const ProfileHome = () => {
               )}
             </p>
           </header>
-          <Grid>
+          <Grid className="gap-y-2">
             <FormField
               control={form.control}
               name="street"
@@ -274,6 +275,19 @@ const ProfileHome = () => {
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="street_o"
+              render={({ field }) => (
+                <FormItem className="col-span-full ">
+                  <FormControl>
+                    <Input placeholder="" type="text" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </Grid>
 
           <FormField
@@ -284,20 +298,18 @@ const ProfileHome = () => {
                 <FormLabel>{t("profile.country", "Country")}</FormLabel>
                 <FormControl>
                   <LocationSelector
-                    {...{ error, value: field.value }}
+                    {...{ error, defaultValue: field.value }}
                     onCountryChange={(country) => {
-                      setCountryName(country?.name || "");
-                      form.setValue(field.name, [
-                        country?.name || "",
-                        stateName || "",
-                      ]);
+                      setTimeout(() => {
+                        form.setValue(field.name, [country?.name || "", ""]);
+                      }, 1);
                     }}
                     onStateChange={(state) => {
-                      setStateName(state?.name || "");
-                      form.setValue(field.name, [
-                        countryName || "",
-                        state?.name || "",
-                      ]);
+                      field.value[0] !== "" &&
+                        form.setValue(field.name, [
+                          field.value[0] || "",
+                          state?.name || "",
+                        ]);
                     }}
                   />
                 </FormControl>

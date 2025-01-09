@@ -32,8 +32,6 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
       },
     });
 
-    console.log("session", session)
-
     if (!session) {
       throw new RedirectException('session_expired', '/signin');
     }

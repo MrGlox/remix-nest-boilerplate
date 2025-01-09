@@ -30,7 +30,7 @@ export class LocalAuthGuard extends AuthGuard('local') {
     user: any,
     info: any
   ) {
-    console.log("guard", { user, err, info });
+    // console.log("guard", { user, err, info });
 
     // You can throw an exception based on either "info" or "err" arguments
     if (err || !user) {
