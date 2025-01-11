@@ -47,8 +47,8 @@
     "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation."
   },
   "billings": {
-    "title": "Facturation",
-    "title_meta": "Facturation | {{website}}",
+    "title": "Factures",
+    "title_meta": "Factures | {{website}}",
     "description": "Sélectionnez votre plan d'abonnement ou gérez vos informations de facturation."
   },
   "display": {

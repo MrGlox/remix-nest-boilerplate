@@ -28,7 +28,7 @@
     }
   },
   "prisma": {
-    "schema": "apps/server/prisma/schema.prisma",
+    "schema": "apps/server/prisma/schema/schema.prisma",
     "seed": "tsx apps/server/src/database/seed.ts"
   },
   "engines": {

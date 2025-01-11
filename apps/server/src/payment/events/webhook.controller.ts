@@ -1,17 +1,19 @@
 import {
   Controller,
   Headers,
-  Inject, Logger, Post,
+  Inject,
+  Logger,
+  Post,
   RawBodyRequest,
   Req,
-  Res
-} from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import Stripe from "stripe";
+  Res,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import Stripe from 'stripe';
 
-import { Response } from "express";
-import { PaymentService } from "../payment.service";
-import { WebhookService } from "./webhook.service";
+import { Response } from 'express';
+import { PaymentService } from '../payment.service';
+import { WebhookService } from './webhook.service';
 
 @Controller()
 export class WebhookController {
@@ -20,12 +22,12 @@ export class WebhookController {
     private readonly payment: PaymentService,
     private readonly webhook: WebhookService,
     private readonly logger: Logger,
-    @Inject("STRIPE") private readonly stripe: Stripe,
-  ) { }
+    @Inject('STRIPE') private readonly stripe: Stripe,
+  ) {}
 
-  @Post("/webhook")
+  @Post('/webhook')
   async stripeWebhooks(
-    @Headers("stripe-signature") signature: string,
+    @Headers('stripe-signature') signature: string,
     @Req() req: RawBodyRequest<Request>,
     @Res() res: Response,
   ) {
@@ -34,9 +36,9 @@ export class WebhookController {
 
     try {
       event = this.stripe.webhooks.constructEvent(
-        payload || "",
+        payload || '',
         signature,
-        this.config.get("stripe.webhookSecret") || "",
+        this.config.get('stripe.webhookSecret') || '',
       );
     } catch (err) {
       this.logger.error(`Webhook signature verification failed.`, err);
@@ -44,44 +46,54 @@ export class WebhookController {
     }
 
     switch (event.type) {
-      case "customer.created":
-        await this.webhook.handleCustomerCreated(event.data.object as Stripe.Customer);
-        break;
-
-      case "product.created":
-        await this.webhook.handleProductUpdated(event.data.object as Stripe.Product);
-        break;
-
-      case "product.updated":
-        await this.webhook.handleProductUpdated(event.data.object as Stripe.Product);
-        break;
-
-      case "customer.subscription.created":
-        await this.webhook.handleSubscriptionCreated(event.data.object as Stripe.Subscription);
-        break;
-
-      case "customer.subscription.paused":
-        await this.webhook.handleSubscriptionPaused(event.data.object as Stripe.Subscription);
-        break;
-
-      case "customer.subscription.updated":
-        await this.handleSubscriptionUpdated(event.data.object as Stripe.Subscription); // TODO call service
-        break;
-
-      case "customer.subscription.deleted":
-        await this.webhook.handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
-        break;
-
-
-      // case "invoice.payment_succeeded":
-      //   // handlePaymentSucceeded(event.data.object);
+      // case "customer.created":
+      //   await this.webhook.handleCustomerCreated(event.data.object as Stripe.Customer);
       //   break;
+
+      case 'product.created':
+        await this.webhook.handleProductUpdated(
+          event.data.object as Stripe.Product,
+        );
+        break;
+
+      case 'product.updated':
+        await this.webhook.handleProductUpdated(
+          event.data.object as Stripe.Product,
+        );
+        break;
+
+      // more secure ?
+      // case "customer.subscription.created":
+      //   await this.webhook.handleSubscriptionCreated(event.data.object as Stripe.Subscription);
+      //   break;
+
+      case 'customer.subscription.paused':
+        await this.webhook.handleSubscriptionPaused(
+          event.data.object as Stripe.Subscription,
+        );
+        break;
+
+      case 'customer.subscription.updated':
+        await this.handleSubscriptionUpdated(
+          event.data.object as Stripe.Subscription,
+        ); // TODO call service
+        break;
+
+      case 'customer.subscription.deleted':
+        await this.webhook.handleSubscriptionDeleted(
+          event.data.object as Stripe.Subscription,
+        );
+        break;
+
+      case 'invoice.payment_succeeded':
+        await this.webhook.handlePaymentSucceeded(
+          event.data.object as Stripe.Invoice,
+        );
+        break;
 
       // case "invoice.upcoming":
       //   // handleUpcomingInvoice(event.data.object);
       //   break;
-
-
 
       // case "invoice.payment_failed":
       //   // handlePaymentFailed(event.data.object);
@@ -100,7 +112,10 @@ export class WebhookController {
       await this.payment.updateSubscription(subscription);
       this.logger.log(`Subscription ${subscription.id} updated successfully.`);
     } catch (error) {
-      this.logger.error(`Failed to update subscription ${subscription.id}:`, error);
+      this.logger.error(
+        `Failed to update subscription ${subscription.id}:`,
+        error,
+      );
     }
   }
 }

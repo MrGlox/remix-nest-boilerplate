@@ -1,25 +1,23 @@
-import { Injectable } from "@nestjs/common";
-import { Stripe } from "stripe";
+import { Injectable } from '@nestjs/common';
+import { Stripe } from 'stripe';
 
-import { Subscription } from "@prisma/client";
-import { PrismaService } from "../../core/database/prisma.service";
+import { Subscription } from '@prisma/client';
+import { PrismaService } from '../../core/database/prisma.service';
 
 @Injectable()
 export class SubscriptionService {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-  public readonly createSubscription = async ({
+  public readonly upsertSubscription = async ({
     stripeCustomerId,
     ...data
-  }: Omit<Subscription, "id" | "createdAt" | "updatedAt"> & {
+  }: Omit<Subscription, 'id' | 'createdAt' | 'updatedAt'> & {
     stripeCustomerId: string | Stripe.Customer | Stripe.DeletedCustomer;
   }): Promise<Subscription> => {
     const user = await this.prisma.user.findUnique({
       where: {
         stripeCustomerId:
-          typeof stripeCustomerId === "string"
+          typeof stripeCustomerId === 'string'
             ? stripeCustomerId
             : stripeCustomerId.id,
       },
@@ -31,33 +29,39 @@ export class SubscriptionService {
       );
     }
 
-    console.log("data", data)
-
     // First verify the price exists
     const price = await this.prisma.price.findUnique({
-      where: { priceId: data.priceId }
+      where: { priceId: data.priceId },
     });
 
     if (!price) {
       throw new Error(`Price with ID ${data.priceId} not found`);
     }
 
-    const subscription = await this.prisma.subscription.create({
-      data: {
-        userId: user.id,
-        priceId: data.priceId,
-        status: data.status,
-        startDate: data.startDate,
-        endDate: data.endDate,
-        stripeSubscriptionId: data.stripeSubscriptionId,
-        currentPeriodStart: data.currentPeriodStart,
-        currentPeriodEnd: data.currentPeriodEnd,
-        cancelAtPeriodEnd: data.cancelAtPeriodEnd,
-        canceledAt: data.canceledAt,
-        trialStart: data.trialStart,
-        trialEnd: data.trialEnd,
-        productId: data.productId
-      }
+    const subscriptionData = {
+      userId: user.id,
+      priceId: data.priceId,
+      status: data.status,
+      startDate: data.startDate,
+      endedAt: data.endedAt,
+      stripeSubscriptionId: data.stripeSubscriptionId,
+      currentPeriodStart: data.currentPeriodStart,
+      currentPeriodEnd: data.currentPeriodEnd,
+      cancelAtPeriodEnd: data.cancelAtPeriodEnd,
+      canceledAt: data.canceledAt,
+      trialStart: data.trialStart,
+      trialEnd: data.trialEnd,
+      productId: data.productId,
+    };
+
+    const subscription = await this.prisma.subscription.upsert({
+      where: { stripeSubscriptionId: data.stripeSubscriptionId },
+      update: {
+        ...subscriptionData,
+      },
+      create: {
+        ...subscriptionData,
+      },
     });
 
     return subscription;

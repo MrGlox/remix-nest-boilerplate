@@ -1,6 +1,6 @@
+import { useTranslation } from "react-i18next";
 import { LoaderFunctionArgs } from "react-router";
 import { useLoaderData } from "react-router";
-import { useTranslation } from "react-i18next";
 import { Brand } from "~/assets";
 
 import { Background } from "~/assets/Background";
@@ -14,11 +14,8 @@ import { getOptionalUser } from "~/server/auth.server";
 export const loader = async ({ context }: LoaderFunctionArgs) => {
   const user = await getOptionalUser({ context });
 
-  // const { data: offers } = await context.remixService.offer.getOffers();
-
   return {
     isAuth: !!user,
-    // offers,
   };
 };
 

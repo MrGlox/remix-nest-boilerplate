@@ -128,7 +128,7 @@ model Subscription {
   status SubscriptionStatus @default(ACTIVE)
 
   startDate DateTime
-  endDate   DateTime
+  endedAt   DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -144,8 +144,9 @@ model Subscription {
   trialStart DateTime?
   trialEnd   DateTime?
 
-  Payment   Payment?
-  Product   Product? @relation(fields: [productId], references: [id])
+  payments Payment[]
+
+  product   Product? @relation(fields: [productId], references: [id])
   productId String?
 }
 
@@ -164,6 +165,8 @@ model Payment {
   paymentId String @unique
   amount    Float
   currency  String
+
+  invoiceId String? @unique
 
   status PaymentStatus
 

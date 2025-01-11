@@ -1,158 +1,119 @@
-import {
-  PaymentElement,
-  useElements,
-  useStripe,
-} from "@stripe/react-stripe-js";
-import { useEffect, useState } from "react";
+import { Separator } from "@radix-ui/react-select";
+import { CheckCircle2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
+  Link,
   LoaderFunctionArgs,
   data,
   redirect,
   useLoaderData,
-  useOutletContext,
 } from "react-router";
-
 import { Button } from "~/components/ui/button";
+import { getOptionalUser } from "~/server/auth.server";
 import {
   alertMessageGenerator,
   alertMessageHelper,
 } from "~/server/cookies.server";
 
-import { Stripe as StripeIcon } from "~/assets/logos";
-import { Loader } from "~/components/ui/loader";
-import { generateAlert } from "~/lib/alerts";
-import { getUserAddress } from "~/server/user.server";
-
 export const loader = async ({ context, request }: LoaderFunctionArgs) => {
-  const { message, headers } = await alertMessageHelper(request);
+  const { message } = await alertMessageHelper(request);
+  const user = await getOptionalUser({ context });
 
-  const address = await getUserAddress({ context });
-  if (!address)
-    return redirect("/dashboard/account/profile", {
-      headers: [
-        await alertMessageGenerator("missing_billing_address", "warning"),
-      ],
-    });
+  const subscription = await context.remixService.payment.retrieveSubscription(
+    user?.id || "",
+  );
+
+  if (!subscription) {
+    return redirect("/dashboard/account/subscription/payment");
+  }
 
   return data(
     {
       message,
-      ENV: {
-        APP_DOMAIN: process.env.APP_DOMAIN,
-      },
+      userId: user?.id,
+      subscription,
     },
     {
-      headers,
+      headers: [await alertMessageGenerator("payment_intent", "success")],
     },
   );
 };
 
-export default function Payment() {
-  const { ENV } = useLoaderData<{ ENV: { APP_DOMAIN: string | undefined } }>();
+export { meta } from "~/config/meta";
+
+export default function AccountSubscriptionPage() {
+  const loaderData = useLoaderData<typeof loader>();
 
   const { t, i18n } = useTranslation("dashboard");
 
-  const [isSending, setIsSending] = useState(false);
-  const [hasError, setError] = useState<string | undefined>();
-
-  const { amount, annual, currency, paymentIntent } = useOutletContext<{
-    annual: boolean;
-    amount: number;
-    currency: string;
-    paymentIntent: any;
-  }>();
-
-  const elements = useElements();
-  const stripe = useStripe();
-
-  const [isStripeLoading, setIsStripeLoading] = useState(true);
-
-  useEffect(() => {
-    if (elements) {
-      const element = elements.getElement("payment");
-
-      element?.on("ready", () => {
-        setIsStripeLoading(false);
-      });
-    }
-  }, [elements]);
-
-  const handleSubmit = async (ev) => {
-    ev.preventDefault();
-    setIsSending(true);
-    setError(undefined);
-
-    const submit = await elements?.submit();
-
-    if (submit?.error) {
-      return setIsSending(false);
-    }
-
-    // await stripe?.paymentRequest.attach(paymentMethodId as string, { customer: customerId as string })
-
-    const confirmPayment = await stripe?.confirmPayment({
-      elements: elements || undefined,
-      clientSecret: paymentIntent.clientSecret,
-      confirmParams: {
-        return_url: `${ENV.APP_DOMAIN}/dashboard/account/subscription/success`,
-      },
-    });
-
-    if (confirmPayment?.error) {
-      setError(confirmPayment.error.type);
-      setIsSending(false);
-    }
-  };
+  const { price, features, cancelAtPeriodEnd, currentPeriodEnd } =
+    loaderData?.subscription || {};
 
   return (
-    <form onSubmit={handleSubmit}>
-      {hasError &&
-        generateAlert({
-          t,
-          actionData: {
-            error: true,
-            path: ["alert", "destructive"],
-            message: hasError,
-          },
-        })}
-      <PaymentElement
-        options={{
-          business: { name: "WatchOver Comments" },
-          fields: {},
-          layout: {
-            type: "accordion",
-            defaultCollapsed: false,
-            radios: false,
-            spacedAccordionItems: true,
-          },
-        }}
-      />
+    <>
+      <div className="space-y-6">
+        <div className="rounded-lg border p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="text-lg font-semibold">Current Subscription</h4>
+              <p className="text-sm text-muted-foreground">
+                Your subscription renews on{" "}
+                {new Date(
+                  loaderData.subscription.currentPeriodEnd,
+                ).toLocaleDateString()}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-2xl font-bold">
+                {price.unitAmount
+                  ? (price.unitAmount / 100)?.toLocaleString(i18n.language, {
+                      style: "currency",
+                      currency: price.currency || "eur",
+                    })
+                  : t("free", "Free")}
+                <span className="text-sm text-muted-foreground ml-0.5">
+                  / {price.interval}
+                </span>
+              </p>
+            </div>
+          </div>
 
-      <div className="flex items-center justify-end">
-        <strong className="inline-flex items-center whitespace-nowrap mr-2 -mb-3">
-          {t("subscription.secured", "Secured by")}{" "}
-          <StripeIcon className="min-w-[80px] -mx-2" />
-        </strong>
-        <Button
-          type="submit"
-          className="mt-3 self-end min-w-[160px]"
-          disabled={isStripeLoading || !elements || isSending}
-        >
-          {isSending ? (
-            <Loader />
-          ) : amount ? (
-            `${t("pay", { ns: "common", defaultValue: "Pay" })} ${(
-              amount / 100
-            )?.toLocaleString(i18n.language, {
-              style: "currency",
-              currency: currency || "eur",
-            })} / ${annual ? t("annual", "Annual") : t("monthly", "Monthly")}`
-          ) : (
-            t("free", "Free")
+          <Separator className="my-6" />
+
+          <div className="space-y-4">
+            <h5 className="font-medium">Your Plan Includes:</h5>
+            <ul className="space-y-2">
+              {features?.length !== 0
+                ? features?.map((feature: string, i: number) => (
+                    <li key={i} className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      <span>{feature}</span>
+                    </li>
+                  ))
+                : "-"}
+            </ul>
+          </div>
+
+          {cancelAtPeriodEnd && (
+            <div className="mt-6 rounded-md bg-destructive/10 p-4">
+              <p className="text-sm text-destructive">
+                Your subscription will end on{" "}
+                {new Date(currentPeriodEnd).toLocaleDateString()}
+              </p>
+            </div>
           )}
-        </Button>
+        </div>
+
+        <div className="flex justify-between gap-4">
+          <Button variant="outline" asChild>
+            <Link to="billing">Manage Billing</Link>
+          </Button>
+          <Button variant="destructive" asChild>
+            <Link to="cancel">Cancel Subscription</Link>
+          </Button>
+        </div>
       </div>
-    </form>
+      {/* <pre>{JSON.stringify(loaderData, null, 2)}</pre> */}
+    </>
   );
 }
