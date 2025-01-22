@@ -26,7 +26,7 @@ import { Separator } from "~/components/ui/separator";
 import { DatePicker } from "~/components/ui/date-picker";
 import i18next from "~/modules/i18n.server";
 
-import { Address, Profile } from "@prisma/client";
+import { Address, Profile } from "@repo/database";
 import statesData from "~/data/states.json";
 import { getOptionalUser } from "~/server/auth.server";
 import {

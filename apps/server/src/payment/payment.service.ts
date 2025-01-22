@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Payment, Price, Product, SubscriptionStatus } from '@prisma/client';
+import { Payment, Price, Product, SubscriptionStatus } from '@repo/database';
 
 import Stripe from 'stripe';
 

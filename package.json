@@ -9,6 +9,11 @@
     "build": "turbo build",
     "typecheck": "turbo typecheck",
     "start": "npm run start --filter server",
+    "db:generate": "turbo db:generate",
+    "db:migrate:dev": "turbo db:migrate:dev",
+    "db:migrate:deploy": "turbo db:migrate:deploy",
+    "db:deploy": "turbo db:deploy",
+    "db:studio": "turbo db:studio",
     "email:dev": "turbo email:dev",
     "clean-node-modules": "rm -rf {node_modules,package-lock.json} **/{node_modules,package-lock.json}",
     "clean-turbo-cache": "rm -rf .turbo **/.turbo"
@@ -28,8 +33,8 @@
     }
   },
   "prisma": {
-    "schema": "apps/server/prisma/schema/schema.prisma",
-    "seed": "tsx apps/server/src/database/seed.ts"
+    "schema": "packages/database/prisma/schema",
+    "seed": "tsx packages/database/prisma/seed.ts"
   },
   "engines": {
     "node": ">=20"

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Stripe } from 'stripe';
 
-import { Subscription } from '@prisma/client';
+import { Subscription } from '@repo/database';
 import { PrismaService } from '../../core/database/prisma.service';
 
 @Injectable()

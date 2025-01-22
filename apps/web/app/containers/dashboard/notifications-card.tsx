@@ -1,4 +1,4 @@
-import { Notification } from "@prisma/client";
+import { Notification } from "@repo/database";
 import { BellIcon, Check } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -128,7 +128,7 @@ export function NotificationsCard({
                 setTimeout(() => {
                   setActive(false);
                 }, 100);
-                
+
                 return handleSubmit();
               }}
               className="w-full"

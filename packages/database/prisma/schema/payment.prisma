@@ -1,0 +1,133 @@
+model Payment {
+    id String @id @default(cuid())
+
+    subscriptionId String       @unique
+    subscription   Subscription @relation(fields: [subscriptionId], references: [id])
+
+    paymentId String @unique
+    amount    Float
+    currency  String
+
+    invoiceId String? @unique
+
+    status PaymentStatus
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now())
+}
+
+enum PaymentStatus {
+    PENDING
+    COMPLETED
+    FAILED
+}
+
+model Price {
+    id String @id @default(cuid())
+
+    // Stripe identifiers
+    priceId String @unique
+
+    // Basic price info
+    nickname   String?
+    active     Boolean @default(true)
+    currency   String
+    unitAmount Float
+    type       String
+
+    // Billing configuration
+    billingScheme String?
+    taxBehavior   String?
+
+    // Recurring billing configuration
+    isUsageBased   Boolean @default(false)
+    interval       String?
+    intervalCount  Int?
+    usageType      String?
+    aggregateUsage String?
+
+    // Trial configuration
+    trialPeriodDays Int?
+
+    // Metadata
+    metadata Json?
+
+    // Timestamps
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relations
+    product   Product @relation(fields: [productId], references: [productId])
+    productId String
+
+    subscriptions Subscription[]
+}
+
+model Product {
+    id String @id @default(cuid())
+
+    // Stripe identifiers
+    productId String  @unique
+    variantId String? @unique
+
+    // Basic product info
+    name        String
+    description String?
+    active      Boolean @default(true)
+
+    // Product metadata
+    images   String[]
+    features String[]
+    metadata Json?
+
+    // Display and ordering
+    sort Int?
+
+    // Timestamps
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relations
+    prices        Price[]
+    subscriptions Subscription[]
+}
+
+model Subscription {
+    id String @id @default(cuid())
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id])
+
+    priceId String
+    price   Price  @relation(fields: [priceId], references: [priceId])
+
+    status SubscriptionStatus @default(ACTIVE)
+
+    startDate DateTime
+    endedAt   DateTime?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Stripe-specific fields
+    stripeSubscriptionId String   @unique
+    currentPeriodStart   DateTime
+    currentPeriodEnd     DateTime
+
+    cancelAtPeriodEnd Boolean   @default(false)
+    canceledAt        DateTime?
+
+    trialStart DateTime?
+    trialEnd   DateTime?
+
+    payments Payment[]
+
+    product   Product? @relation(fields: [productId], references: [id])
+    productId String?
+}
+
+enum SubscriptionStatus {
+    ACTIVE
+    CANCELLED
+    PAST_DUE
+}

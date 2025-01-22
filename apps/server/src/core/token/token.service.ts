@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
+import { TokenType } from '@repo/database';
 
-import { TokenType } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
 
 @Injectable()

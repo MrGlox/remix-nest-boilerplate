@@ -1,8 +1,8 @@
-import { Injectable } from "@nestjs/common";
-import { Notification, Session, User } from "@prisma/client";
-import { EventEmitter2 } from "@nestjs/event-emitter";
+import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Notification, Session, User } from '@repo/database';
 
-import { PrismaService } from "../core/database/prisma.service";
+import { PrismaService } from '../core/database/prisma.service';
 
 @Injectable()
 export class NotificationService {
@@ -11,7 +11,7 @@ export class NotificationService {
     private readonly prisma: PrismaService,
     // private readonly event: EventService,
     private eventEmitter: EventEmitter2,
-  ) { }
+  ) {}
 
   public async createNotification(
     userId: string,
@@ -20,7 +20,7 @@ export class NotificationService {
     const notification = await this.prisma.notification.create({
       data: {
         userId,
-        message: "notification_created",
+        message: 'notification_created',
       },
       select: {
         id: true,
@@ -38,7 +38,7 @@ export class NotificationService {
       },
     });
 
-    this.eventEmitter.emit("user.notification", notification);
+    this.eventEmitter.emit('user.notification', notification);
 
     // @ts-ignore
     return notification;
@@ -51,7 +51,7 @@ export class NotificationService {
         userId,
       },
       orderBy: {
-        createdAt: "desc",
+        createdAt: 'desc',
       },
       take: 10,
     });

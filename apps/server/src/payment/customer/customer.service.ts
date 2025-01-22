@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Stripe } from 'stripe';
 
-import { Address, Profile } from '@prisma/client';
+import { Address, Profile } from '@repo/database';
 import { PrismaService } from '../../core/database/prisma.service';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class CustomerService {
     private readonly prisma: PrismaService,
     private readonly logger: Logger,
     @Inject('STRIPE') private readonly stripe: Stripe,
-  ) { }
+  ) {}
 
   public readonly createCustomer = async (userId: string): Promise<string> => {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
@@ -29,7 +29,7 @@ export class CustomerService {
     });
 
     return customer.id;
-  }
+  };
 
   // public readonly updateCustomer = async (
   //   userId: string,
@@ -44,7 +44,6 @@ export class CustomerService {
   //   if (!user.stripeCustomerId) {
   //     throw new Error('Stripe customer ID not found');
   //   }
-
 
   //   const { firstName, lastName, birthday, ...rest } = data;
 
@@ -66,7 +65,9 @@ export class CustomerService {
   //   return customer.id;
   // }
 
-  public readonly retrieveCustomer = async (userId: string): Promise<Stripe.Customer> => {
+  public readonly retrieveCustomer = async (
+    userId: string,
+  ): Promise<Stripe.Customer> => {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: { profile: true },
@@ -93,7 +94,7 @@ export class CustomerService {
     });
 
     return customer as Stripe.Customer;
-  }
+  };
 
   public readonly upsertProfile = async (
     userId: string,

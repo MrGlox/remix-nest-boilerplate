@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Prisma, Product } from '@prisma/client';
+import { Prisma, Product } from '@repo/database';
 import Stripe from 'stripe';
 
 import { PrismaService } from '../../core/database/prisma.service';
@@ -14,12 +14,11 @@ export class ProductService implements OnModuleInit {
   constructor(
     private readonly logger: Logger,
     private readonly prisma: PrismaService,
-    @Inject("STRIPE") private readonly stripe: Stripe,
-  ) { }
-
+    @Inject('STRIPE') private readonly stripe: Stripe,
+  ) {}
 
   async onModuleInit() {
-    this.logger.log("Server has started. Calling the stripe Plans service...");
+    this.logger.log('Server has started. Calling the stripe Plans service...');
     await this.runInitialTask();
   }
 
@@ -34,7 +33,7 @@ export class ProductService implements OnModuleInit {
     const products = await this.stripe.products.list({
       limit,
       active: true,
-      expand: ["data.default_price"],
+      expand: ['data.default_price'],
     });
 
     // Fetch all prices separately to ensure we get all of them
@@ -46,7 +45,7 @@ export class ProductService implements OnModuleInit {
     // Map products with their prices and extract features
     const productsWithPrices = products.data.map((product) => {
       const productPrices = prices.data.filter(
-        (price) => price.product === product.id
+        (price) => price.product === product.id,
       );
 
       // Extract features from metadata or description
@@ -72,8 +71,10 @@ export class ProductService implements OnModuleInit {
         }
       } catch (err) {
         // If JSON parsing fails, try splitting by delimiter
-        this.logger.error(`Failed to parse features for product ${product.id}: ${err}`);
-        return product.metadata.features.split('|').map(f => f.trim());
+        this.logger.error(
+          `Failed to parse features for product ${product.id}: ${err}`,
+        );
+        return product.metadata.features.split('|').map((f) => f.trim());
       }
     }
 
@@ -82,8 +83,8 @@ export class ProductService implements OnModuleInit {
       // Look for bullet points or numbered lists in description
       const bulletPoints = product.description
         .split(/[\n•-]/) // Split by newline, bullet point, or dash
-        .map(line => line.trim())
-        .filter(line => line.length > 0);
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0);
 
       if (bulletPoints.length > 0) {
         return bulletPoints;
@@ -112,7 +113,9 @@ export class ProductService implements OnModuleInit {
           images: product.images || [],
           features: product.features || [],
           metadata: product.metadata || {},
-          sort: product.metadata?.sort ? Number.parseInt(product.metadata.sort) : null,
+          sort: product.metadata?.sort
+            ? Number.parseInt(product.metadata.sort)
+            : null,
         },
         update: {
           name: product.name,
@@ -121,7 +124,9 @@ export class ProductService implements OnModuleInit {
           images: product.images || [],
           features: product.features || [],
           metadata: product.metadata || {},
-          sort: product.metadata?.sort ? Number.parseInt(product.metadata.sort) : null,
+          sort: product.metadata?.sort
+            ? Number.parseInt(product.metadata.sort)
+            : null,
         },
       });
 
@@ -141,7 +146,9 @@ export class ProductService implements OnModuleInit {
             type: price.type,
             billingScheme: price.billing_scheme || null,
             taxBehavior: price.tax_behavior || null,
-            isUsageBased: price.type === 'recurring' && price.recurring?.usage_type === 'metered',
+            isUsageBased:
+              price.type === 'recurring' &&
+              price.recurring?.usage_type === 'metered',
             interval: price.recurring?.interval || null,
             intervalCount: price.recurring?.interval_count || null,
             usageType: price.recurring?.usage_type || null,
@@ -157,7 +164,9 @@ export class ProductService implements OnModuleInit {
             type: price.type,
             billingScheme: price.billing_scheme || null,
             taxBehavior: price.tax_behavior || null,
-            isUsageBased: price.type === 'recurring' && price.recurring?.usage_type === 'metered',
+            isUsageBased:
+              price.type === 'recurring' &&
+              price.recurring?.usage_type === 'metered',
             interval: price.recurring?.interval || null,
             intervalCount: price.recurring?.interval_count || null,
             usageType: price.recurring?.usage_type || null,
@@ -172,7 +181,9 @@ export class ProductService implements OnModuleInit {
     this.logger.log(`Products and prices updated successfully`);
   }
 
-  public readonly createProduct = async (data: Omit<Product, "createdAt" | "updatedAt">): Promise<Product> => {
+  public readonly createProduct = async (
+    data: Omit<Product, 'createdAt' | 'updatedAt'>,
+  ): Promise<Product> => {
     const newProduct = await this.prisma.product.upsert({
       where: {
         productId: data.productId,
@@ -188,7 +199,7 @@ export class ProductService implements OnModuleInit {
     });
 
     return newProduct;
-  }
+  };
 
   public readonly updateProduct = async (data: Product): Promise<Product> => {
     const updatedProduct = await this.prisma.product.upsert({
@@ -201,10 +212,10 @@ export class ProductService implements OnModuleInit {
         metadata: data.metadata as Prisma.InputJsonValue,
       },
       where: {
-        id: data.id
-      }
+        id: data.id,
+      },
     });
 
     return updatedProduct;
-  }
+  };
 }

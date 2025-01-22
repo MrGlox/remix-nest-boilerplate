@@ -1,0 +1,42 @@
+{
+  "name": "@repo/database",
+  "version": "0.0.0",
+  "type": "commonjs",
+  "main": "./generated/client/index.js",
+  "types": "./generated/client/index.d.ts",
+  "files": [
+    "generated"
+  ],
+  "scripts": {
+    "db:migrate:deploy": "dotenv -e ../../.env -- prisma migrate deploy",
+    "db:migrate:dev": "dotenv -e ../../.env -- prisma migrate dev",
+    "db:generate": "dotenv -e ../../.env -- prisma generate",
+    "db:push": "dotenv -e ../../.env -- prisma db push",
+    "db:seed": "dotenv -e ../../.env -- tsx src/seed.ts",
+    "db:studio": "dotenv -e ../../.env -- prisma studio",
+    "format": "prisma format",
+    "lint": "eslint . --max-warnings 0",
+    "build": "tsc",
+    "prebuild": "npm run db:generate",
+    "predev": "npm run db:generate"
+  },
+  "devDependencies": {
+    "prisma": "^6.0",
+    "dotenv-cli": "^7.4.1",
+    "@repo/typescript-config": "workspace:*",
+    "@repo/eslint-config": "workspace:*",
+    "typescript": "5.5.4"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.0"
+  },
+  "prisma": {
+    "schema": "./prisma/schema",
+    "seed": "tsx ./prisma/seed.ts"
+  },
+  "typesVersions": {
+    "*": {
+      "*": ["./generated/client/index.d.ts"]
+    }
+  }
+}

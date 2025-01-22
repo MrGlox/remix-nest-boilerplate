@@ -1,0 +1,103 @@
+model User {
+    id String @id @default(cuid())
+
+    email    String  @unique
+    googleId String? @unique
+    pseudo   String? @unique
+    password String
+
+    preferredLocale  String  @default("en")
+    active           Boolean @default(false)
+    stripeCustomerId String? @unique
+    rememberMeToken  String?
+    isEmailVerified  Boolean @default(false)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    sessions Session[]
+    role     Role      @default(USER)
+
+    profile Profile?
+    address Address?
+
+    tokens        Token[]
+    notifications Notification[]
+    Subscription  Subscription[]
+    newsletter    Newsletter[]
+}
+
+enum Role {
+    USER
+    ADMIN
+}
+
+model Profile {
+    id String @id @default(cuid())
+
+    firstName String
+    lastName  String
+    birthday  DateTime
+
+    avatar  String?
+    bio     String?
+    website String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    userId String @unique // relation scalar field (used in the `@relation` attribute above)
+    user   User   @relation(fields: [userId], references: [id])
+}
+
+model Address {
+    id   String  @id @default(cuid())
+    name String?
+
+    street          String
+    street_optional String?
+    city            String
+    state           String?
+    postalCode      String?
+    country         String
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    userId String? @unique
+    user   User?   @relation(fields: [userId], references: [id])
+}
+
+model Token {
+    id String @id @default(cuid())
+
+    type  TokenType
+    token String
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    expiresAt DateTime
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id])
+}
+
+enum TokenType {
+    ACCESS
+    REFRESH
+    VERIFY_EMAIL
+    PASSWORD_RESET
+}
+
+model Session {
+    id String @id @default(cuid())
+
+    sessionToken String   @unique
+    createdAt    DateTime @default(now())
+
+    ipAddress String?
+    userAgent String?
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id])
+}

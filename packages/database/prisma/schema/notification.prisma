@@ -1,0 +1,34 @@
+model Notification {
+    id String @id @default(cuid())
+
+    type   NotificationType @default(INFO)
+    action ActionLevel      @default(NoUserAction)
+    status Status           @default(Queued)
+
+    message String
+    read    Boolean @default(false)
+    email   Boolean @default(false)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id])
+}
+
+enum ActionLevel {
+    NoUserAction
+    Featured
+    UserActionRequired
+}
+
+enum Status {
+    Sent
+    Queued
+}
+
+enum NotificationType {
+    INFO
+    WARNING
+    ERROR
+}
